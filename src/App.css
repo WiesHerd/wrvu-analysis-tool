@@ -1,38 +1,225 @@
-.App {
-  text-align: center;
+import React, { useState, useEffect } from 'react';
+import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Pie } from 'react-chartjs-2';
+import { AlertCircle, DollarSign, Activity, UserCheck } from 'lucide-react';
+
+ChartJS.register(ArcElement, Tooltip, Legend);
+
+const months = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December'
+];
+
+export default function ProviderCompensationForecaster() {
+  const [salary, setSalary] = useState(150000);
+  const [conversionFactor, setConversionFactor] = useState(45.52);
+  const [qualityIncentive, setQualityIncentive] = useState(5.0);
+  const [monthlyRvus, setMonthlyRvus] = useState(new Array(12).fill(0));
+  const [selectedMonth, setSelectedMonth] = useState(0);
+  const [totalCompensation, setTotalCompensation] = useState(null);
+  const [incentiveAmount, setIncentiveAmount] = useState(null);
+
+  useEffect(() => {
+    calculateCompensation();
+  }, [salary, conversionFactor, qualityIncentive, monthlyRvus, selectedMonth]);
+
+  const calculateAnnualizedRvus = () => {
+    const currentMonth = selectedMonth + 1;
+    const totalRvusYtd = monthlyRvus.slice(0, currentMonth).reduce((sum, rvu) => sum + rvu, 0);
+    return (totalRvusYtd / currentMonth) * 12;
+  };
+
+  const calculateCompensation = () => {
+    const annualRvus = calculateAnnualizedRvus();
+    const rvuCompensation = annualRvus * conversionFactor;
+    const qualityBonus = salary * (qualityIncentive / 100);
+    const incentive = Math.max(0, rvuCompensation - salary);
+    const total = salary + rvuCompensation + qualityBonus;
+
+    setTotalCompensation(total);
+    setIncentiveAmount(incentive);
+  };
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(value);
+  };
+
+  const formatNumber = (value) => {
+    return new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 }).format(value);
+  };
+
+  const chartData = {
+    labels: ['Base Salary', 'RVU Compensation', 'Quality Incentive'],
+    datasets: [{
+      data: [salary, calculateAnnualizedRvus() * conversionFactor, salary * (qualityIncentive / 100)],
+      backgroundColor: ['#4CAF50', '#2196F3', '#FF9800'],
+      hoverBackgroundColor: ['#388E3C', '#1976D2', '#F57C00'],
+    }],
+  };
+
+  return (
+    <div className="min-h-screen bg-[#f0f2f5] py-12 px-4 sm:px-6 lg:px-8 font-['Roboto',sans-serif]">
+      <div className="max-w-7xl mx-auto">
+        <div className="bg-white rounded-lg shadow-md p-6 sm:p-8 app-container">
+          <h1 className="text-3xl font-bold text-[#333] text-center mb-8">
+            Provider Compensation Forecaster
+          </h1>
+
+          <div className="bg-[#fafafa] shadow-md rounded-lg overflow-hidden mb-8">
+            <div className="px-4 py-5 sm:p-6">
+              <h3 className="text-lg leading-6 font-bold text-[#333] mb-4">
+                Compensation Overview
+              </h3>
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-4">
+                <CompensationCard
+                  icon={<DollarSign className="h-6 w-6 text-white" />}
+                  title="Total Compensation"
+                  value={formatCurrency(totalCompensation)}
+                  bgColor="bg-[#4CAF50]"
+                  textColor="text-[#4CAF50]"
+                />
+                <CompensationCard
+                  icon={<Activity className="h-6 w-6 text-white" />}
+                  title="RVU Compensation"
+                  value={`${formatNumber(calculateAnnualizedRvus())} RVUs`}
+                  bgColor="bg-[#2196F3]"
+                  textColor="text-[#2196F3]"
+                />
+                <CompensationCard
+                  icon={<AlertCircle className="h-6 w-6 text-white" />}
+                  title="Incentive"
+                  value={formatCurrency(incentiveAmount)}
+                  bgColor="bg-[#FF9800]"
+                  textColor="text-[#FF9800]"
+                />
+                <CompensationCard
+                  icon={<UserCheck className="h-6 w-6 text-white" />}
+                  title="Quality Bonus"
+                  value={formatCurrency(salary * (qualityIncentive / 100))}
+                  bgColor="bg-[#9C27B0]"
+                  textColor="text-[#9C27B0]"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 bg-white shadow-md rounded-lg">
+            <div className="px-4 py-5 sm:p-6">
+              <h3 className="text-lg leading-6 font-bold text-[#333] mb-4">
+                Compensation Details
+              </h3>
+              <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <InputField
+                  label="Base Salary ($)"
+                  value={salary}
+                  onChange={(e) => setSalary(Number(e.target.value))}
+                />
+                <InputField
+                  label="Conversion Factor ($/RVU)"
+                  value={conversionFactor}
+                  onChange={(e) => setConversionFactor(Number(e.target.value))}
+                />
+                <InputField
+                  label="Quality Incentive (% of Salary)"
+                  value={qualityIncentive}
+                  onChange={(e) => setQualityIncentive(Number(e.target.value))}
+                />
+                <div className="sm:col-span-3">
+                  <label htmlFor="selectedMonth" className="block text-sm font-medium text-[#555]">
+                    Select Month
+                  </label>
+                  <select
+                    id="selectedMonth"
+                    name="selectedMonth"
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(Number(e.target.value))}
+                    className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-[#4CAF50] focus:border-[#4CAF50] sm:text-sm rounded-md"
+                  >
+                    {months.map((month, index) => (
+                      <option key={month} value={index}>{month}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 bg-white shadow-md rounded-lg">
+            <div className="px-4 py-5 sm:p-6">
+              <h3 className="text-lg leading-6 font-bold text-[#333] mb-4">
+                Monthly RVUs
+              </h3>
+              <div className="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-3">
+                {months.map((month, index) => (
+                  <InputField
+                    key={month}
+                    label={`${month} RVUs`}
+                    value={monthlyRvus[index]}
+                    onChange={(e) => {
+                      const newMonthlyRvus = [...monthlyRvus];
+                      newMonthlyRvus[index] = Number(e.target.value);
+                      setMonthlyRvus(newMonthlyRvus);
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 bg-white shadow-md rounded-lg pie-chart">
+            <div className="px-4 py-5 sm:p-6">
+              <h3 className="text-lg leading-6 font-bold text-[#333] mb-4">
+                Compensation Breakdown
+              </h3>
+              <div className="w-full max-w-lg mx-auto">
+                <Pie data={chartData} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+function CompensationCard({ icon, title, value, bgColor, textColor }) {
+  return (
+    <div className={`overflow-hidden shadow rounded-lg ${bgColor} bg-opacity-10`}>
+      <div className="px-4 py-5 sm:p-6">
+        <div className="flex items-center">
+          <div className={`flex-shrink-0 ${bgColor} rounded-md p-3`}>
+            {icon}
+          </div>
+          <div className="ml-5 w-0 flex-1">
+            <dl>
+              <dt className="text-sm font-medium text-gray-500 truncate">
+                {title}
+              </dt>
+              <dd className={`text-lg font-semibold ${textColor}`}>
+                {value}
+              </dd>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+function InputField({ label, value, onChange }) {
+  return (
+    <div className="sm:col-span-3">
+      <label htmlFor={label} className="block text-sm font-medium text-[#555]">
+        {label}
+      </label>
+      <input
+        type="number"
+        name={label}
+        id={label}
+        value={value}
+        onChange={onChange}
+        className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-[#4CAF50] focus:border-[#4CAF50] sm:text-sm"
+      />
+    </div>
+  );
 }
