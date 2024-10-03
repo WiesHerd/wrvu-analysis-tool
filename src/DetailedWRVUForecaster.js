@@ -60,6 +60,12 @@ function DetailedWRVUForecaster() {
     }));
   }, [cptCodes, utilizationPercentages, baseSalary, wrvuConversionFactor, patientsPerDay]);
 
+  useEffect(() => {
+    // Recalculate metrics when shifts change
+    const newMetrics = calculateMetrics();
+    // Update state or perform other actions with newMetrics
+  }, [shifts, /* other dependencies */]);
+
   const handleFileUpload = (event) => {
     setIsLoading(true);
     setError(null);
@@ -130,7 +136,10 @@ function DetailedWRVUForecaster() {
   const calculateMetrics = () => {
     const weeksWorkedPerYear = 52 - vacationWeeks - (statutoryHolidays / 5) - (cmeDays / 5);
     const annualClinicDays = weeksWorkedPerYear * 5 - statutoryHolidays - cmeDays;
-    const annualClinicalHours = annualClinicDays * 8;
+    
+    // Calculate total weekly hours from shifts
+    const weeklyHours = shifts.reduce((total, shift) => total + (shift.hours * shift.perWeek), 0);
+    const annualClinicalHours = weeklyHours * weeksWorkedPerYear;
 
     let totalAnnualPatientEncounters = 0;
     if (isPerHour) {
@@ -178,11 +187,17 @@ function DetailedWRVUForecaster() {
   const StatItem = ({ icon, label, value }) => (
     <Box sx={{ 
       border: '1px solid #e0e0e0', 
-      borderRadius: '8px', 
-      p: 2, 
+      borderRadius: '16px',
+      p: 3, 
+      mb: 3,
       display: 'flex',
       alignItems: 'center',
-      backgroundColor: '#f9f9f9',
+      backgroundColor: '#ffffff',
+      boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+      transition: 'box-shadow 0.3s',
+      '&:hover': {
+        boxShadow: '0 6px 12px rgba(0,0,0,0.15)',
+      }
     }}>
       <Box sx={{ mr: 2, color: '#1976d2' }}>{icon}</Box>
       <Box>
@@ -196,11 +211,14 @@ function DetailedWRVUForecaster() {
     setShifts(prev => {
       const newShifts = [...prev];
       if (field === 'add') {
-        newShifts.push({ name: '', hours: 0, perWeek: 0 });
+        newShifts.push({ name: 'New Shift', hours: 0, perWeek: 0 });
       } else if (field === 'remove') {
         newShifts.splice(index, 1);
       } else {
-        newShifts[index] = { ...newShifts[index], [field]: value };
+        newShifts[index] = { 
+          ...newShifts[index], 
+          [field]: field === 'name' ? value : Number(value) || 0 
+        };
       }
       return newShifts;
     });
@@ -252,354 +270,356 @@ function DetailedWRVUForecaster() {
   };
 
   return (
-    <Container maxWidth="lg">
-      <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold' }}>
-        Advanced wRVU Analysis
-      </Typography>
-      <Typography variant="h6" align="center" gutterBottom sx={{ color: 'text.secondary', mb: 4 }}>
-        Detailed Productivity Forecasting
-      </Typography>
+    <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold' }}>
+          Advanced wRVU Analysis
+        </Typography>
+        <Typography variant="h6" align="center" gutterBottom sx={{ color: 'text.secondary', mb: 4 }}>
+          Detailed Productivity Forecasting
+        </Typography>
 
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={6}>
-          <Paper elevation={3} sx={{ p: 3, height: '100%' }}>
-            <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>Work Schedule</Typography>
-            <TextField
-              fullWidth
-              margin="normal"
-              type="number"
-              label="Vacation Weeks per Year"
-              value={vacationWeeks}
-              onChange={(e) => setVacationWeeks(Number(e.target.value))}
-              InputProps={{
-                startAdornment: <InputAdornment position="start"><Celebration /></InputAdornment>,
-              }}
-            />
-            <TextField
-              fullWidth
-              margin="normal"
-              type="number"
-              label="Statutory Holidays per Year"
-              value={statutoryHolidays}
-              onChange={(e) => setStatutoryHolidays(Number(e.target.value))}
-              InputProps={{
-                startAdornment: <InputAdornment position="start"><Event /></InputAdornment>,
-              }}
-            />
-            <TextField
-              fullWidth
-              margin="normal"
-              type="number"
-              label="CME Days per Year"
-              value={cmeDays}
-              onChange={(e) => setCmeDays(Number(e.target.value))}
-              InputProps={{
-                startAdornment: <InputAdornment position="start"><School /></InputAdornment>,
-              }}
-            />
-            <Typography variant="subtitle1" gutterBottom sx={{ mt: 3, mb: 2, fontWeight: 'bold' }}>Shift Types</Typography>
-            {shifts.map((shift, index) => (
-              <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <TextField
-                  sx={{ mr: 1, flexGrow: 1 }}
-                  label="Shift Name"
-                  value={shift.name}
-                  onChange={(e) => handleShiftChange(index, 'name', e.target.value)}
-                />
-                <TextField
-                  sx={{ mr: 1, width: '80px' }}
-                  type="number"
-                  label="Hours"
-                  value={shift.hours}
-                  onChange={(e) => handleShiftChange(index, 'hours', Number(e.target.value))}
-                />
-                <TextField
-                  sx={{ mr: 1, width: '80px' }}
-                  type="number"
-                  label="Per Week"
-                  value={shift.perWeek}
-                  onChange={(e) => handleShiftChange(index, 'perWeek', Number(e.target.value))}
-                />
-                <IconButton onClick={() => handleShiftChange(index, 'remove')}>
-                  <Delete />
-                </IconButton>
-              </Box>
-            ))}
-            <Button startIcon={<Add />} onClick={() => handleShiftChange(null, 'add')}>
-              Add Shift Type
-            </Button>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Paper elevation={3} sx={{ p: 3, height: '100%' }}>
-            <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>Patient Encounters</Typography>
-            <FormControlLabel
-              control={<Switch checked={isPerHour} onChange={() => setIsPerHour(!isPerHour)} />}
-              label={isPerHour ? "Patients Per Hour" : "Patients Per Day"}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              fullWidth
-              margin="normal"
-              type="number"
-              label={isPerHour ? "Patients Seen Per Hour" : "Patients Seen Per Day"}
-              value={isPerHour ? patientsPerHour : patientsPerDay}
-              onChange={(e) => isPerHour ? setPatientsPerHour(Number(e.target.value)) : setPatientsPerDay(Number(e.target.value))}
-              InputProps={{
-                startAdornment: <InputAdornment position="start"><People /></InputAdornment>,
-              }}
-            />
-            <TextField
-              fullWidth
-              margin="normal"
-              type="number"
-              label="Base Salary"
-              value={baseSalary}
-              onChange={(e) => setBaseSalary(Number(e.target.value))}
-              InputProps={{
-                startAdornment: <InputAdornment position="start"><AttachMoney /></InputAdornment>,
-              }}
-            />
-            <TextField
-              fullWidth
-              margin="normal"
-              type="number"
-              label="wRVU Conversion Factor"
-              value={wrvuConversionFactor}
-              onChange={(e) => setWrvuConversionFactor(Number(e.target.value))}
-              InputProps={{
-                startAdornment: <InputAdornment position="start"><AttachMoney /></InputAdornment>,
-                endAdornment: <InputAdornment position="end">/ wRVU</InputAdornment>,
-              }}
-            />
-          </Paper>
-        </Grid>
-      </Grid>
-
-      <Button
-        variant="contained"
-        component="label"
-        startIcon={<UploadFile />}
-        sx={{ mb: 4 }}
-      >
-        Upload CMS Fee Schedule
-        <input type="file" hidden onChange={handleFileUpload} accept=".csv" />
-      </Button>
-
-      {isLoading && <CircularProgress />}
-      {error && <Alert severity="error">{error}</Alert>}
-
-      {cptCodes.length > 0 && (
-        <TableContainer component={Paper} sx={{ mb: 2 }}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell width="10%">CPT Code</TableCell>
-                <TableCell width="25%">Description</TableCell>
-                <TableCell width="10%" align="right">wRVU</TableCell>
-                <TableCell width="30%" align="center">Utilization %</TableCell>
-                <TableCell width="15%" align="right">Annual Estimated Patients</TableCell>
-                <TableCell width="10%" align="right">Patients per Week</TableCell>
-                <TableCell width="5%"></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {[...cptCodes, ...customCptCodes].map((cpt) => {
-                const estimatedPatients = Math.round(((utilizationPercentages[cpt.code] || 0) / 100) * metrics.annualPatientEncounters);
-                const patientsPerWeek = Math.round(estimatedPatients / metrics.weeksWorkedPerYear);
-                return (
-                  <TableRow key={cpt.code} sx={cpt.category ? {} : { backgroundColor: '#f5f5f5' }}>
-                    <TableCell>{cpt.code}</TableCell>
-                    <TableCell>{cpt.description}</TableCell>
-                    <TableCell align="right">{cpt.wRVU.toFixed(2)}</TableCell>
-                    <TableCell>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Slider
-                          value={utilizationPercentages[cpt.code] || 0}
-                          onChange={(_, newValue) => handleSliderChange(cpt.code, newValue)}
-                          aria-labelledby={`${cpt.code}-slider`}
-                          valueLabelDisplay="auto"
-                          step={0.1}
-                          min={0}
-                          max={100}
-                          sx={{ mr: 2, flexGrow: 1 }}
-                        />
-                        <Typography variant="body2" sx={{ minWidth: '40px', textAlign: 'right' }}>
-                          {(utilizationPercentages[cpt.code] || 0).toFixed(1)}%
-                        </Typography>
-                      </Box>
-                    </TableCell>
-                    <TableCell align="right">{estimatedPatients.toLocaleString()}</TableCell>
-                    <TableCell align="right">{patientsPerWeek.toLocaleString()}</TableCell>
-                    <TableCell>
-                      <IconButton onClick={() => setConfirmDelete(cpt)}>
-                        <Delete />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-              {/* Search bar for adding custom CPT codes */}
-              <TableRow>
-                <TableCell colSpan={7} sx={{ py: 2 }}>
-                  <Autocomplete
-                    options={allCptCodes.filter(code => 
-                      !cptCodes.some(c => c.code === code.code) &&
-                      !customCptCodes.some(c => c.code === code.code)
-                    )}
-                    getOptionLabel={(option) => `${option.code} - ${option.description}`}
-                    renderInput={(params) => <TextField {...params} label="Search and add CPT Codes" />}
-                    filterOptions={(options, { inputValue }) => {
-                      const filterValue = inputValue.toLowerCase();
-                      return options.filter(option => 
-                        option.code.toLowerCase().includes(filterValue) ||
-                        option.description.toLowerCase().includes(filterValue)
-                      ).sort((a, b) => a.code.localeCompare(b.code));
-                    }}
-                    value={null}
-                    onChange={(event, newValue) => {
-                      if (newValue) {
-                        handleAddCustomCptCode(newValue);
-                      }
-                    }}
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <Paper elevation={3} sx={{ p: 3, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0' }}>
+              <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>Work Schedule</Typography>
+              <TextField
+                fullWidth
+                margin="normal"
+                type="number"
+                label="Vacation Weeks per Year"
+                value={vacationWeeks}
+                onChange={(e) => setVacationWeeks(Number(e.target.value))}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start"><Celebration /></InputAdornment>,
+                }}
+              />
+              <TextField
+                fullWidth
+                margin="normal"
+                type="number"
+                label="Statutory Holidays per Year"
+                value={statutoryHolidays}
+                onChange={(e) => setStatutoryHolidays(Number(e.target.value))}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start"><Event /></InputAdornment>,
+                }}
+              />
+              <TextField
+                fullWidth
+                margin="normal"
+                type="number"
+                label="CME Days per Year"
+                value={cmeDays}
+                onChange={(e) => setCmeDays(Number(e.target.value))}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start"><School /></InputAdornment>,
+                }}
+              />
+              <Typography variant="subtitle1" gutterBottom sx={{ mt: 3, mb: 2, fontWeight: 'bold' }}>Shift Types</Typography>
+              {shifts.map((shift, index) => (
+                <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                  <TextField
+                    sx={{ mr: 1, flexGrow: 1 }}
+                    label="Shift Name"
+                    value={shift.name || ''}
+                    onChange={(e) => handleShiftChange(index, 'name', e.target.value)}
                   />
-                </TableCell>
-              </TableRow>
-            </TableBody>
-            <TableFooter>
-              <TableRow>
-                <TableCell align="right" sx={{ fontWeight: 'bold', fontSize: '1.1rem' }} colSpan={4}>
-                  Total:
-                </TableCell>
-                <TableCell align="right" sx={{ fontWeight: 'bold', fontSize: '1.2rem' }}>
-                  {formatNumber(metrics.annualPatientEncounters)}
-                </TableCell>
-                <TableCell align="right" sx={{ fontWeight: 'bold', fontSize: '1.2rem' }}>
-                  {formatNumber(metrics.encountersPerWeek)}
-                </TableCell>
-              </TableRow>
-            </TableFooter>
-          </Table>
-        </TableContainer>
-      )}
+                  <TextField
+                    sx={{ mr: 1, width: '80px' }}
+                    type="number"
+                    label="Hours"
+                    value={shift.hours || 0}
+                    onChange={(e) => handleShiftChange(index, 'hours', e.target.value)}
+                  />
+                  <TextField
+                    sx={{ mr: 1, width: '80px' }}
+                    type="number"
+                    label="Per Week"
+                    value={shift.perWeek || 0}
+                    onChange={(e) => handleShiftChange(index, 'perWeek', e.target.value)}
+                  />
+                  <IconButton onClick={() => handleShiftChange(index, 'remove')}>
+                    <Delete />
+                  </IconButton>
+                </Box>
+              ))}
+              <Button startIcon={<Add />} onClick={() => handleShiftChange(null, 'add')}>
+                Add Shift Type
+              </Button>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Paper elevation={3} sx={{ p: 3, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0' }}>
+              <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>Patient Encounters</Typography>
+              <FormControlLabel
+                control={<Switch checked={isPerHour} onChange={() => setIsPerHour(!isPerHour)} />}
+                label={isPerHour ? "Patients Per Hour" : "Patients Per Day"}
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                margin="normal"
+                type="number"
+                label={isPerHour ? "Patients Seen Per Hour" : "Patients Seen Per Day"}
+                value={isPerHour ? patientsPerHour : patientsPerDay}
+                onChange={(e) => isPerHour ? setPatientsPerHour(Number(e.target.value)) : setPatientsPerDay(Number(e.target.value))}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start"><People /></InputAdornment>,
+                }}
+              />
+              <TextField
+                fullWidth
+                margin="normal"
+                type="number"
+                label="Base Salary"
+                value={baseSalary}
+                onChange={(e) => setBaseSalary(Number(e.target.value))}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start"><AttachMoney /></InputAdornment>,
+                }}
+              />
+              <TextField
+                fullWidth
+                margin="normal"
+                type="number"
+                label="wRVU Conversion Factor"
+                value={wrvuConversionFactor}
+                onChange={(e) => setWrvuConversionFactor(Number(e.target.value))}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start"><AttachMoney /></InputAdornment>,
+                  endAdornment: <InputAdornment position="end">/ wRVU</InputAdornment>,
+                }}
+              />
+            </Paper>
+          </Grid>
+        </Grid>
 
-      <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 2, mb: 2 }}>
         <Button
           variant="contained"
-          startIcon={<Refresh sx={{ fontSize: '16px' }} />}
-          onClick={handleResetToDefault}
-          sx={{
-            backgroundColor: '#1976d2',
-            color: 'white',
-            '&:hover': {
-              backgroundColor: '#1565c0',
-            },
-            fontSize: '0.75rem',
-            padding: '6px 12px',
-            height: '32px',
-            minHeight: '32px',
-            maxHeight: '32px',
-            minWidth: 'auto',
-            lineHeight: 1,
-            textTransform: 'uppercase',
-            fontWeight: 500,
-            boxShadow: '0px 1px 3px rgba(0,0,0,0.12), 0px 1px 2px rgba(0,0,0,0.24)',
-            borderRadius: '4px',
-            '& .MuiButton-startIcon': {
-              margin: 0,
-              marginRight: '4px',
-            },
-            '& .MuiButton-startIcon > *:nth-of-type(1)': {
-              fontSize: '16px',
-            },
-          }}
+          component="label"
+          startIcon={<UploadFile />}
+          sx={{ mb: 4 }}
         >
-          Reset Default CPTs
+          Upload CMS Fee Schedule
+          <input type="file" hidden onChange={handleFileUpload} accept=".csv" />
         </Button>
-      </Box>
 
-      <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>
-        Productivity Summary
-      </Typography>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <StatItem 
-            icon={<AttachMoney fontSize="large" />}
-            label="Estimated Incentive Payment"
-            value={formatCurrency(metrics.estimatedIncentivePayment)}
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <StatItem 
-            icon={<AttachMoney fontSize="large" />}
-            label="Estimated Total Compensation"
-            value={formatCurrency(metrics.estimatedTotalCompensation)}
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <StatItem 
-            icon={<CalendarToday fontSize="large" />}
-            label="Weeks Worked Per Year"
-            value={formatNumber(metrics.weeksWorkedPerYear)}
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <StatItem 
-            icon={<People fontSize="large" />}
-            label="Encounters per Week"
-            value={formatNumber(metrics.encountersPerWeek)}
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <StatItem 
-            icon={<CalendarToday fontSize="large" />}
-            label="Annual Clinic Days"
-            value={formatNumber(metrics.annualClinicDays)}
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <StatItem 
-            icon={<People fontSize="large" />}
-            label="Annual Patient Encounters"
-            value={formatNumber(metrics.annualPatientEncounters)}
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <StatItem 
-            icon={<AccessTime fontSize="large" />}
-            label="Annual Clinical Hours"
-            value={formatNumber(metrics.annualClinicalHours)}
-          />
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <StatItem 
-            icon={<TrendingUp fontSize="large" />}
-            label="Estimated Annual wRVUs"
-            value={formatNumber(metrics.estimatedAnnualWRVUs)}
-          />
-        </Grid>
-      </Grid>
+        {isLoading && <CircularProgress />}
+        {error && <Alert severity="error">{error}</Alert>}
 
-      <Dialog
-        open={!!confirmDelete}
-        onClose={() => setConfirmDelete(null)}
-      >
-        <DialogTitle>Confirm Deletion</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete the CPT code {confirmDelete?.code}?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setConfirmDelete(null)}>Cancel</Button>
-          <Button onClick={() => {
-            handleRemoveCptCode(confirmDelete);
-            setConfirmDelete(null);
-          }} color="error">
-            Delete
+        {cptCodes.length > 0 && (
+          <TableContainer component={Paper} sx={{ mb: 2, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell width="10%">CPT Code</TableCell>
+                  <TableCell width="25%">Description</TableCell>
+                  <TableCell width="10%" align="right">wRVU</TableCell>
+                  <TableCell width="30%" align="center">Utilization %</TableCell>
+                  <TableCell width="15%" align="right">Annual Estimated Patients</TableCell>
+                  <TableCell width="10%" align="right">Patients per Week</TableCell>
+                  <TableCell width="5%"></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {[...cptCodes, ...customCptCodes].map((cpt) => {
+                  const estimatedPatients = Math.round(((utilizationPercentages[cpt.code] || 0) / 100) * metrics.annualPatientEncounters);
+                  const patientsPerWeek = Math.round(estimatedPatients / metrics.weeksWorkedPerYear);
+                  return (
+                    <TableRow key={cpt.code} sx={cpt.category ? {} : { backgroundColor: '#f5f5f5' }}>
+                      <TableCell>{cpt.code}</TableCell>
+                      <TableCell>{cpt.description}</TableCell>
+                      <TableCell align="right">{cpt.wRVU.toFixed(2)}</TableCell>
+                      <TableCell>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Slider
+                            value={utilizationPercentages[cpt.code] || 0}
+                            onChange={(_, newValue) => handleSliderChange(cpt.code, newValue)}
+                            aria-labelledby={`${cpt.code}-slider`}
+                            valueLabelDisplay="auto"
+                            step={0.1}
+                            min={0}
+                            max={100}
+                            sx={{ mr: 2, flexGrow: 1 }}
+                          />
+                          <Typography variant="body2" sx={{ minWidth: '40px', textAlign: 'right' }}>
+                            {(utilizationPercentages[cpt.code] || 0).toFixed(1)}%
+                          </Typography>
+                        </Box>
+                      </TableCell>
+                      <TableCell align="right">{estimatedPatients.toLocaleString()}</TableCell>
+                      <TableCell align="right">{patientsPerWeek.toLocaleString()}</TableCell>
+                      <TableCell>
+                        <IconButton onClick={() => setConfirmDelete(cpt)}>
+                          <Delete />
+                        </IconButton>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+                {/* Search bar for adding custom CPT codes */}
+                <TableRow>
+                  <TableCell colSpan={7} sx={{ py: 2 }}>
+                    <Autocomplete
+                      options={allCptCodes.filter(code => 
+                        !cptCodes.some(c => c.code === code.code) &&
+                        !customCptCodes.some(c => c.code === code.code)
+                      )}
+                      getOptionLabel={(option) => `${option.code} - ${option.description}`}
+                      renderInput={(params) => <TextField {...params} label="Search and add CPT Codes" />}
+                      filterOptions={(options, { inputValue }) => {
+                        const filterValue = inputValue.toLowerCase();
+                        return options.filter(option => 
+                          option.code.toLowerCase().includes(filterValue) ||
+                          option.description.toLowerCase().includes(filterValue)
+                        ).sort((a, b) => a.code.localeCompare(b.code));
+                      }}
+                      value={null}
+                      onChange={(event, newValue) => {
+                        if (newValue) {
+                          handleAddCustomCptCode(newValue);
+                        }
+                      }}
+                    />
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+              <TableFooter>
+                <TableRow>
+                  <TableCell align="right" sx={{ fontWeight: 'bold', fontSize: '1.1rem' }} colSpan={4}>
+                    Total:
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 'bold', fontSize: '1.2rem' }}>
+                    {formatNumber(metrics.annualPatientEncounters)}
+                  </TableCell>
+                  <TableCell align="right" sx={{ fontWeight: 'bold', fontSize: '1.2rem' }}>
+                    {formatNumber(metrics.encountersPerWeek)}
+                  </TableCell>
+                </TableRow>
+              </TableFooter>
+            </Table>
+          </TableContainer>
+        )}
+
+        <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 2, mb: 2 }}>
+          <Button
+            variant="contained"
+            startIcon={<Refresh sx={{ fontSize: '16px' }} />}
+            onClick={handleResetToDefault}
+            sx={{
+              backgroundColor: '#1976d2',
+              color: 'white',
+              '&:hover': {
+                backgroundColor: '#1565c0',
+              },
+              fontSize: '0.75rem',
+              padding: '6px 12px',
+              height: '32px',
+              minHeight: '32px',
+              maxHeight: '32px',
+              minWidth: 'auto',
+              lineHeight: 1,
+              textTransform: 'uppercase',
+              fontWeight: 500,
+              boxShadow: '0px 1px 3px rgba(0,0,0,0.12), 0px 1px 2px rgba(0,0,0,0.24)',
+              borderRadius: '4px',
+              '& .MuiButton-startIcon': {
+                margin: 0,
+                marginRight: '4px',
+              },
+              '& .MuiButton-startIcon > *:nth-of-type(1)': {
+                fontSize: '16px',
+              },
+            }}
+          >
+            Reset Default CPTs
           </Button>
-        </DialogActions>
-      </Dialog>
+        </Box>
+
+        <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>
+          Productivity Summary
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <StatItem 
+              icon={<AttachMoney fontSize="large" />}
+              label="Estimated Incentive Payment"
+              value={formatCurrency(metrics.estimatedIncentivePayment)}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <StatItem 
+              icon={<AttachMoney fontSize="large" />}
+              label="Estimated Total Compensation"
+              value={formatCurrency(metrics.estimatedTotalCompensation)}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <StatItem 
+              icon={<CalendarToday fontSize="large" />}
+              label="Weeks Worked Per Year"
+              value={formatNumber(metrics.weeksWorkedPerYear)}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <StatItem 
+              icon={<People fontSize="large" />}
+              label="Encounters per Week"
+              value={formatNumber(metrics.encountersPerWeek)}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <StatItem 
+              icon={<CalendarToday fontSize="large" />}
+              label="Annual Clinic Days"
+              value={formatNumber(metrics.annualClinicDays)}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <StatItem 
+              icon={<People fontSize="large" />}
+              label="Annual Patient Encounters"
+              value={formatNumber(metrics.annualPatientEncounters)}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <StatItem 
+              icon={<AccessTime fontSize="large" />}
+              label="Annual Clinical Hours"
+              value={formatNumber(metrics.annualClinicalHours)}
+            />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <StatItem 
+              icon={<TrendingUp fontSize="large" />}
+              label="Estimated Annual wRVUs"
+              value={formatNumber(metrics.estimatedAnnualWRVUs)}
+            />
+          </Grid>
+        </Grid>
+
+        <Dialog
+          open={!!confirmDelete}
+          onClose={() => setConfirmDelete(null)}
+        >
+          <DialogTitle>Confirm Deletion</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Are you sure you want to delete the CPT code {confirmDelete?.code}?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setConfirmDelete(null)}>Cancel</Button>
+            <Button onClick={() => {
+              handleRemoveCptCode(confirmDelete);
+              setConfirmDelete(null);
+            }} color="error">
+              Delete
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </Paper>
     </Container>
   );
 }

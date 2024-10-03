@@ -11,7 +11,7 @@ ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, T
 
 function WorkSchedule({ inputs, handleInputChange, handleShiftChange }) {
   return (
-    <Paper elevation={3} sx={{ p: 3, height: '100%' }}>
+    <Paper elevation={3} sx={{ p: 3, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0' }}>
       <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>Work Schedule</Typography>
       <TextField
         fullWidth
@@ -27,6 +27,12 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange }) {
               <Celebration />
             </InputAdornment>
           ),
+          sx: { 
+            borderRadius: '12px',
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#e0e0e0',
+            },
+          },
         }}
       />
       <TextField
@@ -43,6 +49,12 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange }) {
               <Event />
             </InputAdornment>
           ),
+          sx: { 
+            borderRadius: '12px',
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#e0e0e0',
+            },
+          },
         }}
       />
       <TextField
@@ -59,6 +71,12 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange }) {
               <School />
             </InputAdornment>
           ),
+          sx: { 
+            borderRadius: '12px',
+            '& .MuiOutlinedInput-notchedOutline': {
+              borderColor: '#e0e0e0',
+            },
+          },
         }}
       />
       <Typography variant="subtitle1" gutterBottom sx={{ mt: 3, mb: 2, fontWeight: 'bold' }}>Shift Types</Typography>
@@ -89,7 +107,7 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange }) {
           </IconButton>
         </Box>
       ))}
-      <Button startIcon={<Add />} onClick={() => handleShiftChange(null, 'add')}>
+      <Button startIcon={<Add />} onClick={() => handleShiftChange(null, 'add')} sx={{ borderRadius: '12px' }}>
         Add Shift Type
       </Button>
     </Paper>
@@ -106,12 +124,12 @@ function ProductivitySummary({ metrics }) {
   const StatItem = ({ icon, label, value }) => (
     <Box sx={{ 
       border: '1px solid #e0e0e0', 
-      borderRadius: '8px', 
+      borderRadius: '16px',
       p: 3, 
       mb: 3,
       display: 'flex',
       alignItems: 'center',
-      backgroundColor: '#f9f9f9',
+      backgroundColor: '#ffffff',
       transition: 'box-shadow 0.3s',
       '&:hover': {
         boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
@@ -126,7 +144,7 @@ function ProductivitySummary({ metrics }) {
   );
 
   return (
-    <Paper elevation={3} sx={{ p: 4, mt: 5, backgroundColor: '#f5f5f5' }}>
+    <Paper elevation={3} sx={{ p: 4, mt: 5, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}> {/* Increased border radius */}
       <Typography variant="h5" gutterBottom sx={{ mb: 4, fontWeight: 'bold', color: '#1976d2' }}>
         Productivity Summary
       </Typography>
@@ -297,98 +315,124 @@ function WRVUForecastingTool({ setTotalVisits }) {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold' }}>
-        Quick wRVU Estimator
-      </Typography>
-      <Typography variant="h6" align="center" gutterBottom sx={{ color: 'text.secondary', mb: 4 }}>
-        Productivity Analysis
-      </Typography>
-      
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={6}>
-          <WorkSchedule inputs={inputs} handleInputChange={handleInputChange} handleShiftChange={handleShiftChange} />
-        </Grid>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}> {/* Increased border radius */}
+        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold' }}>
+          Quick wRVU Estimator
+        </Typography>
+        <Typography variant="h6" align="center" gutterBottom sx={{ color: 'text.secondary', mb: 4 }}>
+          Productivity Analysis
+        </Typography>
         
-        <Grid item xs={12} md={6}>
-          <Paper elevation={3} sx={{ p: 3, height: '100%' }}>
-            <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>Patient Encounters</Typography>
-            <FormControlLabel
-              control={<Switch checked={isPerHour} onChange={handleSwitchChange} />}
-              label={isPerHour ? "Patients Per Hour" : "Patients Per Day"}
-              sx={{ mb: 2 }}
-            />
-            <TextField
-              fullWidth
-              margin="normal"
-              type="number"
-              label={isPerHour ? "Patients Seen Per Hour" : "Patients Seen Per Day"}
-              name={isPerHour ? "patientsPerHour" : "patientsPerDay"}
-              value={isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay}
-              onChange={handleInputChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <People />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <TextField
-              fullWidth
-              margin="normal"
-              type="number"
-              label="Average wRVU Per Encounter"
-              name="avgWRVUPerEncounter"
-              value={inputs.avgWRVUPerEncounter}
-              onChange={handleInputChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <TrendingUp />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <TextField
-              fullWidth
-              margin="normal"
-              type="number"
-              label="Base Salary"
-              name="baseSalary"
-              value={inputs.baseSalary}
-              onChange={handleInputChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <AttachMoney />
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <TextField
-              fullWidth
-              margin="normal"
-              type="number"
-              label="wRVU Conversion Factor"
-              name="wrvuConversionFactor"
-              value={inputs.wrvuConversionFactor}
-              onChange={handleInputChange}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <AttachMoney />
-                  </InputAdornment>
-                ),
-                endAdornment: <InputAdornment position="end">/ wRVU</InputAdornment>,
-              }}
-            />
-          </Paper>
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <WorkSchedule inputs={inputs} handleInputChange={handleInputChange} handleShiftChange={handleShiftChange} />
+          </Grid>
+          
+          <Grid item xs={12} md={6}>
+            <Paper elevation={3} sx={{ p: 3, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0' }}>
+              <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>Patient Encounters</Typography>
+              <FormControlLabel
+                control={<Switch checked={isPerHour} onChange={handleSwitchChange} />}
+                label={isPerHour ? "Patients Per Hour" : "Patients Per Day"}
+                sx={{ mb: 2 }}
+              />
+              <TextField
+                fullWidth
+                margin="normal"
+                type="number"
+                label={isPerHour ? "Patients Seen Per Hour" : "Patients Seen Per Day"}
+                name={isPerHour ? "patientsPerHour" : "patientsPerDay"}
+                value={isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay}
+                onChange={handleInputChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <People />
+                    </InputAdornment>
+                  ),
+                  sx: { 
+                    borderRadius: '12px',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#e0e0e0',
+                    },
+                  },
+                }}
+              />
+              <TextField
+                fullWidth
+                margin="normal"
+                type="number"
+                label="Average wRVU Per Encounter"
+                name="avgWRVUPerEncounter"
+                value={inputs.avgWRVUPerEncounter}
+                onChange={handleInputChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <TrendingUp />
+                    </InputAdornment>
+                  ),
+                  sx: { 
+                    borderRadius: '12px',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#e0e0e0',
+                    },
+                  },
+                }}
+              />
+              <TextField
+                fullWidth
+                margin="normal"
+                type="number"
+                label="Base Salary"
+                name="baseSalary"
+                value={inputs.baseSalary}
+                onChange={handleInputChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <AttachMoney />
+                    </InputAdornment>
+                  ),
+                  sx: { 
+                    borderRadius: '12px',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#e0e0e0',
+                    },
+                  },
+                }}
+              />
+              <TextField
+                fullWidth
+                margin="normal"
+                type="number"
+                label="wRVU Conversion Factor"
+                name="wrvuConversionFactor"
+                value={inputs.wrvuConversionFactor}
+                onChange={handleInputChange}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <AttachMoney />
+                    </InputAdornment>
+                  ),
+                  endAdornment: <InputAdornment position="end">/ wRVU</InputAdornment>,
+                  sx: { 
+                    borderRadius: '12px',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#e0e0e0',
+                    },
+                  },
+                }}
+              />
+            </Paper>
+          </Grid>
         </Grid>
-      </Grid>
 
-      <ProductivitySummary metrics={metrics} />
+        <ProductivitySummary metrics={metrics} />
 
-      {/* You can add your DetailedProjections component here if needed */}
+        {/* You can add your DetailedProjections component here if needed */}
+      </Paper>
     </Container>
   );
 }

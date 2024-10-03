@@ -9,6 +9,7 @@ import {
   Slider,
   Box,
   Divider,
+  Paper,
 } from '@mui/material';
 import { Pie, Bar } from 'react-chartjs-2';
 import { AttachMoney, TrendingUp, MonetizationOn, EmojiEvents } from '@mui/icons-material';
@@ -19,7 +20,7 @@ Chart.register(ChartDataLabels);
 
 const ResultCard = ({ title, value, color, icon }) => (
   <Grid item xs={12} sm={6} md={3}>
-    <Card sx={{ p: 2, height: '100%', boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)' }}>
+    <Card sx={{ p: 2, height: '100%', border: '1px solid #e0e0e0', borderRadius: '16px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
       <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" height="100%">
         <Typography variant="subtitle1" color="textSecondary" gutterBottom align="center">
           {title}
@@ -216,167 +217,199 @@ function ProviderCompensation({ savedMonthlyRvus, setSavedMonthlyRvus }) {
   }), [months, monthlyRvus]);
 
   return (
-    <Container maxWidth="lg" sx={{ py: 5, backgroundColor: '#f5f5f5' }}>
-      <Typography variant="h4" align="center" gutterBottom sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-        Provider Compensation
-      </Typography>
-      <Typography variant="h5" align="center" gutterBottom sx={{ mb: 4, color: '#666' }}>
-        Incentive Calculator
-      </Typography>
+    <Container maxWidth="lg" sx={{ mt: 4 }}>
+      <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+        <Typography variant="h4" align="center" gutterBottom sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
+          Provider Compensation
+        </Typography>
+        <Typography variant="h5" align="center" gutterBottom sx={{ mb: 4, color: '#666' }}>
+          Incentive Calculator
+        </Typography>
 
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={6}>
-          <Card sx={{ p: 3, height: '100%', boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)' }}>
-            <Typography variant="h6" color="primary" gutterBottom>
-              Compensation Details
-            </Typography>
-            <Divider sx={{ mb: 3 }} />
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <Card sx={{ p: 3, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+              <Typography variant="h6" color="primary" gutterBottom>
+                Compensation Details
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
 
-            <TextField
-              label="Base Salary"
-              value={salary.toLocaleString('en-US')}
-              onChange={(e) => setSalary(parseFloat(e.target.value.replace(/,/g, '')) || 0)}
-              InputProps={{
-                startAdornment: <InputAdornment position="start">$</InputAdornment>,
-              }}
-              fullWidth
-              margin="normal"
-              variant="outlined"
-              type="text"
-            />
-
-            <TextField
-              label="Conversion Factor"
-              value={conversionFactor}
-              onChange={(e) => setConversionFactor(parseFloat(e.target.value) || 0)}
-              InputProps={{
-                startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                endAdornment: <InputAdornment position="end">/ RVU</InputAdornment>,
-              }}
-              fullWidth
-              margin="normal"
-              variant="outlined"
-              type="number"
-            />
-
-            <TextField
-              label="Quality Incentive"
-              value={qualityIncentive}
-              onChange={(e) => setQualityIncentive(parseFloat(e.target.value) || 0)}
-              InputProps={{
-                endAdornment: <InputAdornment position="end">%</InputAdornment>,
-              }}
-              fullWidth
-              margin="normal"
-              variant="outlined"
-              type="number"
-            />
-
-            <Box mt={3}>
-              <Typography gutterBottom>FTE (Full-Time Equivalent)</Typography>
-              <Slider
-                value={fte}
-                onChange={(e, newValue) => setFte(newValue)}
-                step={0.01}
-                min={0.1}
-                max={1.0}
-                valueLabelDisplay="auto"
-                marks={[
-                  { value: 0.1, label: '0.1' },
-                  { value: 0.5, label: '0.5' },
-                  { value: 1.0, label: '1.0' },
-                ]}
+              <TextField
+                label="Base Salary"
+                value={salary.toLocaleString('en-US')}
+                onChange={(e) => setSalary(parseFloat(e.target.value.replace(/,/g, '')) || 0)}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  sx: { 
+                    borderRadius: '12px',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#e0e0e0',
+                    },
+                  },
+                }}
+                fullWidth
+                margin="normal"
+                variant="outlined"
+                type="text"
               />
-            </Box>
-          </Card>
+
+              <TextField
+                label="Conversion Factor"
+                value={conversionFactor}
+                onChange={(e) => setConversionFactor(parseFloat(e.target.value) || 0)}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                  endAdornment: <InputAdornment position="end">/ RVU</InputAdornment>,
+                  sx: { 
+                    borderRadius: '12px',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#e0e0e0',
+                    },
+                  },
+                }}
+                fullWidth
+                margin="normal"
+                variant="outlined"
+                type="number"
+              />
+
+              <TextField
+                label="Quality Incentive"
+                value={qualityIncentive}
+                onChange={(e) => setQualityIncentive(parseFloat(e.target.value) || 0)}
+                InputProps={{
+                  endAdornment: <InputAdornment position="end">%</InputAdornment>,
+                  sx: { 
+                    borderRadius: '12px',
+                    '& .MuiOutlinedInput-notchedOutline': {
+                      borderColor: '#e0e0e0',
+                    },
+                  },
+                }}
+                fullWidth
+                margin="normal"
+                variant="outlined"
+                type="number"
+              />
+
+              <Box mt={3}>
+                <Typography gutterBottom>FTE (Full-Time Equivalent)</Typography>
+                <Slider
+                  value={fte}
+                  onChange={(e, newValue) => setFte(newValue)}
+                  step={0.01}
+                  min={0.1}
+                  max={1.0}
+                  valueLabelDisplay="auto"
+                  marks={[
+                    { value: 0.1, label: '0.1' },
+                    { value: 0.5, label: '0.5' },
+                    { value: 1.0, label: '1.0' },
+                  ]}
+                  sx={{ 
+                    '& .MuiSlider-thumb': { borderRadius: '12px' }, 
+                    '& .MuiSlider-rail': { borderRadius: '12px' }, 
+                    '& .MuiSlider-track': { borderRadius: '12px' },
+                    '& .MuiSlider-valueLabel': { borderRadius: '12px' },
+                  }}
+                />
+              </Box>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Card sx={{ p: 3, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+              <Typography variant="h6" color="primary" gutterBottom>
+                Monthly RVUs
+              </Typography>
+              <Divider sx={{ mb: 3 }} />
+              <Grid container spacing={2}>
+                {months.map((month, index) => (
+                  <Grid item xs={6} sm={4} key={month}>
+                    <TextField
+                      label={month}
+                      value={monthlyRvus[index]}
+                      onChange={(e) => {
+                        const newRvus = [...monthlyRvus];
+                        newRvus[index] = e.target.value;
+                        setMonthlyRvus(newRvus);
+                      }}
+                      fullWidth
+                      variant="outlined"
+                      type="number"
+                      InputProps={{
+                        endAdornment: <InputAdornment position="end">RVU</InputAdornment>,
+                        sx: { 
+                          borderRadius: '12px',
+                          '& .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#e0e0e0',
+                          },
+                        },
+                      }}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            </Card>
+          </Grid>
         </Grid>
 
-        <Grid item xs={12} md={6}>
-          <Card sx={{ p: 3, height: '100%', boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)' }}>
-            <Typography variant="h6" color="primary" gutterBottom>
-              Monthly RVUs
-            </Typography>
-            <Divider sx={{ mb: 3 }} />
-            <Grid container spacing={2}>
-              {months.map((month, index) => (
-                <Grid item xs={6} sm={4} key={month}>
-                  <TextField
-                    label={month}
-                    value={monthlyRvus[index]}
-                    onChange={(e) => {
-                      const newRvus = [...monthlyRvus];
-                      newRvus[index] = e.target.value;
-                      setMonthlyRvus(newRvus);
-                    }}
-                    fullWidth
-                    variant="outlined"
-                    type="number"
-                    InputProps={{
-                      endAdornment: <InputAdornment position="end">RVU</InputAdornment>,
-                    }}
-                  />
-                </Grid>
-              ))}
-            </Grid>
-          </Card>
-        </Grid>
-      </Grid>
-
-      <Grid container spacing={2} sx={{ mt: 2, justifyContent: 'center' }}>
-        <ResultCard 
-          title="Total Compensation"
-          value={formatCurrency(totalCompensation)}
-          color="primary"
-          icon={<AttachMoney fontSize="large" color="primary" />}
-        />
-        <ResultCard 
-          title="Annualized RVUs"
-          value={formatNumber(annualizedRvus)}
-          color="secondary"
-          icon={<TrendingUp fontSize="large" color="secondary" />}
-        />
-        <ResultCard 
-          title="Incentive Payment"
-          value={formatCurrency(incentiveAmount)}
-          color="error"
-          icon={<MonetizationOn fontSize="large" color="error" />}
-        />
-        <ResultCard 
-          title="Quality Bonus"
-          value={formatCurrency(salary * (qualityIncentive / 100) * fte)}
-          color="warning.main"
-          icon={<EmojiEvents fontSize="large" color="warning" />}
-        />
-      </Grid>
-
-      <Grid container spacing={2} sx={{ mt: 2 }}>
-        <Grid item xs={12}>
-          <Card sx={{ p: 3, boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)' }}>
-            <Typography variant="h6" color="primary">
-              Explanation
-            </Typography>
-            <Typography variant="body1" color="textSecondary">
-              {dynamicMessage}
-            </Typography>
-          </Card>
+        <Grid container spacing={2} sx={{ mt: 2, justifyContent: 'center' }}>
+          <ResultCard 
+            title="Total Compensation"
+            value={formatCurrency(totalCompensation)}
+            color="primary"
+            icon={<AttachMoney fontSize="large" color="primary" />}
+          />
+          <ResultCard 
+            title="Annualized RVUs"
+            value={formatNumber(annualizedRvus)}
+            color="secondary"
+            icon={<TrendingUp fontSize="large" color="secondary" />}
+          />
+          <ResultCard 
+            title="Incentive Payment"
+            value={formatCurrency(incentiveAmount)}
+            color="error"
+            icon={<MonetizationOn fontSize="large" color="error" />}
+          />
+          <ResultCard 
+            title="Quality Bonus"
+            value={formatCurrency(salary * (qualityIncentive / 100) * fte)}
+            color="warning.main"
+            icon={<EmojiEvents fontSize="large" color="warning" />}
+          />
         </Grid>
 
-        <Grid item xs={12} md={6}>
-          <Card sx={{ p: 3, height: 400, boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)' }}>
-            <Box sx={{ height: 'calc(100% - 32px)' }}>
-              <Pie data={pieChartData} options={donutChartOptions} plugins={[ChartDataLabels]} />
-            </Box>
-          </Card>
-        </Grid>
+        <Grid container spacing={2} sx={{ mt: 2 }}>
+          <Grid item xs={12}>
+            <Card sx={{ p: 3, border: '1px solid #e0e0e0', borderRadius: '16px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+              <Typography variant="h6" color="primary">
+                Explanation
+              </Typography>
+              <Typography variant="body1" color="textSecondary">
+                {dynamicMessage}
+              </Typography>
+            </Card>
+          </Grid>
 
-        <Grid item xs={12} md={6}>
-          <Card sx={{ p: 3, height: 400, boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.1)' }}>
-            <Box sx={{ height: 'calc(100% - 32px)' }}>
-              <Bar data={barChartData} options={barChartOptions} plugins={[ChartDataLabels]} />
-            </Box>
-          </Card>
+          <Grid item xs={12} md={6}>
+            <Card sx={{ p: 3, height: 400, border: '1px solid #e0e0e0', borderRadius: '16px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+              <Box sx={{ height: 'calc(100% - 32px)' }}>
+                <Pie data={pieChartData} options={donutChartOptions} plugins={[ChartDataLabels]} />
+              </Box>
+            </Card>
+          </Grid>
+
+          <Grid item xs={12} md={6}>
+            <Card sx={{ p: 3, height: 400, border: '1px solid #e0e0e0', borderRadius: '16px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+              <Box sx={{ height: 'calc(100% - 32px)' }}>
+                <Bar data={barChartData} options={barChartOptions} plugins={[ChartDataLabels]} />
+              </Box>
+            </Card>
+          </Grid>
         </Grid>
-      </Grid>
+      </Paper>
     </Container>
   );
 }
