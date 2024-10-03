@@ -3,9 +3,10 @@ import {
   Paper, Typography, Button, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Slider, Box,
   CircularProgress, Alert, TextField, Grid, FormControlLabel,
-  Switch, InputAdornment, IconButton, TableFooter, Container
+  Switch, InputAdornment, IconButton, TableFooter, Container,
+  Autocomplete, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
 } from '@mui/material';
-import { UploadFile, CalendarToday, AccessTime, People, TrendingUp, AttachMoney, Add, Delete, Celebration, Event, School } from '@mui/icons-material';
+import { UploadFile, CalendarToday, AccessTime, People, TrendingUp, AttachMoney, Add, Delete, Celebration, Event, School, Refresh } from '@mui/icons-material';
 import Papa from 'papaparse';
 
 const CPT_CATEGORIES = {
@@ -32,6 +33,10 @@ function DetailedWRVUForecaster() {
   ]);
   const [isPerHour, setIsPerHour] = useState(false);
   const [patientsPerHour, setPatientsPerHour] = useState(0);
+  const [allCptCodes, setAllCptCodes] = useState([]); // Store all uploaded CPT codes
+  const [customCptCodes, setCustomCptCodes] = useState([]); // Store custom added CPT codes
+  const [searchTerm, setSearchTerm] = useState('');
+  const [confirmDelete, setConfirmDelete] = useState(null);
 
   useEffect(() => {
     const savedData = localStorage.getItem('detailedWRVUData');
@@ -62,21 +67,20 @@ function DetailedWRVUForecaster() {
     Papa.parse(file, {
       complete: (results) => {
         const parsedCodes = results.data
-          .filter(row => {
-            const cptCode = row[0];
-            return (
-              (cptCode >= '99202' && cptCode <= '99215') ||
-              (cptCode >= '99381' && cptCode <= '99397')
-            );
-          })
+          .filter(row => row[0] && row[0].match(/^\d+$/)) // Filter for valid CPT codes
           .map(row => ({
             code: row[0],
             description: row[2],
             wRVU: parseFloat(row[5]) || 0,
             category: categorizeCode(row[0])
           }));
-        setCptCodes(parsedCodes);
-        initializeUtilizationPercentages(parsedCodes);
+        setAllCptCodes(parsedCodes);
+        const defaultCodes = parsedCodes.filter(code => 
+          (code.code >= '99202' && code.code <= '99215') ||
+          (code.code >= '99381' && code.code <= '99397')
+        );
+        setCptCodes(defaultCodes);
+        initializeUtilizationPercentages(defaultCodes);
         setIsLoading(false);
       },
       error: (error) => {
@@ -103,18 +107,19 @@ function DetailedWRVUForecaster() {
 
   const handleSliderChange = (cptCode, newValue) => {
     setUtilizationPercentages(prev => {
-      const oldValue = prev[cptCode];
+      const allCodes = [...cptCodes, ...customCptCodes].map(cpt => cpt.code);
+      const oldValue = prev[cptCode] || 0;
       const diff = newValue - oldValue;
-      const otherCodes = Object.keys(prev).filter(code => code !== cptCode);
+      const otherCodes = allCodes.filter(code => code !== cptCode);
       
       const updated = { ...prev, [cptCode]: newValue };
-      const totalOthers = otherCodes.reduce((sum, code) => sum + prev[code], 0);
+      const totalOthers = otherCodes.reduce((sum, code) => sum + (prev[code] || 0), 0);
       const remainingPercentage = Math.max(0, 100 - newValue);
 
       if (totalOthers > 0) {
         const scaleFactor = remainingPercentage / totalOthers;
         otherCodes.forEach(code => {
-          updated[code] = prev[code] * scaleFactor;
+          updated[code] = (prev[code] || 0) * scaleFactor;
         });
       }
 
@@ -123,31 +128,40 @@ function DetailedWRVUForecaster() {
   };
 
   const calculateMetrics = () => {
-    const totalDaysOff = (vacationWeeks * 7) + cmeDays + statutoryHolidays;
-    const weeksWorkedPerYear = 52 - (totalDaysOff / 7);
-    const totalHoursPerWeek = shifts.reduce((total, shift) => total + (shift.hours * shift.perWeek), 0);
-    const totalDaysPerWeek = shifts.reduce((total, shift) => total + shift.perWeek, 0);
-    const annualClinicDays = totalDaysPerWeek * weeksWorkedPerYear;
-    const annualPatientEncounters = patientsPerDay * annualClinicDays;
-    const encountersPerWeek = annualPatientEncounters / weeksWorkedPerYear;
-    const annualClinicalHours = annualClinicDays * 8; // Assuming 8-hour workdays
+    const weeksWorkedPerYear = 52 - vacationWeeks - (statutoryHolidays / 5) - (cmeDays / 5);
+    const annualClinicDays = weeksWorkedPerYear * 5 - statutoryHolidays - cmeDays;
+    const annualClinicalHours = annualClinicDays * 8;
 
-    const totalWRVUs = cptCodes.reduce((sum, cpt) => {
-      const patientCount = (utilizationPercentages[cpt.code] / 100) * annualPatientEncounters;
+    let totalAnnualPatientEncounters = 0;
+    if (isPerHour) {
+      totalAnnualPatientEncounters = annualClinicalHours * patientsPerHour;
+    } else {
+      totalAnnualPatientEncounters = annualClinicDays * patientsPerDay;
+    }
+
+    const allCodes = [...cptCodes, ...customCptCodes];
+    const totalWRVUs = allCodes.reduce((sum, cpt) => {
+      const patientCount = ((utilizationPercentages[cpt.code] || 0) / 100) * totalAnnualPatientEncounters;
       return sum + (patientCount * cpt.wRVU);
     }, 0);
 
-    const wrvuCompensation = totalWRVUs * wrvuConversionFactor;
-    const incentivePayment = Math.max(0, wrvuCompensation - baseSalary);
-    const totalCompensation = baseSalary + incentivePayment;
+    // Calculate the actual patient encounters based on utilization percentages
+    const actualAnnualPatientEncounters = allCodes.reduce((sum, cpt) => {
+      return sum + Math.round(((utilizationPercentages[cpt.code] || 0) / 100) * totalAnnualPatientEncounters);
+    }, 0);
+
+    const encountersPerWeek = Math.round(actualAnnualPatientEncounters / weeksWorkedPerYear);
+
+    const estimatedIncentivePayment = Math.max(0, (totalWRVUs * wrvuConversionFactor) - baseSalary);
+    const estimatedTotalCompensation = baseSalary + estimatedIncentivePayment;
 
     return {
-      estimatedIncentivePayment: incentivePayment,
-      estimatedTotalCompensation: totalCompensation,
+      estimatedIncentivePayment,
+      estimatedTotalCompensation,
       weeksWorkedPerYear,
       encountersPerWeek,
       annualClinicDays,
-      annualPatientEncounters,
+      annualPatientEncounters: actualAnnualPatientEncounters,
       annualClinicalHours,
       estimatedAnnualWRVUs: totalWRVUs
     };
@@ -192,8 +206,53 @@ function DetailedWRVUForecaster() {
     });
   };
 
+  const handleAddCustomCptCode = (newCode) => {
+    setCustomCptCodes(prev => [...prev, newCode]);
+    setUtilizationPercentages(prev => {
+      const totalUtilization = Object.values(prev).reduce((sum, val) => sum + val, 0);
+      const newUtilization = Math.max(0, (100 - totalUtilization) / 2); // Assign half of remaining utilization
+      return {
+        ...prev,
+        [newCode.code]: newUtilization
+      };
+    });
+  };
+
+  const handleRemoveCustomCptCode = (codeToRemove) => {
+    setCustomCptCodes(prev => prev.filter(code => code.code !== codeToRemove.code));
+    setCptCodes(prev => prev.filter(code => code.code !== codeToRemove.code));
+    setUtilizationPercentages(prev => {
+      const { [codeToRemove.code]: _, ...rest } = prev;
+      return rest;
+    });
+  };
+
+  const handleResetToDefault = () => {
+    const defaultCodes = allCptCodes.filter(code => 
+      (code.code >= '99202' && code.code <= '99215') ||
+      (code.code >= '99381' && code.code <= '99397')
+    );
+    setCptCodes(defaultCodes);
+    setCustomCptCodes([]);
+    initializeUtilizationPercentages(defaultCodes);
+  };
+
+  const handleRemoveCptCode = (cptToRemove) => {
+    if (!cptToRemove) return;
+    
+    if (customCptCodes.some(cpt => cpt.code === cptToRemove.code)) {
+      setCustomCptCodes(prev => prev.filter(cpt => cpt.code !== cptToRemove.code));
+    } else {
+      setCptCodes(prev => prev.filter(cpt => cpt.code !== cptToRemove.code));
+    }
+    setUtilizationPercentages(prev => {
+      const { [cptToRemove.code]: _, ...rest } = prev;
+      return rest;
+    });
+  };
+
   return (
-    <Container maxWidth="lg" sx={{ mt: 4 }}>
+    <Container maxWidth="lg">
       <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold' }}>
         Advanced wRVU Analysis
       </Typography>
@@ -331,158 +390,216 @@ function DetailedWRVUForecaster() {
       {error && <Alert severity="error">{error}</Alert>}
 
       {cptCodes.length > 0 && (
-        <>
-          <TableContainer component={Paper} sx={{ mb: 4 }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell width="10%">CPT Code</TableCell>
-                  <TableCell width="25%">Description</TableCell>
-                  <TableCell width="10%" align="right">wRVU</TableCell>
-                  <TableCell width="30%" align="center">Utilization %</TableCell>
-                  <TableCell width="15%" align="right" sx={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
-                    Annual Estimated Patients
-                  </TableCell>
-                  <TableCell width="10%" align="right">
-                    Patients per Week
-                  </TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {Object.values(CPT_CATEGORIES).map(category => (
-                  <React.Fragment key={category}>
-                    <TableRow>
-                      <TableCell colSpan={6} sx={{ fontWeight: 'bold', backgroundColor: '#e0e0e0' }}>
-                        {category}
-                      </TableCell>
-                    </TableRow>
-                    {cptCodes.filter(cpt => cpt.category === category).map((cpt) => {
-                      const estimatedPatients = Math.round((utilizationPercentages[cpt.code] / 100) * metrics.annualPatientEncounters);
-                      const patientsPerWeek = Math.round(estimatedPatients / metrics.weeksWorkedPerYear);
-                      return (
-                        <TableRow key={cpt.code}>
-                          <TableCell>{cpt.code}</TableCell>
-                          <TableCell>{cpt.description}</TableCell>
-                          <TableCell align="right">{cpt.wRVU.toFixed(2)}</TableCell>
-                          <TableCell>
-                            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                              <Slider
-                                value={utilizationPercentages[cpt.code] || 0}
-                                onChange={(_, newValue) => handleSliderChange(cpt.code, newValue)}
-                                aria-labelledby={`${cpt.code}-slider`}
-                                valueLabelDisplay="auto"
-                                step={0.1}
-                                min={0}
-                                max={100}
-                                sx={{ mr: 2, flexGrow: 1 }}
-                              />
-                              <Typography variant="body2" sx={{ minWidth: '40px', textAlign: 'right' }}>
-                                {utilizationPercentages[cpt.code]?.toFixed(1)}%
-                              </Typography>
-                            </Box>
-                          </TableCell>
-                          <TableCell align="right">{estimatedPatients.toLocaleString()}</TableCell>
-                          <TableCell align="right">{patientsPerWeek.toLocaleString()}</TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </React.Fragment>
-                ))}
-              </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TableCell colSpan={4} align="right" sx={{ 
-                    fontWeight: 'bold', 
-                    fontSize: '1.1rem', 
-                    color: 'black' 
-                  }}>
-                    Total:
-                  </TableCell>
-                  <TableCell align="right" sx={{ 
-                    fontWeight: 'bold', 
-                    fontSize: '1.2rem', 
-                    color: 'black' 
-                  }}>
-                    {cptCodes.reduce((total, cpt) => {
-                      const estimatedPatients = Math.round((utilizationPercentages[cpt.code] / 100) * metrics.annualPatientEncounters);
-                      return total + estimatedPatients;
-                    }, 0).toLocaleString()}
-                  </TableCell>
-                  <TableCell align="right" sx={{ 
-                    fontWeight: 'bold', 
-                    fontSize: '1.2rem', 
-                    color: 'black' 
-                  }}>
-                    {Math.round(metrics.annualPatientEncounters / metrics.weeksWorkedPerYear).toLocaleString()}
-                  </TableCell>
-                </TableRow>
-              </TableFooter>
-            </Table>
-          </TableContainer>
-
-          <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>
-            Productivity Summary
-          </Typography>
-          <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
-              <StatItem 
-                icon={<AttachMoney fontSize="large" />}
-                label="Estimated Incentive Payment"
-                value={formatCurrency(metrics.estimatedIncentivePayment)}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <StatItem 
-                icon={<AttachMoney fontSize="large" />}
-                label="Estimated Total Compensation"
-                value={formatCurrency(metrics.estimatedTotalCompensation)}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <StatItem 
-                icon={<CalendarToday fontSize="large" />}
-                label="Weeks Worked Per Year"
-                value={formatNumber(metrics.weeksWorkedPerYear)}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <StatItem 
-                icon={<People fontSize="large" />}
-                label="Encounters per Week"
-                value={formatNumber(metrics.encountersPerWeek)}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <StatItem 
-                icon={<CalendarToday fontSize="large" />}
-                label="Annual Clinic Days"
-                value={formatNumber(metrics.annualClinicDays)}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <StatItem 
-                icon={<People fontSize="large" />}
-                label="Annual Patient Encounters"
-                value={formatNumber(metrics.annualPatientEncounters)}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <StatItem 
-                icon={<AccessTime fontSize="large" />}
-                label="Annual Clinical Hours"
-                value={formatNumber(metrics.annualClinicalHours)}
-              />
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <StatItem 
-                icon={<TrendingUp fontSize="large" />}
-                label="Estimated Annual wRVUs"
-                value={formatNumber(metrics.estimatedAnnualWRVUs)}
-              />
-            </Grid>
-          </Grid>
-        </>
+        <TableContainer component={Paper} sx={{ mb: 2 }}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell width="10%">CPT Code</TableCell>
+                <TableCell width="25%">Description</TableCell>
+                <TableCell width="10%" align="right">wRVU</TableCell>
+                <TableCell width="30%" align="center">Utilization %</TableCell>
+                <TableCell width="15%" align="right">Annual Estimated Patients</TableCell>
+                <TableCell width="10%" align="right">Patients per Week</TableCell>
+                <TableCell width="5%"></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {[...cptCodes, ...customCptCodes].map((cpt) => {
+                const estimatedPatients = Math.round(((utilizationPercentages[cpt.code] || 0) / 100) * metrics.annualPatientEncounters);
+                const patientsPerWeek = Math.round(estimatedPatients / metrics.weeksWorkedPerYear);
+                return (
+                  <TableRow key={cpt.code} sx={cpt.category ? {} : { backgroundColor: '#f5f5f5' }}>
+                    <TableCell>{cpt.code}</TableCell>
+                    <TableCell>{cpt.description}</TableCell>
+                    <TableCell align="right">{cpt.wRVU.toFixed(2)}</TableCell>
+                    <TableCell>
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Slider
+                          value={utilizationPercentages[cpt.code] || 0}
+                          onChange={(_, newValue) => handleSliderChange(cpt.code, newValue)}
+                          aria-labelledby={`${cpt.code}-slider`}
+                          valueLabelDisplay="auto"
+                          step={0.1}
+                          min={0}
+                          max={100}
+                          sx={{ mr: 2, flexGrow: 1 }}
+                        />
+                        <Typography variant="body2" sx={{ minWidth: '40px', textAlign: 'right' }}>
+                          {(utilizationPercentages[cpt.code] || 0).toFixed(1)}%
+                        </Typography>
+                      </Box>
+                    </TableCell>
+                    <TableCell align="right">{estimatedPatients.toLocaleString()}</TableCell>
+                    <TableCell align="right">{patientsPerWeek.toLocaleString()}</TableCell>
+                    <TableCell>
+                      <IconButton onClick={() => setConfirmDelete(cpt)}>
+                        <Delete />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+              {/* Search bar for adding custom CPT codes */}
+              <TableRow>
+                <TableCell colSpan={7} sx={{ py: 2 }}>
+                  <Autocomplete
+                    options={allCptCodes.filter(code => 
+                      !cptCodes.some(c => c.code === code.code) &&
+                      !customCptCodes.some(c => c.code === code.code)
+                    )}
+                    getOptionLabel={(option) => `${option.code} - ${option.description}`}
+                    renderInput={(params) => <TextField {...params} label="Search and add CPT Codes" />}
+                    filterOptions={(options, { inputValue }) => {
+                      const filterValue = inputValue.toLowerCase();
+                      return options.filter(option => 
+                        option.code.toLowerCase().includes(filterValue) ||
+                        option.description.toLowerCase().includes(filterValue)
+                      ).sort((a, b) => a.code.localeCompare(b.code));
+                    }}
+                    value={null}
+                    onChange={(event, newValue) => {
+                      if (newValue) {
+                        handleAddCustomCptCode(newValue);
+                      }
+                    }}
+                  />
+                </TableCell>
+              </TableRow>
+            </TableBody>
+            <TableFooter>
+              <TableRow>
+                <TableCell align="right" sx={{ fontWeight: 'bold', fontSize: '1.1rem' }} colSpan={4}>
+                  Total:
+                </TableCell>
+                <TableCell align="right" sx={{ fontWeight: 'bold', fontSize: '1.2rem' }}>
+                  {formatNumber(metrics.annualPatientEncounters)}
+                </TableCell>
+                <TableCell align="right" sx={{ fontWeight: 'bold', fontSize: '1.2rem' }}>
+                  {formatNumber(metrics.encountersPerWeek)}
+                </TableCell>
+              </TableRow>
+            </TableFooter>
+          </Table>
+        </TableContainer>
       )}
+
+      <Box sx={{ display: 'flex', justifyContent: 'flex-start', mt: 2, mb: 2 }}>
+        <Button
+          variant="contained"
+          startIcon={<Refresh sx={{ fontSize: '16px' }} />}
+          onClick={handleResetToDefault}
+          sx={{
+            backgroundColor: '#1976d2',
+            color: 'white',
+            '&:hover': {
+              backgroundColor: '#1565c0',
+            },
+            fontSize: '0.75rem',
+            padding: '6px 12px',
+            height: '32px',
+            minHeight: '32px',
+            maxHeight: '32px',
+            minWidth: 'auto',
+            lineHeight: 1,
+            textTransform: 'uppercase',
+            fontWeight: 500,
+            boxShadow: '0px 1px 3px rgba(0,0,0,0.12), 0px 1px 2px rgba(0,0,0,0.24)',
+            borderRadius: '4px',
+            '& .MuiButton-startIcon': {
+              margin: 0,
+              marginRight: '4px',
+            },
+            '& .MuiButton-startIcon > *:nth-of-type(1)': {
+              fontSize: '16px',
+            },
+          }}
+        >
+          Reset Default CPTs
+        </Button>
+      </Box>
+
+      <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>
+        Productivity Summary
+      </Typography>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <StatItem 
+            icon={<AttachMoney fontSize="large" />}
+            label="Estimated Incentive Payment"
+            value={formatCurrency(metrics.estimatedIncentivePayment)}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <StatItem 
+            icon={<AttachMoney fontSize="large" />}
+            label="Estimated Total Compensation"
+            value={formatCurrency(metrics.estimatedTotalCompensation)}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <StatItem 
+            icon={<CalendarToday fontSize="large" />}
+            label="Weeks Worked Per Year"
+            value={formatNumber(metrics.weeksWorkedPerYear)}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <StatItem 
+            icon={<People fontSize="large" />}
+            label="Encounters per Week"
+            value={formatNumber(metrics.encountersPerWeek)}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <StatItem 
+            icon={<CalendarToday fontSize="large" />}
+            label="Annual Clinic Days"
+            value={formatNumber(metrics.annualClinicDays)}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <StatItem 
+            icon={<People fontSize="large" />}
+            label="Annual Patient Encounters"
+            value={formatNumber(metrics.annualPatientEncounters)}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <StatItem 
+            icon={<AccessTime fontSize="large" />}
+            label="Annual Clinical Hours"
+            value={formatNumber(metrics.annualClinicalHours)}
+          />
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <StatItem 
+            icon={<TrendingUp fontSize="large" />}
+            label="Estimated Annual wRVUs"
+            value={formatNumber(metrics.estimatedAnnualWRVUs)}
+          />
+        </Grid>
+      </Grid>
+
+      <Dialog
+        open={!!confirmDelete}
+        onClose={() => setConfirmDelete(null)}
+      >
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete the CPT code {confirmDelete?.code}?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setConfirmDelete(null)}>Cancel</Button>
+          <Button onClick={() => {
+            handleRemoveCptCode(confirmDelete);
+            setConfirmDelete(null);
+          }} color="error">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }
