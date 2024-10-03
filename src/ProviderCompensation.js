@@ -10,9 +10,10 @@ import {
   Box,
   Divider,
   Paper,
+  Button,
 } from '@mui/material';
 import { Pie, Bar } from 'react-chartjs-2';
-import { AttachMoney, TrendingUp, MonetizationOn, EmojiEvents } from '@mui/icons-material';
+import { AttachMoney, TrendingUp, MonetizationOn, EmojiEvents, Clear } from '@mui/icons-material';
 import Chart from 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
@@ -216,6 +217,10 @@ function ProviderCompensation({ savedMonthlyRvus, setSavedMonthlyRvus }) {
     ],
   }), [months, monthlyRvus]);
 
+  const handleClearRVUs = () => {
+    setMonthlyRvus(Array(12).fill(''));
+  };
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
@@ -350,6 +355,25 @@ function ProviderCompensation({ savedMonthlyRvus, setSavedMonthlyRvus }) {
                   </Grid>
                 ))}
               </Grid>
+              <Box mt={3} display="flex" justifyContent="center">
+                <Button 
+                  variant="contained" 
+                  color="primary" 
+                  onClick={handleClearRVUs}
+                  startIcon={<Clear />}
+                  sx={{ 
+                    borderRadius: '20px',
+                    textTransform: 'uppercase',
+                    fontWeight: 'bold',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                    '&:hover': {
+                      boxShadow: '0 4px 6px rgba(0,0,0,0.15)',
+                    }
+                  }}
+                >
+                  Clear All RVUs
+                </Button>
+              </Box>
             </Card>
           </Grid>
         </Grid>
