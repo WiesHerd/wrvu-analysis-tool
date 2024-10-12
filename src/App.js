@@ -1,96 +1,83 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, useLocation } from 'react-router-dom';
-import { Box, List, ListItem, ListItemIcon, ListItemText, Typography, Container } from '@mui/material';
-import HomeIcon from '@mui/icons-material/Home';
-import BarChartIcon from '@mui/icons-material/BarChart';
-import SettingsIcon from '@mui/icons-material/Settings';
-import AssessmentIcon from '@mui/icons-material/Assessment';
+import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
+import { AppBar, Toolbar, Typography, Button, Container, Box } from '@mui/material';
 import ProviderCompensation from './ProviderCompensation';
 import WRVUForecastingTool from './WRVUForecastingTool';
 import DetailedWRVUForecaster from './DetailedWRVUForecaster';
 
-const drawerWidth = 240;
-
-function SideMenu() {
-  const location = useLocation();
-
-  const menuItems = [
-    { text: 'Compensation Estimator', icon: <HomeIcon />, path: '/' },
-    { text: 'Quick wRVU Estimator', icon: <BarChartIcon />, path: '/forecast' },
-    { text: 'Advanced wRVU Analysis', icon: <AssessmentIcon />, path: '/detailed-forecast' },
-    { text: 'Settings', icon: <SettingsIcon />, path: '/settings' },
-  ];
-
+function NavigationButtons() {
   return (
-    <Box
-      sx={{
-        width: drawerWidth,
-        height: '100vh',
-        backgroundColor: 'white',
-        boxShadow: '2px 0 5px rgba(0,0,0,0.1)',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      <Typography variant="h6" sx={{ p: 2, color: '#1976d2', fontWeight: 'bold' }}>
-        Menu
-      </Typography>
-      <List>
-        {menuItems.map((item) => (
-          <ListItem
-            button
-            component={Link}
-            to={item.path}
-            key={item.text}
-            sx={{
-              color: location.pathname === item.path ? '#1976d2' : 'inherit',
-              backgroundColor: location.pathname === item.path ? '#e3f2fd' : 'transparent',
-              '&:hover': {
-                backgroundColor: '#f5f5f5',
-              },
-              borderRadius: '0 20px 20px 0',
-              mr: 2,
-            }}
-          >
-            <ListItemIcon sx={{ color: 'inherit' }}>{item.icon}</ListItemIcon>
-            <ListItemText primary={item.text} />
-          </ListItem>
-        ))}
-      </List>
+    <Box sx={{ mb: 4, display: 'flex', justifyContent: 'center', gap: 2 }}>
+      <Button 
+        component={Link} 
+        to="/" 
+        variant="contained" 
+        color="primary"
+      >
+        Monthly Trending
+      </Button>
+      <Button 
+        component={Link} 
+        to="/quick-wrvu" 
+        variant="contained" 
+        color="primary"
+      >
+        Average wRVU per Encounter
+      </Button>
+      <Button 
+        component={Link} 
+        to="/advanced-wrvu" 
+        variant="contained" 
+        color="primary"
+      >
+        Code Detail
+      </Button>
     </Box>
   );
 }
 
 function App() {
-  const [totalVisits, setTotalVisits] = useState(0); // Initialize with a default value
+  const [totalVisits, setTotalVisits] = useState(0);
 
   const handleUpdateForecast = (newForecast) => {
-    // Handle the updated forecast here
     console.log('New forecast:', newForecast);
-    // You might want to update some state or perform other actions
+    // Handle the forecast update here
   };
 
   return (
     <Router>
-      <Box sx={{ display: 'flex' }}>
-        <SideMenu />
-        <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
-          <Container maxWidth="lg">
-            <Routes>
-              <Route path="/" element={<ProviderCompensation />} />
-              <Route path="/forecast" element={<WRVUForecastingTool setTotalVisits={setTotalVisits} />} />
-              <Route 
-                path="/detailed-forecast" 
-                element={
-                  <DetailedWRVUForecaster 
-                    totalVisits={totalVisits} 
-                    onUpdateForecast={handleUpdateForecast} 
-                  />
-                } 
-              />
-              {/* Add a route for Settings if needed */}
-            </Routes>
-          </Container>
+      <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <AppBar position="static">
+          <Toolbar sx={{ justifyContent: 'center' }}>
+            <Typography variant="h6" component="div">
+              Provider Compensation Forecaster
+            </Typography>
+          </Toolbar>
+        </AppBar>
+        
+        <Container component="main" sx={{ mt: 4, mb: 4, flexGrow: 1 }}>
+          <NavigationButtons />
+          
+          <Routes>
+            <Route path="/" element={<ProviderCompensation />} />
+            <Route path="/quick-wrvu" element={<WRVUForecastingTool setTotalVisits={setTotalVisits} />} />
+            <Route 
+              path="/advanced-wrvu" 
+              element={
+                <DetailedWRVUForecaster 
+                  totalVisits={totalVisits} 
+                  onUpdateForecast={handleUpdateForecast} 
+                />
+              } 
+            />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Container>
+        
+        <Box component="footer" sx={{ py: 3, px: 2, mt: 'auto', backgroundColor: 'background.paper' }}>
+          <Typography variant="body2" color="text.secondary" align="center">
+            © 2024 Provider Compensation Forecaster. All rights reserved.
+          </Typography>
         </Box>
       </Box>
     </Router>

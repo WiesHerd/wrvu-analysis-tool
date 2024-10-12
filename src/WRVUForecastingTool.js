@@ -2,82 +2,86 @@ import React, { useState, useMemo, useEffect } from 'react';
 import {
   Box, Typography, Paper, Grid, Container, TextField, InputAdornment, Switch, FormControlLabel, Slider, Divider, Button, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
 } from '@mui/material';
-import { CalendarToday, AccessTime, People, TrendingUp, AttachMoney, School, Celebration, Assignment, Add, Remove, Delete, Event } from '@mui/icons-material';
+import { CalendarToday, AccessTime, People, TrendingUp, AttachMoney, School, Celebration, Assignment, Add, Remove, Delete, Event, InfoOutlined } from '@mui/icons-material';
 import { Line } from 'react-chartjs-2';
 import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { NumericFormat } from 'react-number-format';
+import { Popover } from '@mui/material';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ChartDataLabels);
 
-function WorkSchedule({ inputs, handleInputChange, handleShiftChange }) {
+function CustomNumberInput({ label, value, onChange, icon, min = 0, max = Infinity, step = 1, name, isCurrency = false, ...props }) {
+  const handleIncrement = () => {
+    onChange(name, Math.min(value + step, max));
+  };
+
+  const handleDecrement = () => {
+    onChange(name, Math.max(value - step, min));
+  };
+
+  return (
+    <NumericFormat
+      customInput={TextField}
+      fullWidth
+      margin="normal"
+      label={label}
+      value={value}
+      onValueChange={(values) => onChange(name, values.floatValue)}
+      thousandSeparator={true}
+      prefix={isCurrency ? '' : undefined}
+      InputProps={{
+        startAdornment: (
+          <InputAdornment position="start">
+            {isCurrency ? <AttachMoney /> : icon}
+          </InputAdornment>
+        ),
+        endAdornment: (
+          <InputAdornment position="end">
+            <IconButton size="small" onClick={handleDecrement}>
+              <Remove fontSize="small" />
+            </IconButton>
+            <IconButton size="small" onClick={handleIncrement}>
+              <Add fontSize="small" />
+            </IconButton>
+          </InputAdornment>
+        ),
+      }}
+      {...props}
+    />
+  );
+}
+
+function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDeleteShift }) {
   return (
     <Paper elevation={3} sx={{ p: 3, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0' }}>
       <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>Work Schedule</Typography>
-      <TextField
-        fullWidth
-        margin="normal"
-        type="number"
+      <CustomNumberInput
         label="Vacation Weeks per Year"
         name="vacationWeeks"
         value={inputs.vacationWeeks}
         onChange={handleInputChange}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Celebration />
-            </InputAdornment>
-          ),
-          sx: { 
-            borderRadius: '12px',
-            '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#e0e0e0',
-            },
-          },
-        }}
+        icon={<Celebration />}
+        min={0}
+        max={52}
       />
-      <TextField
-        fullWidth
-        margin="normal"
-        type="number"
+      <CustomNumberInput
         label="Statutory Holidays per Year"
         name="statutoryHolidays"
         value={inputs.statutoryHolidays}
         onChange={handleInputChange}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <Event />
-            </InputAdornment>
-          ),
-          sx: { 
-            borderRadius: '12px',
-            '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#e0e0e0',
-            },
-          },
-        }}
+        icon={<Event />}
+        min={0}
+        max={365}
       />
-      <TextField
-        fullWidth
-        margin="normal"
-        type="number"
+      <CustomNumberInput
         label="CME Days per Year"
         name="cmeDays"
         value={inputs.cmeDays}
         onChange={handleInputChange}
-        InputProps={{
-          startAdornment: (
-            <InputAdornment position="start">
-              <School />
-            </InputAdornment>
-          ),
-          sx: { 
-            borderRadius: '12px',
-            '& .MuiOutlinedInput-notchedOutline': {
-              borderColor: '#e0e0e0',
-            },
-          },
-        }}
+        icon={<School />}
+        min={0}
+        max={365}
       />
       <Typography variant="subtitle1" gutterBottom sx={{ mt: 3, mb: 2, fontWeight: 'bold' }}>Shift Types</Typography>
       {inputs.shifts.map((shift, index) => (
@@ -102,7 +106,7 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange }) {
             value={shift.perWeek}
             onChange={(e) => handleShiftChange(index, 'perWeek', e.target.value)}
           />
-          <IconButton onClick={() => handleShiftChange(index, 'remove')}>
+          <IconButton onClick={() => handleDeleteShift(index)}>
             <Delete />
           </IconButton>
         </Box>
@@ -230,10 +234,13 @@ function WRVUForecastingTool({ setTotalVisits }) {
   const [detailedForecast, setDetailedForecast] = useState([]);
   const [totalEstimatedWRVUs, setTotalEstimatedWRVUs] = useState(0);
   const [totalVisits, setTotalVisitsLocal] = useState(0);
+  const [anchorEl, setAnchorEl] = useState(null);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setInputs(prev => ({ ...prev, [name]: parseFloat(value) || 0 }));
+  const handleInputChange = (name, value) => {
+    setInputs(prevInputs => ({
+      ...prevInputs,
+      [name]: value
+    }));
   };
 
   const handleShiftChange = (index, field, value) => {
@@ -313,19 +320,72 @@ function WRVUForecastingTool({ setTotalVisits }) {
     }));
   };
 
+  const handleDeleteShift = (index) => {
+    setInputs(prevInputs => ({
+      ...prevInputs,
+      shifts: prevInputs.shifts.filter((_, i) => i !== index)
+    }));
+  };
+
+  const handleInfoClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleInfoClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}> {/* Increased border radius */}
-        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold' }}>
-          Quick wRVU Estimator
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+          <Typography variant="h4" align="center" sx={{ mb: 1, fontWeight: 'bold' }}>
+            Compensation Forecast
+          </Typography>
+          <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
+            <InfoOutlined />
+          </IconButton>
+        </Box>
+        <Typography 
+          variant="h6" 
+          align="center" 
+          sx={{ 
+            color: 'text.secondary', 
+            mb: 4, 
+            fontSize: '1.1rem', 
+            fontWeight: 'normal' 
+          }}
+        >
+          Schedule and Average wRVU Per Encounter Input
         </Typography>
-        <Typography variant="h6" align="center" gutterBottom sx={{ color: 'text.secondary', mb: 4 }}>
-          Productivity Analysis
-        </Typography>
+        <Popover
+          open={Boolean(anchorEl)}
+          anchorEl={anchorEl}
+          onClose={handleInfoClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}
+        >
+          <Typography sx={{ p: 2, maxWidth: 300 }}>
+            This screen allows you to input your work schedule details and average wRVU per encounter. 
+            It calculates your estimated annual wRVUs, encounters, and potential compensation based on 
+            your inputs. Adjust the values to see how changes affect your productivity and compensation forecasts.
+          </Typography>
+        </Popover>
         
         <Grid container spacing={4}>
           <Grid item xs={12} md={6}>
-            <WorkSchedule inputs={inputs} handleInputChange={handleInputChange} handleShiftChange={handleShiftChange} />
+            <WorkSchedule 
+              inputs={inputs} 
+              handleInputChange={handleInputChange} 
+              handleShiftChange={handleShiftChange} 
+              handleDeleteShift={handleDeleteShift}
+            />
           </Grid>
           
           <Grid item xs={12} md={6}>
@@ -336,71 +396,30 @@ function WRVUForecastingTool({ setTotalVisits }) {
                 label={isPerHour ? "Patients Per Hour" : "Patients Per Day"}
                 sx={{ mb: 2 }}
               />
-              <TextField
-                fullWidth
-                margin="normal"
-                type="number"
+              <CustomNumberInput
                 label={isPerHour ? "Patients Seen Per Hour" : "Patients Seen Per Day"}
                 name={isPerHour ? "patientsPerHour" : "patientsPerDay"}
                 value={isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay}
                 onChange={handleInputChange}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <People />
-                    </InputAdornment>
-                  ),
-                  sx: { 
-                    borderRadius: '12px',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#e0e0e0',
-                    },
-                  },
-                }}
+                icon={<People />}
+                min={0}
               />
-              <TextField
-                fullWidth
-                margin="normal"
-                type="number"
+              <CustomNumberInput
                 label="Average wRVU Per Encounter"
                 name="avgWRVUPerEncounter"
                 value={inputs.avgWRVUPerEncounter}
                 onChange={handleInputChange}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <TrendingUp />
-                    </InputAdornment>
-                  ),
-                  sx: { 
-                    borderRadius: '12px',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#e0e0e0',
-                    },
-                  },
-                }}
+                icon={<TrendingUp />}
+                step={0.1}
+                min={0}
               />
-              <TextField
-                fullWidth
-                margin="normal"
-                type="number"
+              <CustomNumberInput
                 label="Base Salary"
                 name="baseSalary"
                 value={inputs.baseSalary}
                 onChange={handleInputChange}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <AttachMoney />
-                    </InputAdornment>
-                  ),
-                  sx: { 
-                    borderRadius: '12px',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#e0e0e0',
-                    },
-                  },
-                }}
+                isCurrency={true}
+                min={0}
               />
               <TextField
                 fullWidth

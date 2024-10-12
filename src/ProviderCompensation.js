@@ -11,9 +11,11 @@ import {
   Divider,
   Paper,
   Button,
+  IconButton,
+  Popover,
 } from '@mui/material';
 import { Pie, Bar } from 'react-chartjs-2';
-import { AttachMoney, TrendingUp, MonetizationOn, EmojiEvents, Clear } from '@mui/icons-material';
+import { AttachMoney, TrendingUp, MonetizationOn, EmojiEvents, Clear, InfoOutlined } from '@mui/icons-material';
 import Chart from 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 
@@ -49,6 +51,7 @@ function ProviderCompensation({ savedMonthlyRvus, setSavedMonthlyRvus }) {
   const [annualizedRvus, setAnnualizedRvus] = useState(0);
   const [ytdRvus, setYtdRvus] = useState(0);
   const [dynamicMessage, setDynamicMessage] = useState('');
+  const [anchorEl, setAnchorEl] = useState(null);
 
   const months = useMemo(() => ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'], []);
 
@@ -221,15 +224,56 @@ function ProviderCompensation({ savedMonthlyRvus, setSavedMonthlyRvus }) {
     setMonthlyRvus(Array(12).fill(''));
   };
 
+  const handleInfoClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleInfoClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
-        <Typography variant="h4" align="center" gutterBottom sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-          Provider Compensation
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+          <Typography variant="h4" align="center" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
+            Compensation Forecast
+          </Typography>
+          <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
+            <InfoOutlined />
+          </IconButton>
+        </Box>
+        <Typography 
+          variant="h6" 
+          align="center" 
+          sx={{ 
+            color: 'text.secondary', 
+            mb: 4, 
+            fontSize: '1.1rem', 
+            fontWeight: 'normal' 
+          }}
+        >
+          Annual wRVU Projection
         </Typography>
-        <Typography variant="h5" align="center" gutterBottom sx={{ mb: 4, color: '#666' }}>
-          Incentive Calculator
-        </Typography>
+        <Popover
+          open={Boolean(anchorEl)}
+          anchorEl={anchorEl}
+          onClose={handleInfoClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}
+        >
+          <Typography sx={{ p: 2, maxWidth: 300 }}>
+            This screen allows you to forecast your annual compensation based on monthly wRVU input. 
+            Enter your base salary, conversion factor, quality incentive, and monthly RVUs to see 
+            projected total compensation, incentive payment, and other key metrics.
+          </Typography>
+        </Popover>
 
         <Grid container spacing={4}>
           <Grid item xs={12} md={6}>
@@ -434,6 +478,7 @@ function ProviderCompensation({ savedMonthlyRvus, setSavedMonthlyRvus }) {
           </Grid>
         </Grid>
       </Paper>
+      
     </Container>
   );
 }

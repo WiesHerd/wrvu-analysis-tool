@@ -5,14 +5,57 @@ import {
   CircularProgress, Alert, TextField, Grid, FormControlLabel,
   Switch, InputAdornment, IconButton, TableFooter, Container,
   Autocomplete, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+  Popover // Add this
 } from '@mui/material';
-import { UploadFile, CalendarToday, AccessTime, People, TrendingUp, AttachMoney, Add, Delete, Celebration, Event, School, Refresh } from '@mui/icons-material';
+import { UploadFile, CalendarToday, AccessTime, People, TrendingUp, AttachMoney, Add, Delete, Celebration, Event, School, Refresh, Remove, InfoOutlined } from '@mui/icons-material';
 import Papa from 'papaparse';
+import { NumericFormat } from 'react-number-format';
 
 const CPT_CATEGORIES = {
   OFFICE_VISITS: 'Office Visits',
   PREVENTIVE_CARE: 'Preventive Care'
 };
+
+function CustomNumberInput({ label, value, onChange, icon, min = 0, max = Infinity, step = 1, ...props }) {
+  const handleIncrement = () => {
+    onChange(Math.min(value + step, max));
+  };
+
+  const handleDecrement = () => {
+    onChange(Math.max(value - step, min));
+  };
+
+  return (
+    <TextField
+      fullWidth
+      margin="normal"
+      label={label}
+      value={value === 0 ? '' : value}
+      onChange={(e) => {
+        const val = e.target.value === '' ? min : Number(e.target.value);
+        onChange(isNaN(val) ? min : Math.max(min, Math.min(val, max)));
+      }}
+      InputProps={{
+        startAdornment: icon && (
+          <InputAdornment position="start">
+            {icon}
+          </InputAdornment>
+        ),
+        endAdornment: (
+          <InputAdornment position="end">
+            <IconButton size="small" onClick={handleDecrement}>
+              <Remove fontSize="small" />
+            </IconButton>
+            <IconButton size="small" onClick={handleIncrement}>
+              <Add fontSize="small" />
+            </IconButton>
+          </InputAdornment>
+        ),
+      }}
+      {...props}
+    />
+  );
+}
 
 function DetailedWRVUForecaster() {
   const [cptCodes, setCptCodes] = useState([]);
@@ -37,6 +80,7 @@ function DetailedWRVUForecaster() {
   const [customCptCodes, setCustomCptCodes] = useState([]); // Store custom added CPT codes
   const [searchTerm, setSearchTerm] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
 
   useEffect(() => {
     const savedData = localStorage.getItem('detailedWRVUData');
@@ -193,10 +237,9 @@ function DetailedWRVUForecaster() {
       display: 'flex',
       alignItems: 'center',
       backgroundColor: '#ffffff',
-      boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
       transition: 'box-shadow 0.3s',
       '&:hover': {
-        boxShadow: '0 6px 12px rgba(0,0,0,0.15)',
+        boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
       }
     }}>
       <Box sx={{ mr: 2, color: '#1976d2' }}>{icon}</Box>
@@ -269,52 +312,85 @@ function DetailedWRVUForecaster() {
     });
   };
 
+  const handleInfoClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleInfoClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
-        <Typography variant="h4" align="center" gutterBottom sx={{ fontWeight: 'bold' }}>
-          Advanced wRVU Analysis
+        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+          <Typography variant="h4" align="center" sx={{ mb: 1, fontWeight: 'bold' }}>
+            Compensation Forecast
+          </Typography>
+          <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
+            <InfoOutlined />
+          </IconButton>
+        </Box>
+        <Typography 
+          variant="h6" 
+          align="center" 
+          sx={{ 
+            color: 'text.secondary', 
+            mb: 4, 
+            fontSize: '1.1rem', 
+            fontWeight: 'normal' 
+          }}
+        >
+          Detailed wRVU Analysis
         </Typography>
-        <Typography variant="h6" align="center" gutterBottom sx={{ color: 'text.secondary', mb: 4 }}>
-          Detailed Productivity Forecasting
-        </Typography>
+        <Popover
+          open={Boolean(anchorEl)}
+          anchorEl={anchorEl}
+          onClose={handleInfoClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'center',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'center',
+          }}
+        >
+          <Typography sx={{ p: 2, maxWidth: 300 }}>
+            This screen allows you to perform a detailed analysis of your wRVU production by code. 
+            You can input your work schedule, patient encounters, and customize your code utilization. 
+            The tool calculates estimated annual wRVUs, patient encounters, and potential compensation 
+            based on your inputs.
+          </Typography>
+        </Popover>
 
         <Grid container spacing={4}>
           <Grid item xs={12} md={6}>
             <Paper elevation={3} sx={{ p: 3, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0' }}>
               <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>Work Schedule</Typography>
-              <TextField
-                fullWidth
-                margin="normal"
-                type="number"
+              <CustomNumberInput
                 label="Vacation Weeks per Year"
                 value={vacationWeeks}
-                onChange={(e) => setVacationWeeks(Number(e.target.value))}
-                InputProps={{
-                  startAdornment: <InputAdornment position="start"><Celebration /></InputAdornment>,
-                }}
+                onChange={setVacationWeeks}
+                icon={<Celebration />}
+                min={0}
+                max={52}
               />
-              <TextField
-                fullWidth
-                margin="normal"
-                type="number"
+              <CustomNumberInput
                 label="Statutory Holidays per Year"
                 value={statutoryHolidays}
-                onChange={(e) => setStatutoryHolidays(Number(e.target.value))}
-                InputProps={{
-                  startAdornment: <InputAdornment position="start"><Event /></InputAdornment>,
-                }}
+                onChange={setStatutoryHolidays}
+                icon={<Event />}
+                min={0}
+                max={365}
               />
-              <TextField
-                fullWidth
-                margin="normal"
-                type="number"
+              <CustomNumberInput
                 label="CME Days per Year"
                 value={cmeDays}
-                onChange={(e) => setCmeDays(Number(e.target.value))}
-                InputProps={{
-                  startAdornment: <InputAdornment position="start"><School /></InputAdornment>,
-                }}
+                onChange={setCmeDays}
+                icon={<School />}
+                min={0}
+                max={365}
               />
               <Typography variant="subtitle1" gutterBottom sx={{ mt: 3, mb: 2, fontWeight: 'bold' }}>Shift Types</Typography>
               {shifts.map((shift, index) => (
@@ -357,38 +433,41 @@ function DetailedWRVUForecaster() {
                 label={isPerHour ? "Patients Per Hour" : "Patients Per Day"}
                 sx={{ mb: 2 }}
               />
-              <TextField
-                fullWidth
-                margin="normal"
-                type="number"
+              <CustomNumberInput
                 label={isPerHour ? "Patients Seen Per Hour" : "Patients Seen Per Day"}
                 value={isPerHour ? patientsPerHour : patientsPerDay}
-                onChange={(e) => isPerHour ? setPatientsPerHour(Number(e.target.value)) : setPatientsPerDay(Number(e.target.value))}
-                InputProps={{
-                  startAdornment: <InputAdornment position="start"><People /></InputAdornment>,
-                }}
+                onChange={(value) => isPerHour ? setPatientsPerHour(value) : setPatientsPerDay(value)}
+                icon={<People />}
+                min={0}
               />
-              <TextField
+              <NumericFormat
+                customInput={TextField}
                 fullWidth
                 margin="normal"
-                type="number"
                 label="Base Salary"
                 value={baseSalary}
-                onChange={(e) => setBaseSalary(Number(e.target.value))}
+                onValueChange={(values) => setBaseSalary(values.floatValue)}
+                thousandSeparator={true}
                 InputProps={{
-                  startAdornment: <InputAdornment position="start"><AttachMoney /></InputAdornment>,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <AttachMoney />
+                    </InputAdornment>
+                  ),
                 }}
               />
-              <TextField
+              <NumericFormat
+                customInput={TextField}
                 fullWidth
                 margin="normal"
-                type="number"
                 label="wRVU Conversion Factor"
                 value={wrvuConversionFactor}
-                onChange={(e) => setWrvuConversionFactor(Number(e.target.value))}
+                onValueChange={(values) => setWrvuConversionFactor(values.floatValue)}
+                decimalScale={2}
+                fixedDecimalScale={true}
+                suffix={' / wRVU'}
                 InputProps={{
                   startAdornment: <InputAdornment position="start"><AttachMoney /></InputAdornment>,
-                  endAdornment: <InputAdornment position="end">/ wRVU</InputAdornment>,
                 }}
               />
             </Paper>
@@ -409,17 +488,16 @@ function DetailedWRVUForecaster() {
         {error && <Alert severity="error">{error}</Alert>}
 
         {cptCodes.length > 0 && (
-          <TableContainer component={Paper} sx={{ mb: 2, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+          <TableContainer component={Paper} sx={{ mb: 2, borderRadius: '16px', border: '1px solid #e0e0e0' }}>
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell width="10%">CPT Code</TableCell>
-                  <TableCell width="25%">Description</TableCell>
-                  <TableCell width="10%" align="right">wRVU</TableCell>
-                  <TableCell width="30%" align="center">Utilization %</TableCell>
+                  <TableCell width="12%">Code</TableCell>
+                  <TableCell width="8%" align="right">wRVU</TableCell>
+                  <TableCell width="40%" align="center">Utilization %</TableCell>
                   <TableCell width="15%" align="right">Annual Estimated Patients</TableCell>
-                  <TableCell width="10%" align="right">Patients per Week</TableCell>
-                  <TableCell width="5%"></TableCell>
+                  <TableCell width="15%" align="right">Patients per Week</TableCell>
+                  <TableCell width="10%" align="center">Delete Action</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -429,7 +507,6 @@ function DetailedWRVUForecaster() {
                   return (
                     <TableRow key={cpt.code} sx={cpt.category ? {} : { backgroundColor: '#f5f5f5' }}>
                       <TableCell>{cpt.code}</TableCell>
-                      <TableCell>{cpt.description}</TableCell>
                       <TableCell align="right">{cpt.wRVU.toFixed(2)}</TableCell>
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -442,6 +519,7 @@ function DetailedWRVUForecaster() {
                             min={0}
                             max={100}
                             sx={{ mr: 2, flexGrow: 1 }}
+                            valueLabelFormat={(value) => `${value.toFixed(1)}%`}
                           />
                           <Typography variant="body2" sx={{ minWidth: '40px', textAlign: 'right' }}>
                             {(utilizationPercentages[cpt.code] || 0).toFixed(1)}%
@@ -450,8 +528,14 @@ function DetailedWRVUForecaster() {
                       </TableCell>
                       <TableCell align="right">{estimatedPatients.toLocaleString()}</TableCell>
                       <TableCell align="right">{patientsPerWeek.toLocaleString()}</TableCell>
-                      <TableCell>
-                        <IconButton onClick={() => setConfirmDelete(cpt)}>
+                      <TableCell width="10%" align="center">
+                        <IconButton 
+                          onClick={() => setConfirmDelete(cpt)}
+                          sx={{ 
+                            padding: { xs: '12px', sm: '8px' },
+                            '& svg': { fontSize: { xs: '1.5rem', sm: '1.25rem' } }
+                          }}
+                        >
                           <Delete />
                         </IconButton>
                       </TableCell>
@@ -467,7 +551,7 @@ function DetailedWRVUForecaster() {
                         !customCptCodes.some(c => c.code === code.code)
                       )}
                       getOptionLabel={(option) => `${option.code} - ${option.description}`}
-                      renderInput={(params) => <TextField {...params} label="Search and add CPT Codes" />}
+                      renderInput={(params) => <TextField {...params} label="Search and add codes" />}
                       filterOptions={(options, { inputValue }) => {
                         const filterValue = inputValue.toLowerCase();
                         return options.filter(option => 
@@ -533,7 +617,7 @@ function DetailedWRVUForecaster() {
               },
             }}
           >
-            Reset Default CPTs
+            Reset Default Codes
           </Button>
         </Box>
 
@@ -619,6 +703,11 @@ function DetailedWRVUForecaster() {
             </Button>
           </DialogActions>
         </Dialog>
+
+        {/* Remove or comment out the following Typography component */}
+        {/* <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 4 }}>
+          © {new Date().getFullYear()} Provider Compensation Forecaster. All rights reserved.
+        </Typography> */}
       </Paper>
     </Container>
   );
