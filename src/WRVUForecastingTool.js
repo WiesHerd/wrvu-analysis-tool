@@ -118,14 +118,21 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
   );
 }
 
-function ProductivitySummary({ metrics }) {
+function ProductivitySummary({ metrics, adjustedMetrics }) {
   const formatNumber = (value) => 
     new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(value);
 
   const formatCurrency = (value) => 
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
 
-  const StatItem = ({ icon, label, value }) => (
+  const formatDifference = (current, adjusted, formatter) => {
+    const diff = adjusted - current;
+    if (diff === 0) return null;
+    const formattedDiff = formatter(Math.abs(diff));
+    return diff > 0 ? `+${formattedDiff}` : `-${formattedDiff}`;
+  };
+
+  const StatItem = ({ icon, label, value, difference }) => (
     <Box sx={{ 
       border: '1px solid #e0e0e0', 
       borderRadius: '16px',
@@ -140,15 +147,28 @@ function ProductivitySummary({ metrics }) {
       }
     }}>
       <Box sx={{ mr: 3, color: '#1976d2' }}>{icon}</Box>
-      <Box>
+      <Box sx={{ flexGrow: 1 }}>
         <Typography variant="body1" color="text.secondary" gutterBottom>{label}</Typography>
-        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#333' }}>{value}</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#333' }}>{value}</Typography>
+          {difference && difference !== '+$0' && difference !== '+0' && (
+            <Typography 
+              variant="h5" 
+              sx={{ 
+                fontWeight: 'bold', 
+                color: difference.startsWith('+') ? 'success.main' : 'error.main'
+              }}
+            >
+              {difference}
+            </Typography>
+          )}
+        </Box>
       </Box>
     </Box>
   );
 
   return (
-    <Paper elevation={3} sx={{ p: 4, mt: 5, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}> {/* Increased border radius */}
+    <Paper elevation={3} sx={{ p: 4, mt: 5, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
       <Typography variant="h5" gutterBottom sx={{ mb: 4, fontWeight: 'bold', color: '#1976d2' }}>
         Productivity Summary
       </Typography>
@@ -182,6 +202,7 @@ function ProductivitySummary({ metrics }) {
             icon={<AttachMoney fontSize="large" />}
             label="Estimated Total Compensation"
             value={formatCurrency(metrics.totalCompensation)}
+            difference={formatDifference(metrics.totalCompensation, adjustedMetrics.totalCompensation, formatCurrency)}
           />
           <StatItem 
             icon={<People fontSize="large" />}
@@ -197,6 +218,7 @@ function ProductivitySummary({ metrics }) {
             icon={<TrendingUp fontSize="large" />}
             label="Estimated Annual wRVUs"
             value={formatNumber(metrics.annualWRVUs)}
+            difference={formatDifference(metrics.annualWRVUs, adjustedMetrics.annualWRVUs, formatNumber)}
           />
         </Grid>
       </Grid>
@@ -217,6 +239,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
     patientsPerHour: 2,
     patientsPerDay: 16,
     avgWRVUPerEncounter: 1.5,
+    adjustedWRVUPerEncounter: 1.5, // Initialize with the same value as avgWRVUPerEncounter
     baseSalary: 150000,
     wrvuConversionFactor: 45.52,
   });
@@ -235,6 +258,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
   const [totalEstimatedWRVUs, setTotalEstimatedWRVUs] = useState(0);
   const [totalVisits, setTotalVisitsLocal] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [adjustedMetrics, setAdjustedMetrics] = useState({});
 
   const handleInputChange = (name, value) => {
     setInputs(prevInputs => ({
@@ -295,16 +319,29 @@ function WRVUForecastingTool({ setTotalVisits }) {
     // Total compensation is base salary plus incentive payment
     const totalCompensation = inputs.baseSalary + incentivePayment;
 
-    setMetrics({
-      weeksWorkedPerYear,
-      clinicDaysPerYear: annualDays,
-      annualHours,
-      encountersPerWeek,
-      annualEncounters,
-      annualWRVUs,
-      incentivePayment,
-      totalCompensation
-    });
+    const calculateMetrics = (wrvuPerEncounter) => {
+      const annualWRVUs = annualEncounters * wrvuPerEncounter;
+      const totalWRVUCompensation = annualWRVUs * inputs.wrvuConversionFactor;
+      const incentivePayment = Math.max(0, totalWRVUCompensation - inputs.baseSalary);
+      const totalCompensation = inputs.baseSalary + incentivePayment;
+
+      return {
+        weeksWorkedPerYear,
+        clinicDaysPerYear: annualDays,
+        annualHours,
+        encountersPerWeek,
+        annualEncounters,
+        annualWRVUs,
+        incentivePayment,
+        totalCompensation
+      };
+    };
+
+    const currentMetrics = calculateMetrics(inputs.avgWRVUPerEncounter);
+    const adjustedMetrics = calculateMetrics(inputs.adjustedWRVUPerEncounter);
+
+    setMetrics(currentMetrics);
+    setAdjustedMetrics(adjustedMetrics);
 
     setTotalVisitsLocal(annualEncounters);
     setTotalVisits(annualEncounters);
@@ -371,10 +408,13 @@ function WRVUForecastingTool({ setTotalVisits }) {
             horizontal: 'center',
           }}
         >
-          <Typography sx={{ p: 2, maxWidth: 300 }}>
-            This screen allows you to input your work schedule details and average wRVU per encounter. 
+          <Typography sx={{ p: 2, maxWidth: 350 }}>
+            This screen allows you to input your work schedule details and wRVU per encounter. 
             It calculates your estimated annual wRVUs, encounters, and potential compensation based on 
-            your inputs. Adjust the values to see how changes affect your productivity and compensation forecasts.
+            your inputs. The "Adjusted wRVU Per Encounter" field lets you see how changes in your 
+            billing efficiency might affect your productivity and compensation. 
+            Adjustments are reflected in the Estimated Total Compensation and Estimated Annual wRVUs 
+            in the Productivity Summary section. Experiment with different values to forecast various scenarios.
           </Typography>
         </Popover>
         
@@ -414,6 +454,16 @@ function WRVUForecastingTool({ setTotalVisits }) {
                 min={0}
               />
               <CustomNumberInput
+                label="Adjusted wRVU Per Encounter"
+                name="adjustedWRVUPerEncounter"
+                value={inputs.adjustedWRVUPerEncounter}
+                onChange={handleInputChange}
+                icon={<TrendingUp />}
+                step={0.01}
+                min={0}
+                decimalScale={2}
+              />
+              <CustomNumberInput
                 label="Base Salary"
                 name="baseSalary"
                 value={inputs.baseSalary}
@@ -448,7 +498,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
           </Grid>
         </Grid>
 
-        <ProductivitySummary metrics={metrics} />
+        <ProductivitySummary metrics={metrics} adjustedMetrics={adjustedMetrics} />
 
         {/* You can add your DetailedProjections component here if needed */}
       </Paper>

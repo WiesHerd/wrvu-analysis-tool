@@ -5,7 +5,7 @@ import {
   CircularProgress, Alert, TextField, Grid, FormControlLabel,
   Switch, InputAdornment, IconButton, TableFooter, Container,
   Autocomplete, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
-  Popover // Add this
+  Popover // Add this line
 } from '@mui/material';
 import { UploadFile, CalendarToday, AccessTime, People, TrendingUp, AttachMoney, Add, Delete, Celebration, Event, School, Refresh, Remove, InfoOutlined } from '@mui/icons-material';
 import Papa from 'papaparse';
@@ -81,6 +81,7 @@ function DetailedWRVUForecaster() {
   const [searchTerm, setSearchTerm] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [inputs, setInputs] = useState({});
 
   useEffect(() => {
     const savedData = localStorage.getItem('detailedWRVUData');
@@ -320,6 +321,13 @@ function DetailedWRVUForecaster() {
     setAnchorEl(null);
   };
 
+  const handleInputChange = (name, value) => {
+    setInputs(prevInputs => ({
+      ...prevInputs,
+      [name]: value
+    }));
+  };
+
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
@@ -357,7 +365,8 @@ function DetailedWRVUForecaster() {
           }}
         >
           <Typography sx={{ p: 2, maxWidth: 300 }}>
-            This screen allows you to perform a detailed analysis of your wRVU production by code. 
+           Before using this screen please upload your CMS Fee Schedule. 
+            This screen allows you to perform a detailed analysis of your wRVU production by code.  
             You can input your work schedule, patient encounters, and customize your code utilization. 
             The tool calculates estimated annual wRVUs, patient encounters, and potential compensation 
             based on your inputs.

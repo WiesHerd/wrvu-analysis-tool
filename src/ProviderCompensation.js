@@ -478,7 +478,8 @@ function ProviderCompensation({ savedMonthlyRvus, setSavedMonthlyRvus }) {
           </Grid>
         </Grid>
       </Paper>
-      
+      <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 4 }}>
+              </Typography>
     </Container>
   );
 }
