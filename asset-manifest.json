@@ -1,10 +1,10 @@
 {
   "files": {
-    "main.js": "/wrvu-analysis-tool/static/js/main.d4b80a6b.js",
+    "main.js": "/wrvu-analysis-tool/static/js/main.e8e07385.js",
     "index.html": "/wrvu-analysis-tool/index.html",
-    "main.d4b80a6b.js.map": "/wrvu-analysis-tool/static/js/main.d4b80a6b.js.map"
+    "main.e8e07385.js.map": "/wrvu-analysis-tool/static/js/main.e8e07385.js.map"
   },
   "entrypoints": [
-    "static/js/main.d4b80a6b.js"
+    "static/js/main.e8e07385.js"
   ]
 }
