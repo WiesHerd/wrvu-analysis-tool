@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, Container, Box } from '@mui/material';
 import ProviderCompensation from './ProviderCompensation';
 import WRVUForecastingTool from './WRVUForecastingTool';
