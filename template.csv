@@ -1,11 +1,21 @@
-CPT Code,Modifier,Description,wRVU
-99213,,Office/outpatient visit est,0.97
-99214,,Office/outpatient visit est,1.50
-99215,,Office/outpatient visit est,2.11
-99203,,Office/outpatient visit new,1.60
-99204,,Office/outpatient visit new,2.60
-99205,,Office/outpatient visit new,3.50
-99395,,Prev visit est age 18-39,1.50
-99396,,Prev visit est age 40-64,1.50
-99397,,Prev visit est age 65+,1.50
-99384,,Prev visit new age 12-17,1.50 
+Procedure Code,Modifier,Description,Work RVUs
+99202,,Office Visit, New Patient, Level 2,0.48
+99203,,Office Visit, New Patient, Level 3,0.78
+99204,,Office Visit, New Patient, Level 4,2.60
+99205,,Office Visit, New Patient, Level 5,3.50
+99211,,Office Visit, Established Patient, Level 1,0.18
+99212,,Office Visit, Established Patient, Level 2,0.70
+99213,,Office Visit, Established Patient, Level 3,1.50
+99214,,Office Visit, Established Patient, Level 4,2.43
+99215,,Office Visit, Established Patient, Level 5,3.17
+99221,,Initial Hospital Care, Level 1,1.63
+99222,,Initial Hospital Care, Level 2,2.60
+99223,,Initial Hospital Care, Level 3,3.50
+99231,,Subsequent Hospital Care, Level 1,1.00
+99232,,Subsequent Hospital Care, Level 2,1.50
+99233,,Subsequent Hospital Care, Level 3,2.43
+99281,,ED Visit, Level 1,0.18
+99282,,ED Visit, Level 2,1.24
+99283,,ED Visit, Level 3,2.11
+99284,,ED Visit, Level 4,3.50
+99285,,ED Visit, Level 5,5.17 
