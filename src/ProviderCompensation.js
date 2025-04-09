@@ -18,6 +18,7 @@ import { Pie, Bar } from 'react-chartjs-2';
 import { AttachMoney, TrendingUp, MonetizationOn, EmojiEvents, Clear, InfoOutlined } from '@mui/icons-material';
 import Chart from 'chart.js/auto';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
+import { NumericFormat } from 'react-number-format';
 
 Chart.register(ChartDataLabels);
 
@@ -236,8 +237,8 @@ function ProviderCompensation({ savedMonthlyRvus, setSavedMonthlyRvus }) {
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-          <Typography variant="h4" align="center" sx={{ mb: 1, fontWeight: 'bold', color: '#333' }}>
-            Compensation Forecast
+          <Typography variant="h4" align="center" sx={{ mb: 1, fontWeight: 'bold', color: '#1976d2' }}>
+            Monthly Performance
           </Typography>
           <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
             <InfoOutlined />
@@ -249,11 +250,11 @@ function ProviderCompensation({ savedMonthlyRvus, setSavedMonthlyRvus }) {
           sx={{ 
             color: 'text.secondary', 
             mb: 4, 
-            fontSize: '1.1rem', 
+            fontSize: '1.1rem',
             fontWeight: 'normal' 
           }}
         >
-          Annual wRVU Projection
+          Track RVUs and Projected Compensation
         </Typography>
         <Popover
           open={Boolean(anchorEl)}
@@ -302,24 +303,33 @@ function ProviderCompensation({ savedMonthlyRvus, setSavedMonthlyRvus }) {
                 type="text"
               />
 
-              <TextField
-                label="Conversion Factor"
-                value={conversionFactor}
-                onChange={(e) => setConversionFactor(parseFloat(e.target.value) || 0)}
-                InputProps={{
-                  startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                  endAdornment: <InputAdornment position="end">/ RVU</InputAdornment>,
-                  sx: { 
-                    borderRadius: '12px',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#e0e0e0',
-                    },
-                  },
-                }}
+              <NumericFormat
+                customInput={TextField}
                 fullWidth
                 margin="normal"
-                variant="outlined"
-                type="number"
+                label="Conversion Factor ($/RVU)"
+                value={conversionFactor}
+                onValueChange={(values) => setConversionFactor(values.floatValue)}
+                decimalScale={2}
+                fixedDecimalScale={true}
+                InputProps={{
+                  startAdornment: <InputAdornment position="start"><AttachMoney /></InputAdornment>,
+                }}
+              />
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Target Annual wRVUs"
+                value={conversionFactor ? new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(salary / conversionFactor) : '0'}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <TrendingUp />
+                    </InputAdornment>
+                  ),
+                  readOnly: true,
+                }}
+                helperText="Target wRVUs needed to reach base salary (Base Salary ÷ Conversion Factor)"
               />
 
               <TextField
