@@ -236,26 +236,38 @@ function ProviderCompensation({ savedMonthlyRvus, setSavedMonthlyRvus }) {
   return (
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-          <Typography variant="h4" align="center" sx={{ mb: 1, fontWeight: 'bold', color: '#1976d2' }}>
-            Monthly Performance
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mb: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography 
+              variant="h4" 
+              align="center" 
+              sx={{ 
+                fontWeight: 700,
+                background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}
+            >
+              Monthly Performance
+            </Typography>
+            <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
+              <InfoOutlined />
+            </IconButton>
+          </Box>
+          <Typography 
+            variant="h6" 
+            align="center" 
+            sx={{ 
+              color: 'text.secondary', 
+              mb: 3, 
+              mt: 0.5,
+              fontSize: '1.1rem',
+              fontWeight: 'normal' 
+            }}
+          >
+            Track RVUs and Projected Compensation
           </Typography>
-          <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
-            <InfoOutlined />
-          </IconButton>
         </Box>
-        <Typography 
-          variant="h6" 
-          align="center" 
-          sx={{ 
-            color: 'text.secondary', 
-            mb: 4, 
-            fontSize: '1.1rem',
-            fontWeight: 'normal' 
-          }}
-        >
-          Track RVUs and Projected Compensation
-        </Typography>
         <Popover
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}

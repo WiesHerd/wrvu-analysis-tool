@@ -528,26 +528,38 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
   return (
     <Container maxWidth="lg">
       <Paper elevation={3} sx={{ p: 4, mt: 4, borderRadius: '16px', border: '1px solid #e0e0e0' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 4 }}>
-          <Typography variant="h4" align="center" sx={{ mb: 1, fontWeight: 'bold', color: '#1976d2' }}>
-            Procedure Code Analysis & Forecasting
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mb: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography 
+              variant="h4" 
+              align="center" 
+              sx={{ 
+                fontWeight: 700,
+                background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}
+            >
+              Procedure Code Analysis & Forecasting
+            </Typography>
+            <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
+              <InfoOutlined />
+            </IconButton>
+          </Box>
+          <Typography 
+            variant="h6" 
+            align="center" 
+            sx={{ 
+              color: 'text.secondary', 
+              mb: 3, 
+              mt: 0.5,
+              fontSize: '1.1rem',
+              fontWeight: 'normal' 
+            }}
+          >
+            Detailed wRVU Analysis Based on Procedure Code Distribution
           </Typography>
-          <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
-            <InfoOutlined />
-          </IconButton>
         </Box>
-        <Typography 
-          variant="h6" 
-          align="center" 
-          sx={{ 
-            color: 'text.secondary', 
-            mb: 4, 
-            fontSize: '1.1rem',
-            fontWeight: 'normal' 
-          }}
-        >
-          Detailed wRVU Analysis Based on Procedure Code Distribution
-        </Typography>
         <Popover
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
