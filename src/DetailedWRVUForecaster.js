@@ -1014,82 +1014,84 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
         {isLoading && <CircularProgress />}
         {error && <Alert severity="error">{error}</Alert>}
 
-        {/* Management buttons moved to top */}
-        <Box sx={{ 
-          mb: 3, 
-          p: 2, 
-          border: '1px solid #e0e0e0',
-          borderRadius: '8px',
-          backgroundColor: '#fafafa'
-        }}>
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={4}>
-              <Button
-                variant="outlined"
-                startIcon={<Refresh />}
-                onClick={handleResetToDefault}
-                size="medium"
-                color="primary"
-                fullWidth
-                sx={{ 
-                  height: '40px',
-                  borderColor: '#1976d2',
-                  color: '#1976d2',
-                  '&:hover': {
-                    backgroundColor: 'rgba(25, 118, 210, 0.04)',
-                    borderColor: '#1565c0'
-                  }
-                }}
-              >
-                Reset Default Codes
-              </Button>
+        {/* Management buttons moved to top - only show when data exists */}
+        {procedureCodes.length > 0 && (
+          <Box sx={{ 
+            mb: 3, 
+            p: 2, 
+            border: '1px solid #e0e0e0',
+            borderRadius: '8px',
+            backgroundColor: '#fafafa'
+          }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={4}>
+                <Button
+                  variant="outlined"
+                  startIcon={<Refresh />}
+                  onClick={handleResetToDefault}
+                  size="medium"
+                  color="primary"
+                  fullWidth
+                  sx={{ 
+                    height: '40px',
+                    borderColor: '#1976d2',
+                    color: '#1976d2',
+                    '&:hover': {
+                      backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                      borderColor: '#1565c0'
+                    }
+                  }}
+                >
+                  Reset Default Codes
+                </Button>
+              </Grid>
+              
+              <Grid item xs={12} sm={4}>
+                <Button
+                  component="label"
+                  variant="outlined"
+                  startIcon={<UploadFile />}
+                  size="medium"
+                  fullWidth
+                  sx={{ 
+                    height: '40px',
+                    borderColor: '#2e7d32',
+                    color: '#2e7d32',
+                    '&:hover': {
+                      backgroundColor: 'rgba(46, 125, 50, 0.04)',
+                      borderColor: '#1b5e20'
+                    }
+                  }}
+                >
+                  Upload Fee Schedule
+                  <input type="file" hidden onChange={handleFileUpload} accept=".csv" />
+                </Button>
+              </Grid>
+              
+              <Grid item xs={12} sm={4}>
+                <Button
+                  variant="outlined"
+                  startIcon={<Delete />}
+                  onClick={handleClearAllCodes}
+                  size="medium"
+                  color="error"
+                  fullWidth
+                  sx={{ 
+                    height: '40px',
+                    borderColor: '#d32f2f',
+                    color: '#d32f2f',
+                    '&:hover': {
+                      backgroundColor: 'rgba(211, 47, 47, 0.04)',
+                      borderColor: '#c62828'
+                    }
+                  }}
+                >
+                  Clear All Codes
+                </Button>
+              </Grid>
             </Grid>
-            
-            <Grid item xs={12} sm={4}>
-              <Button
-                component="label"
-                variant="outlined"
-                startIcon={<UploadFile />}
-                size="medium"
-                fullWidth
-                sx={{ 
-                  height: '40px',
-                  borderColor: '#2e7d32',
-                  color: '#2e7d32',
-                  '&:hover': {
-                    backgroundColor: 'rgba(46, 125, 50, 0.04)',
-                    borderColor: '#1b5e20'
-                  }
-                }}
-              >
-                Upload Fee Schedule
-                <input type="file" hidden onChange={handleFileUpload} accept=".csv" />
-              </Button>
-            </Grid>
-            
-            <Grid item xs={12} sm={4}>
-              <Button
-                variant="outlined"
-                startIcon={<Delete />}
-                onClick={handleClearAllCodes}
-                size="medium"
-                color="error"
-                fullWidth
-                sx={{ 
-                  height: '40px',
-                  borderColor: '#d32f2f',
-                  color: '#d32f2f',
-                  '&:hover': {
-                    backgroundColor: 'rgba(211, 47, 47, 0.04)',
-                    borderColor: '#c62828'
-                  }
-                }}
-              >
-                Clear All Codes
-              </Button>
-            </Grid>
-          </Grid>
-        </Box>
+          </Box>
+        )}
 
         {procedureCodes.length > 0 ? (
           <Box sx={{ mb: 4 }}>
@@ -1226,32 +1228,37 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
             </TableContainer>
           </Box>
         ) : (
-          <Box sx={{ textAlign: 'center', p: 4, mb: 4, border: '1px solid #e0e0e0', borderRadius: '16px', backgroundColor: '#fff' }}>
-            <Typography variant="h6" sx={{ mb: 2, color: '#1976d2', fontWeight: 'bold' }}>
-              No procedure codes loaded
+          <Box sx={{ textAlign: 'center', p: 6, mb: 4, border: '1px solid #e0e0e0', borderRadius: '16px', background: 'linear-gradient(to bottom, #f9f9f9, #ffffff)' }}>
+            <Typography variant="h5" sx={{ mb: 3, color: '#1976d2', fontWeight: 'bold' }}>
+              No Procedure Codes Loaded
             </Typography>
-            <Typography variant="body1" sx={{ mb: 4 }}>
-              To get started, choose one of these options:
+            <Typography variant="body1" sx={{ mb: 4, fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>
+              To analyze procedure codes and calculate wRVUs, you need to add codes first:
             </Typography>
-            <Grid container spacing={2} justifyContent="center" sx={{ maxWidth: 800, margin: '0 auto' }}>
+            <Grid container spacing={3} justifyContent="center" sx={{ maxWidth: 850, margin: '0 auto' }}>
               <Grid item xs={12} sm={4}>
                 <Button 
-                  variant="outlined"
-                  startIcon={<Add />}
-                  onClick={() => setAddDialogOpen(true)}
+                  variant="contained"
+                  startIcon={<Refresh />}
+                  onClick={handleResetToDefault}
                   fullWidth
+                  size="large"
                   sx={{ 
-                    height: '40px',
-                    borderColor: '#1976d2',
-                    color: '#1976d2',
+                    py: 1.5,
+                    borderRadius: '10px',
+                    backgroundColor: '#1976d2',
                     '&:hover': {
-                      backgroundColor: 'rgba(25, 118, 210, 0.04)',
-                      borderColor: '#1565c0'
+                      backgroundColor: '#1565c0',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 6px 10px rgba(0, 0, 0, 0.1)'
                     }
                   }}
                 >
-                  Add Code Manually
+                  Load Default E/M Codes
                 </Button>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Instantly load standard E/M codes with default values
+                </Typography>
               </Grid>
               
               <Grid item xs={12} sm={4}>
@@ -1260,39 +1267,55 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                   variant="outlined"
                   startIcon={<UploadFile />}
                   fullWidth
+                  size="large"
                   sx={{ 
-                    height: '40px',
+                    py: 1.5,
+                    borderRadius: '10px',
+                    borderWidth: '2px',
                     borderColor: '#2e7d32',
                     color: '#2e7d32',
                     '&:hover': {
                       backgroundColor: 'rgba(46, 125, 50, 0.04)',
-                      borderColor: '#1b5e20'
+                      borderColor: '#1b5e20',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 6px 10px rgba(0, 0, 0, 0.1)'
                     }
                   }}
                 >
                   Upload Fee Schedule
                   <input type="file" hidden onChange={handleFileUpload} accept=".csv" />
                 </Button>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Upload a CSV file with your organization's codes
+                </Typography>
               </Grid>
               
               <Grid item xs={12} sm={4}>
                 <Button 
                   variant="outlined"
-                  startIcon={<Refresh />}
-                  onClick={handleResetToDefault}
+                  startIcon={<Add />}
+                  onClick={() => setAddDialogOpen(true)}
                   fullWidth
+                  size="large"
                   sx={{ 
-                    height: '40px',
+                    py: 1.5,
+                    borderRadius: '10px',
+                    borderWidth: '2px',
                     borderColor: '#0288d1',
                     color: '#0288d1',
                     '&:hover': {
                       backgroundColor: 'rgba(2, 136, 209, 0.04)',
-                      borderColor: '#01579b'
+                      borderColor: '#01579b',
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 6px 10px rgba(0, 0, 0, 0.1)'
                     }
                   }}
                 >
-                  Load Default Codes
+                  Add Codes Manually
                 </Button>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                  Create custom procedure codes individually
+                </Typography>
               </Grid>
             </Grid>
           </Box>
