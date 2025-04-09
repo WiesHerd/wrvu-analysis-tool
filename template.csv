@@ -1,0 +1,11 @@
+CPT Code,Modifier,Description,wRVU
+99213,,Office/outpatient visit est,0.97
+99214,,Office/outpatient visit est,1.50
+99215,,Office/outpatient visit est,2.11
+99203,,Office/outpatient visit new,1.60
+99204,,Office/outpatient visit new,2.60
+99205,,Office/outpatient visit new,3.50
+99395,,Prev visit est age 18-39,1.50
+99396,,Prev visit est age 40-64,1.50
+99397,,Prev visit est age 65+,1.50
+99384,,Prev visit new age 12-17,1.50 
