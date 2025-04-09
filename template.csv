@@ -1,24 +1,24 @@
-CPT Code,Modifier,Description,wRVU
-99202,,Office/outpatient visit new,0.93
-99203,,Office/outpatient visit new,1.60
-99204,,Office/outpatient visit new,2.60
-99205,,Office/outpatient visit new,3.50
-99211,,Office/outpatient visit est,0.18
-99212,,Office/outpatient visit est,0.70
-99213,,Office/outpatient visit est,1.30
-99214,,Office/outpatient visit est,1.92
-99215,,Office/outpatient visit est,2.80
+﻿Procedure Code,Modifier,Description,wRVU
+99202,,Office/outpatient visit new 15-29 min,0.93
+99203,,Office/outpatient visit new 30-44 min,1.60
+99204,,Office/outpatient visit new 45-59 min,2.60
+99205,,Office/outpatient visit new 60-74 min,3.50
+99211,,Office/outpatient visit est minimal,0.18
+99212,,Office/outpatient visit est 10-19 min,0.70
+99213,,Office/outpatient visit est 20-29 min,1.30
+99214,,Office/outpatient visit est 30-39 min,1.92
+99215,,Office/outpatient visit est 40-54 min,2.80
 99381,,Init pm e/m <1 yr,0.00
 99382,,Init pm e/m 1-4 yrs,0.00
 99383,,Init pm e/m 5-11 yrs,0.00
 99384,,Init pm e/m 12-17 yrs,0.00
-99385,,Init pm e/m 18-39 yrs,0.00
-99386,,Init pm e/m 40-64 yrs,0.00
-99387,,Init pm e/m 65+ yrs,0.00
+99385,,Preventive visit new 18-39 years,1.92
+99386,,Preventive visit new 40-64 years,2.30
+99387,,Preventive visit new 65+ years,2.50
 99391,,Per pm e/m <1 yr,0.00
 99392,,Per pm e/m 1-4 yrs,0.00
 99393,,Per pm e/m 5-11 yrs,0.00
 99394,,Per pm e/m 12-17 yrs,0.00
-99395,,Per pm e/m 18-39 yrs,0.00
-99396,,Per pm e/m 40-64 yrs,0.00
-99397,,Per pm e/m 65+ yrs,0.00 
+99395,,Preventive visit est 18-39 years,1.50
+99396,,Preventive visit est 40-64 years,1.92
+99397,,Preventive visit est 65+ years,2.30
