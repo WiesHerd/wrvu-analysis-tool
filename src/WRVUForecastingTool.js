@@ -1,51 +1,89 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
-  Box, Typography, Paper, Grid, Container, TextField, InputAdornment, Switch, FormControlLabel, Slider, Divider, Button, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow
+  Box, Typography, Paper, Grid, Container, TextField, InputAdornment, Switch, FormControlLabel, Slider, Divider, Button, IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableFooter, Tooltip
 } from '@mui/material';
 import { CalendarToday, AccessTime, People, TrendingUp, AttachMoney, School, Celebration, Assignment, Add, Remove, Delete, Event, InfoOutlined } from '@mui/icons-material';
 import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip as ChartTooltip, Legend } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { NumericFormat } from 'react-number-format';
 import { Popover } from '@mui/material';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, ChartDataLabels);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, ChartTooltip, Legend, ChartDataLabels);
 
-function CustomNumberInput({ label, value, onChange, icon, min = 0, max = Infinity, step = 1, name, isCurrency = false, ...props }) {
+function CustomNumberInput({ label, value, onChange, icon, min = 0, max = Infinity, step = 0.01, ...props }) {
   const handleIncrement = () => {
-    onChange(name, Math.min(value + step, max));
+    const newValue = Number((value + step).toFixed(2));
+    onChange(Math.min(newValue, max));
   };
 
   const handleDecrement = () => {
-    onChange(name, Math.max(value - step, min));
+    const newValue = Number((value - step).toFixed(2));
+    onChange(Math.max(newValue, min));
   };
 
   return (
-    <NumericFormat
-      customInput={TextField}
+    <TextField
       fullWidth
       margin="normal"
       label={label}
-      value={value}
-      onValueChange={(values) => onChange(name, values.floatValue)}
-      thousandSeparator={true}
-      prefix={isCurrency ? '' : undefined}
+      value={value === 0 ? '' : value}
+      onChange={(e) => {
+        const val = e.target.value === '' ? min : Number(e.target.value);
+        onChange(isNaN(val) ? min : Math.max(min, Math.min(val, max)));
+      }}
       InputProps={{
-        startAdornment: (
+        startAdornment: icon && (
           <InputAdornment position="start">
-            {isCurrency ? <AttachMoney /> : icon}
+            {icon}
           </InputAdornment>
         ),
         endAdornment: (
           <InputAdornment position="end">
-            <IconButton size="small" onClick={handleDecrement}>
-              <Remove fontSize="small" />
-            </IconButton>
-            <IconButton size="small" onClick={handleIncrement}>
-              <Add fontSize="small" />
-            </IconButton>
+            <Box sx={{ 
+              display: 'flex', 
+              gap: '2px',
+              bgcolor: 'rgba(0,0,0,0.03)',
+              borderRadius: '4px',
+              padding: '2px',
+              '&:hover': {
+                bgcolor: 'rgba(0,0,0,0.05)'
+              }
+            }}>
+              <IconButton 
+                size="small" 
+                onClick={handleDecrement}
+                sx={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '4px',
+                  '&:hover': {
+                    bgcolor: 'primary.main',
+                    color: 'white'
+                  }
+                }}
+              >
+                <Remove sx={{ fontSize: '0.9rem' }} />
+              </IconButton>
+              <IconButton 
+                size="small" 
+                onClick={handleIncrement}
+                sx={{
+                  width: '20px',
+                  height: '20px',
+                  borderRadius: '4px',
+                  '&:hover': {
+                    bgcolor: 'primary.main',
+                    color: 'white'
+                  }
+                }}
+              >
+                <Add sx={{ fontSize: '0.9rem' }} />
+              </IconButton>
+            </Box>
           </InputAdornment>
         ),
+        ...props.InputProps
       }}
       {...props}
     />
@@ -56,32 +94,37 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
   return (
     <Paper elevation={3} sx={{ p: 3, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0' }}>
       <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>Work Schedule</Typography>
-      <CustomNumberInput
-        label="Vacation Weeks per Year"
-        name="vacationWeeks"
-        value={inputs.vacationWeeks}
-        onChange={handleInputChange}
-        icon={<Celebration />}
-        min={0}
-        max={52}
-      />
+      <Box sx={{ mt: 2 }}>
+        <CustomNumberInput
+          label="Vacation Weeks per Year"
+          name="vacationWeeks"
+          value={inputs.vacationWeeks}
+          onChange={(value) => handleInputChange('vacationWeeks', value)}
+          icon={<Celebration />}
+          min={0}
+          max={52}
+          step={1}
+        />
+      </Box>
       <CustomNumberInput
         label="Statutory Holidays per Year"
         name="statutoryHolidays"
         value={inputs.statutoryHolidays}
-        onChange={handleInputChange}
+        onChange={(value) => handleInputChange('statutoryHolidays', value)}
         icon={<Event />}
         min={0}
         max={365}
+        step={1}
       />
       <CustomNumberInput
         label="CME Days per Year"
         name="cmeDays"
         value={inputs.cmeDays}
-        onChange={handleInputChange}
+        onChange={(value) => handleInputChange('cmeDays', value)}
         icon={<School />}
         min={0}
         max={365}
+        step={1}
       />
       <Typography variant="subtitle1" gutterBottom sx={{ mt: 3, mb: 2, fontWeight: 'bold' }}>Shift Types</Typography>
       {inputs.shifts.map((shift, index) => (
@@ -100,7 +143,7 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
             onChange={(e) => handleShiftChange(index, 'hours', e.target.value)}
           />
           <TextField
-            sx={{ mr: 1, width: '80px' }}
+            sx={{ mr: 1, width: '100px', '& .MuiInputBase-input': { px: 1 } }}
             type="number"
             label="Per Week"
             value={shift.perWeek}
@@ -152,15 +195,20 @@ function ProductivitySummary({ metrics, adjustedMetrics }) {
         <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#333' }}>{value}</Typography>
           {difference && difference !== '+$0' && difference !== '+0' && (
-            <Typography 
-              variant="h5" 
-              sx={{ 
-                fontWeight: 'bold', 
-                color: difference.startsWith('+') ? 'success.main' : 'error.main'
-              }}
-            >
-              {difference}
-            </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography 
+                variant="h5" 
+                sx={{ 
+                  fontWeight: 'bold', 
+                  color: difference.startsWith('+') ? 'success.main' : 'error.main'
+                }}
+              >
+                {difference}
+              </Typography>
+              <Tooltip title="Potential increase from improved wRVU capture (using adjusted wRVU)">
+                <InfoOutlined sx={{ ml: 1, fontSize: '1rem', color: 'text.secondary', cursor: 'help' }} />
+              </Tooltip>
+            </Box>
           )}
         </Box>
       </Box>
@@ -259,8 +307,10 @@ function WRVUForecastingTool({ setTotalVisits }) {
   const [totalVisits, setTotalVisitsLocal] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
   const [adjustedMetrics, setAdjustedMetrics] = useState({});
+  const [isUploadInstructionsOpen, setIsUploadInstructionsOpen] = useState(false);
 
   const handleInputChange = (name, value) => {
+    console.log(`Changing ${name} to`, value);
     setInputs(prevInputs => ({
       ...prevInputs,
       [name]: value
@@ -376,7 +426,17 @@ function WRVUForecastingTool({ setTotalVisits }) {
     <Container maxWidth="lg" sx={{ mt: 4 }}>
       <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}> {/* Increased border radius */}
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-          <Typography variant="h4" align="center" sx={{ mb: 1, fontWeight: 'bold' }}>
+          <Typography 
+            variant="h4" 
+            align="center" 
+            sx={{ 
+              mb: 1, 
+              fontWeight: 700,
+              background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}
+          >
             Compensation Forecast
           </Typography>
           <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
@@ -430,69 +490,316 @@ function WRVUForecastingTool({ setTotalVisits }) {
           
           <Grid item xs={12} md={6}>
             <Paper elevation={3} sx={{ p: 3, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0' }}>
-              <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>Patient Encounters</Typography>
-              <FormControlLabel
-                control={<Switch checked={isPerHour} onChange={handleSwitchChange} />}
-                label={isPerHour ? "Patients Per Hour" : "Patients Per Day"}
-                sx={{ mb: 2 }}
-              />
-              <CustomNumberInput
-                label={isPerHour ? "Patients Seen Per Hour" : "Patients Seen Per Day"}
-                name={isPerHour ? "patientsPerHour" : "patientsPerDay"}
-                value={isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay}
-                onChange={handleInputChange}
-                icon={<People />}
-                min={0}
-              />
-              <CustomNumberInput
-                label="Average wRVU Per Encounter"
-                name="avgWRVUPerEncounter"
-                value={inputs.avgWRVUPerEncounter}
-                onChange={handleInputChange}
-                icon={<TrendingUp />}
-                step={0.1}
-                min={0}
-              />
-              <CustomNumberInput
-                label="Adjusted wRVU Per Encounter"
-                name="adjustedWRVUPerEncounter"
-                value={inputs.adjustedWRVUPerEncounter}
-                onChange={handleInputChange}
-                icon={<TrendingUp />}
-                step={0.01}
-                min={0}
-                decimalScale={2}
-              />
-              <CustomNumberInput
-                label="Base Salary"
-                name="baseSalary"
-                value={inputs.baseSalary}
-                onChange={handleInputChange}
-                isCurrency={true}
-                min={0}
-              />
-              <TextField
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                <Typography variant="h6" gutterBottom sx={{ mb: 0, fontWeight: 'bold', color: '#1976d2' }}>Patient Encounters</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+                    {isPerHour ? "Patients Per Hour" : "Patients Per Day"}
+                  </Typography>
+                  <FormControlLabel
+                    control={<Switch checked={isPerHour} onChange={handleSwitchChange} />}
+                    label=""
+                    sx={{ mb: 0, mr: 0 }}
+                  />
+                </Box>
+              </Box>
+              <Box sx={{ mt: '24px' }}> {/* Add top margin to align with left container */}
+                <NumericFormat
+                  customInput={TextField}
+                  fullWidth
+                  margin="normal"
+                  label={isPerHour ? "Patients Seen Per Hour" : "Patients Seen Per Day"}
+                  value={isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay}
+                  onValueChange={(values) => {
+                    const value = values.floatValue || 0;
+                    handleInputChange(isPerHour ? 'patientsPerHour' : 'patientsPerDay', value);
+                  }}
+                  decimalScale={0}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <People />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <Box sx={{ 
+                          display: 'flex', 
+                          gap: '2px',
+                          bgcolor: 'rgba(0,0,0,0.03)',
+                          borderRadius: '4px',
+                          padding: '2px',
+                          '&:hover': {
+                            bgcolor: 'rgba(0,0,0,0.05)'
+                          }
+                        }}>
+                          <IconButton 
+                            size="small" 
+                            onClick={() => {
+                              const field = isPerHour ? 'patientsPerHour' : 'patientsPerDay';
+                              const currentValue = isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay;
+                              handleInputChange(field, Math.max(0, currentValue - 1));
+                            }}
+                            sx={{
+                              width: '20px',
+                              height: '20px',
+                              borderRadius: '4px',
+                              '&:hover': {
+                                bgcolor: 'primary.main',
+                                color: 'white'
+                              }
+                            }}
+                          >
+                            <Remove sx={{ fontSize: '0.9rem' }} />
+                          </IconButton>
+                          <IconButton 
+                            size="small" 
+                            onClick={() => {
+                              const field = isPerHour ? 'patientsPerHour' : 'patientsPerDay';
+                              const currentValue = isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay;
+                              handleInputChange(field, currentValue + 1);
+                            }}
+                            sx={{
+                              width: '20px',
+                              height: '20px',
+                              borderRadius: '4px',
+                              '&:hover': {
+                                bgcolor: 'primary.main',
+                                color: 'white'
+                              }
+                            }}
+                          >
+                            <Add sx={{ fontSize: '0.9rem' }} />
+                          </IconButton>
+                        </Box>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Box>
+              <NumericFormat
+                customInput={TextField}
                 fullWidth
                 margin="normal"
-                type="number"
-                label="wRVU Conversion Factor"
-                name="wrvuConversionFactor"
-                value={inputs.wrvuConversionFactor}
-                onChange={handleInputChange}
+                label="Average wRVU Per Encounter"
+                value={inputs.avgWRVUPerEncounter}
+                onValueChange={(values) => handleInputChange('avgWRVUPerEncounter', values.floatValue || 0)}
+                decimalScale={2}
+                fixedDecimalScale
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <TrendingUp />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Box sx={{ 
+                        display: 'flex', 
+                        gap: '2px',
+                        bgcolor: 'rgba(0,0,0,0.03)',
+                        borderRadius: '4px',
+                        padding: '2px',
+                        '&:hover': {
+                          bgcolor: 'rgba(0,0,0,0.05)'
+                        }
+                      }}>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleInputChange('avgWRVUPerEncounter', Math.max(0, Number((inputs.avgWRVUPerEncounter - 0.01).toFixed(2))))}
+                          sx={{
+                            width: '20px',
+                            height: '20px',
+                            borderRadius: '4px',
+                            '&:hover': {
+                              bgcolor: 'primary.main',
+                              color: 'white'
+                            }
+                          }}
+                        >
+                          <Remove sx={{ fontSize: '0.9rem' }} />
+                        </IconButton>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleInputChange('avgWRVUPerEncounter', Number((inputs.avgWRVUPerEncounter + 0.01).toFixed(2)))}
+                          sx={{
+                            width: '20px',
+                            height: '20px',
+                            borderRadius: '4px',
+                            '&:hover': {
+                              bgcolor: 'primary.main',
+                              color: 'white'
+                            }
+                          }}
+                        >
+                          <Add sx={{ fontSize: '0.9rem' }} />
+                        </IconButton>
+                      </Box>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <NumericFormat
+                customInput={TextField}
+                fullWidth
+                margin="normal"
+                label="Adjusted wRVU Per Encounter"
+                value={inputs.adjustedWRVUPerEncounter}
+                onValueChange={(values) => handleInputChange('adjustedWRVUPerEncounter', values.floatValue || 0)}
+                decimalScale={2}
+                fixedDecimalScale
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <TrendingUp />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Box sx={{ 
+                        display: 'flex', 
+                        gap: '2px',
+                        bgcolor: 'rgba(0,0,0,0.03)',
+                        borderRadius: '4px',
+                        padding: '2px',
+                        '&:hover': {
+                          bgcolor: 'rgba(0,0,0,0.05)'
+                        }
+                      }}>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleInputChange('adjustedWRVUPerEncounter', Math.max(0, Number((inputs.adjustedWRVUPerEncounter - 0.01).toFixed(2))))}
+                          sx={{
+                            width: '20px',
+                            height: '20px',
+                            borderRadius: '4px',
+                            '&:hover': {
+                              bgcolor: 'primary.main',
+                              color: 'white'
+                            }
+                          }}
+                        >
+                          <Remove sx={{ fontSize: '0.9rem' }} />
+                        </IconButton>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => handleInputChange('adjustedWRVUPerEncounter', Number((inputs.adjustedWRVUPerEncounter + 0.01).toFixed(2)))}
+                          sx={{
+                            width: '20px',
+                            height: '20px',
+                            borderRadius: '4px',
+                            '&:hover': {
+                              bgcolor: 'primary.main',
+                              color: 'white'
+                            }
+                          }}
+                        >
+                          <Add sx={{ fontSize: '0.9rem' }} />
+                        </IconButton>
+                      </Box>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <NumericFormat
+                customInput={TextField}
+                fullWidth
+                margin="normal"
+                label="Base Salary"
+                value={inputs.baseSalary}
+                onValueChange={(values) => setInputs(prev => ({ ...prev, baseSalary: values.floatValue }))}
+                thousandSeparator={true}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
                       <AttachMoney />
                     </InputAdornment>
                   ),
-                  endAdornment: <InputAdornment position="end">/ wRVU</InputAdornment>,
-                  sx: { 
-                    borderRadius: '12px',
-                    '& .MuiOutlinedInput-notchedOutline': {
-                      borderColor: '#e0e0e0',
-                    },
-                  },
                 }}
+              />
+              <NumericFormat
+                customInput={TextField}
+                fullWidth
+                margin="normal"
+                label="wRVU Conversion Factor"
+                value={inputs.wrvuConversionFactor}
+                onValueChange={(values) => setInputs(prev => ({ ...prev, wrvuConversionFactor: values.floatValue }))}
+                decimalScale={2}
+                fixedDecimalScale
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <AttachMoney />
+                    </InputAdornment>
+                  ),
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <Box sx={{ 
+                        display: 'flex', 
+                        gap: '2px',
+                        bgcolor: 'rgba(0,0,0,0.03)',
+                        borderRadius: '4px',
+                        padding: '2px',
+                        '&:hover': {
+                          bgcolor: 'rgba(0,0,0,0.05)'
+                        }
+                      }}>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => {
+                            const newValue = Number((inputs.wrvuConversionFactor - 0.01).toFixed(2));
+                            setInputs(prev => ({ ...prev, wrvuConversionFactor: Math.max(0, newValue) }));
+                          }}
+                          sx={{
+                            width: '20px',
+                            height: '20px',
+                            borderRadius: '4px',
+                            '&:hover': {
+                              bgcolor: 'primary.main',
+                              color: 'white'
+                            }
+                          }}
+                        >
+                          <Remove sx={{ fontSize: '0.9rem' }} />
+                        </IconButton>
+                        <IconButton 
+                          size="small" 
+                          onClick={() => {
+                            const newValue = Number((inputs.wrvuConversionFactor + 0.01).toFixed(2));
+                            setInputs(prev => ({ ...prev, wrvuConversionFactor: newValue }));
+                          }}
+                          sx={{
+                            width: '20px',
+                            height: '20px',
+                            borderRadius: '4px',
+                            '&:hover': {
+                              bgcolor: 'primary.main',
+                              color: 'white'
+                            }
+                          }}
+                        >
+                          <Add sx={{ fontSize: '0.9rem' }} />
+                        </IconButton>
+                      </Box>
+                      <Box component="span" sx={{ ml: 1 }}>/ wRVU</Box>
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              <TextField
+                fullWidth
+                margin="normal"
+                label="Target Annual wRVUs"
+                value={inputs.wrvuConversionFactor ? new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(inputs.baseSalary / inputs.wrvuConversionFactor) : '0'}
+                InputProps={{
+                  readOnly: true,
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <TrendingUp />
+                    </InputAdornment>
+                  ),
+                }}
+                helperText="Target wRVUs needed to reach base salary (Base Salary ÷ Conversion Factor)"
               />
             </Paper>
           </Grid>
