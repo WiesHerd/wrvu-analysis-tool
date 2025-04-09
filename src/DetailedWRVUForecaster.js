@@ -123,7 +123,7 @@ const fabStyle = {
   zIndex: 1000,
 };
 
-function DetailedWRVUForecaster() {
+function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
   const [procedureCodes, setProcedureCodes] = useState([]);
   const [utilizationPercentages, setUtilizationPercentages] = useState({});
   const [isLoading, setIsLoading] = useState(false);
