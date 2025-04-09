@@ -1,21 +1,24 @@
-Procedure Code,Modifier,Description,Work RVUs
-99202,,Office Visit, New Patient, Level 2,0.48
-99203,,Office Visit, New Patient, Level 3,0.78
-99204,,Office Visit, New Patient, Level 4,2.60
-99205,,Office Visit, New Patient, Level 5,3.50
-99211,,Office Visit, Established Patient, Level 1,0.18
-99212,,Office Visit, Established Patient, Level 2,0.70
-99213,,Office Visit, Established Patient, Level 3,1.50
-99214,,Office Visit, Established Patient, Level 4,2.43
-99215,,Office Visit, Established Patient, Level 5,3.17
-99221,,Initial Hospital Care, Level 1,1.63
-99222,,Initial Hospital Care, Level 2,2.60
-99223,,Initial Hospital Care, Level 3,3.50
-99231,,Subsequent Hospital Care, Level 1,1.00
-99232,,Subsequent Hospital Care, Level 2,1.50
-99233,,Subsequent Hospital Care, Level 3,2.43
-99281,,ED Visit, Level 1,0.18
-99282,,ED Visit, Level 2,1.24
-99283,,ED Visit, Level 3,2.11
-99284,,ED Visit, Level 4,3.50
-99285,,ED Visit, Level 5,5.17 
+CPT Code,Modifier,Description,wRVU
+99202,,Office/outpatient visit new,0.93
+99203,,Office/outpatient visit new,1.60
+99204,,Office/outpatient visit new,2.60
+99205,,Office/outpatient visit new,3.50
+99211,,Office/outpatient visit est,0.18
+99212,,Office/outpatient visit est,0.70
+99213,,Office/outpatient visit est,1.30
+99214,,Office/outpatient visit est,1.92
+99215,,Office/outpatient visit est,2.80
+99381,,Init pm e/m <1 yr,0.00
+99382,,Init pm e/m 1-4 yrs,0.00
+99383,,Init pm e/m 5-11 yrs,0.00
+99384,,Init pm e/m 12-17 yrs,0.00
+99385,,Init pm e/m 18-39 yrs,0.00
+99386,,Init pm e/m 40-64 yrs,0.00
+99387,,Init pm e/m 65+ yrs,0.00
+99391,,Per pm e/m <1 yr,0.00
+99392,,Per pm e/m 1-4 yrs,0.00
+99393,,Per pm e/m 5-11 yrs,0.00
+99394,,Per pm e/m 12-17 yrs,0.00
+99395,,Per pm e/m 18-39 yrs,0.00
+99396,,Per pm e/m 40-64 yrs,0.00
+99397,,Per pm e/m 65+ yrs,0.00 
