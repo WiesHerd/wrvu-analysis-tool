@@ -1056,10 +1056,10 @@ function WRVUForecastingTool({ setTotalVisits }) {
                   <Typography 
                     variant="h4" 
                     sx={{ 
-                      fontWeight: 700,
-                      background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
-                      WebkitBackgroundClip: 'text',
-                      WebkitTextFillColor: 'transparent'
+                      mb: 1, 
+                      fontWeight: 'bold', 
+                      color: '#1976d2',
+                      fontSize: '1.75rem'
                     }}
                   >
                     Compensation Forecast
@@ -1073,9 +1073,8 @@ function WRVUForecastingTool({ setTotalVisits }) {
                   align="center" 
                   sx={{ 
                     color: 'text.secondary', 
-                    mb: 3, 
-                    mt: 0.5,
-                    fontSize: '1.1rem', 
+                    mb: 4, 
+                    fontSize: '1.1rem',
                     fontWeight: 'normal' 
                   }}
                 >
