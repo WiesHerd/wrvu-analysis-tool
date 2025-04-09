@@ -176,8 +176,15 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
   useEffect(() => {
     // Recalculate metrics when shifts change
     const newMetrics = calculateMetrics();
-    // Update state or perform other actions with newMetrics
-  }, [shifts, /* other dependencies */]);
+    
+    // Call the callback from the parent component with the updated metrics
+    if (onUpdateForecast) {
+      onUpdateForecast({
+        detailedForecast: procedureCodes,
+        totalEstimatedWRVUs: newMetrics.estimatedAnnualWRVUs
+      });
+    }
+  }, [shifts, procedureCodes, utilizationPercentages, baseSalary, wrvuConversionFactor, patientsPerDay, onUpdateForecast]);
 
   const handleFileUpload = (event) => {
     setIsLoading(true);
@@ -296,7 +303,13 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
 
     let totalAnnualPatientEncounters = 0;
     let patientsPerWeek = 0;
-    if (isPerHour) {
+    
+    // Use totalVisits from props if available, otherwise calculate based on inputs
+    if (totalVisits && totalVisits > 0) {
+      totalAnnualPatientEncounters = totalVisits;
+      // Derive patientsPerWeek from totalVisits and weeks worked per year
+      patientsPerWeek = totalVisits / effectiveWeeksWorkedPerYear;
+    } else if (isPerHour) {
       patientsPerWeek = weeklyHours * (patientsPerHour || 0);
       totalAnnualPatientEncounters = annualClinicalHours * (patientsPerHour || 0);
     } else {
