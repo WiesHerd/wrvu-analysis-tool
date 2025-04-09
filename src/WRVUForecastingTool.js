@@ -1050,13 +1050,12 @@ function WRVUForecastingTool({ setTotalVisits }) {
                 </Button>
               </Box>
 
-              {/* Centered title container */}
-              <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              {/* Centered title container - updated for consistent styling */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center' }}>
                   <Typography 
                     variant="h4" 
                     sx={{ 
-                      mb: 1, 
                       fontWeight: 700,
                       background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
                       WebkitBackgroundClip: 'text',
@@ -1069,6 +1068,19 @@ function WRVUForecastingTool({ setTotalVisits }) {
                     <InfoOutlined />
                   </IconButton>
                 </Box>
+                <Typography 
+                  variant="h6" 
+                  align="center" 
+                  sx={{ 
+                    color: 'text.secondary', 
+                    mb: 3, 
+                    mt: 0.5,
+                    fontSize: '1.1rem', 
+                    fontWeight: 'normal' 
+                  }}
+                >
+                  Schedule and Average wRVU Per Encounter Input
+                </Typography>
               </Box>
 
               {/* Print button positioned on the right */}
@@ -1187,18 +1199,6 @@ function WRVUForecastingTool({ setTotalVisits }) {
               </Box>
             )}
 
-            <Typography 
-              variant="h6" 
-              align="center" 
-              sx={{ 
-                color: 'text.secondary', 
-                mb: 4, 
-                fontSize: '1.1rem', 
-                fontWeight: 'normal' 
-              }}
-            >
-              Schedule and Average wRVU Per Encounter Input
-            </Typography>
             <Popover
               open={Boolean(anchorEl)}
               anchorEl={anchorEl}
