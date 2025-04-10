@@ -320,9 +320,9 @@ function StatItem({ icon, label, value, difference, tooltipText }) {
         transition: 'all 0.2s ease',
         position: 'relative',
         '&:hover': {
-          backgroundColor: 'rgba(25, 118, 210, 0.02)',
-          borderColor: 'rgba(25, 118, 210, 0.3)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+          backgroundColor: 'rgba(25, 118, 210, 0.01)',
+          borderColor: 'rgba(25, 118, 210, 0.2)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
           transform: 'translateY(-2px)',
           '& .stat-icon': {
             color: '#1976d2'
@@ -347,7 +347,7 @@ function StatItem({ icon, label, value, difference, tooltipText }) {
           <Box 
             className="stat-icon"
             sx={{ 
-              color: 'rgba(25, 118, 210, 0.7)', 
+              color: 'rgba(25, 118, 210, 0.5)', 
               mr: 2,
               display: 'flex',
               alignItems: 'center',
@@ -378,11 +378,11 @@ function StatItem({ icon, label, value, difference, tooltipText }) {
               size="small" 
               sx={{ 
                 ml: 'auto',
-                opacity: 0.5,
+                opacity: 0.4,
                 transition: 'opacity 0.2s ease',
                 '&:hover': {
-                  opacity: 1,
-                  backgroundColor: 'rgba(25, 118, 210, 0.08)'
+                  opacity: 0.8,
+                  backgroundColor: 'rgba(25, 118, 210, 0.05)'
                 }
               }}
             >
@@ -416,7 +416,7 @@ function StatItem({ icon, label, value, difference, tooltipText }) {
             <Box sx={{ 
               display: 'flex', 
               alignItems: 'center',
-              backgroundColor: 'rgba(76, 175, 80, 0.08)',
+              backgroundColor: 'rgba(76, 175, 80, 0.04)',
               borderRadius: '12px',
               px: 1.5,
               py: 0.5
@@ -443,10 +443,10 @@ function StatItem({ icon, label, value, difference, tooltipText }) {
                     ml: 1, 
                     fontSize: '1rem', 
                     color: '#2e7d32',
-                    opacity: 0.7,
+                    opacity: 0.6,
                     cursor: 'help',
                     '&:hover': {
-                      opacity: 1
+                      opacity: 0.9
                     }
                   }} />
                 </Tooltip>
