@@ -1189,25 +1189,23 @@ function WRVUForecastingTool({ setTotalVisits }) {
             }}>
               {/* Title and subtitle section */}
               <Box sx={{ 
-                textAlign: 'center',
-                mb: { xs: 3, sm: 4 }
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                mb: 2
               }}>
-                <Box sx={{ 
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  mb: 1
-                }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <Typography 
                     variant="h4" 
-                    align="center"
                     sx={{ 
-                      fontWeight: 'bold',
-                      color: '#1976d2',
-                      fontSize: { xs: '1.5rem', sm: '1.75rem' }
+                      mb: 1, 
+                      fontWeight: 700,
+                      background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent'
                     }}
                   >
-                    Compensation Forecast
+                    Annual Income Forecast
                   </Typography>
                   <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
                     <InfoOutlined />
@@ -1217,12 +1215,13 @@ function WRVUForecastingTool({ setTotalVisits }) {
                   variant="h6" 
                   align="center" 
                   sx={{ 
-                    color: 'text.secondary',
+                    color: 'text.secondary', 
+                    mb: 4, 
                     fontSize: '1.1rem',
-                    fontWeight: 'normal'
+                    fontWeight: 'normal' 
                   }}
                 >
-                  Schedule and Average wRVU Per Encounter Input
+                  Customize Your Schedule & Productivity Metrics
                 </Typography>
               </Box>
 
