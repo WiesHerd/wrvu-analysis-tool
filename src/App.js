@@ -4,6 +4,7 @@ import { AppBar, Toolbar, Typography, Button, Container, Box, ThemeProvider, cre
 import ProviderCompensation from './ProviderCompensation';
 import WRVUForecastingTool from './WRVUForecastingTool';
 import DetailedWRVUForecaster from './DetailedWRVUForecaster';
+import { Speed, Analytics, MonetizationOn } from '@mui/icons-material';
 
 // Create a professional theme with standardized typography
 const theme = createTheme({
@@ -117,61 +118,75 @@ function App() {
                   fontWeight: 700
                 }}
               >
-                Provider Analytics Dashboard
+                Provider Compensation Calculator
               </Typography>
-              <Box sx={{ 
-                display: 'flex', 
+              <Box sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
                 justifyContent: 'center',
-                gap: 1.5,
-                px: 2.5,
-                py: 1.5,
-                background: 'rgba(255, 255, 255, 0.7)',
-                backdropFilter: 'blur(10px)',
-                borderRadius: '24px',
-                width: 'fit-content',
-                margin: '0 auto',
-                boxShadow: '0 4px 24px rgba(0, 0, 0, 0.04)',
-                border: '1px solid rgba(255, 255, 255, 0.7)'
+                gap: { xs: 2, sm: 3 },
+                mb: 4,
+                width: '100%',
+                maxWidth: '800px',
+                mx: 'auto',
+                px: { xs: 2, sm: 0 }
               }}>
-                {[
-                  { to: "/", label: "Monthly Dashboard" },
-                  { to: "/quick-wrvu", label: "Quick Calculator" },
-                  { to: "/advanced-wrvu", label: "Procedure Code Analysis" }
-                ].map((item) => (
-                  <Button
-                    key={item.to}
-                    component={Link}
-                    to={item.to}
-                    onClick={() => setActiveRoute(item.to)}
-                    sx={{
-                      px: 2.5,
-                      py: 1.5,
-                      borderRadius: '16px',
-                      fontSize: '0.95rem',
-                      fontWeight: 600,
-                      textTransform: 'none',
-                      bgcolor: activeRoute === item.to ? 'primary.main' : 'transparent',
-                      color: activeRoute === item.to ? 'white' : '#334155',
-                      transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-                      '&:hover': {
-                        bgcolor: activeRoute === item.to ? 'primary.dark' : 'rgba(0, 0, 0, 0.04)',
-                        transform: 'translateY(-1px)',
-                        boxShadow: activeRoute === item.to ? '0 4px 16px rgba(33, 150, 243, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.06)'
-                      },
-                      '&:active': {
-                        transform: 'translateY(0)',
-                        boxShadow: 'none'
-                      }
-                    }}
-                  >
-                    {item.label}
-                  </Button>
-                ))}
+                <Button
+                  component={Link}
+                  to="/wrvu-forecast"
+                  variant="contained"
+                  startIcon={<Speed />}
+                  sx={{
+                    width: { xs: '100%', sm: 'auto' },
+                    minWidth: { sm: '200px' },
+                    py: 1.5,
+                    fontSize: '1rem',
+                    textTransform: 'none'
+                  }}
+                >
+                  Quick Forecast
+                </Button>
+                <Button
+                  component={Link}
+                  to="/detailed-wrvu"
+                  variant="contained"
+                  startIcon={<Analytics />}
+                  sx={{
+                    width: { xs: '100%', sm: 'auto' },
+                    minWidth: { sm: '200px' },
+                    py: 1.5,
+                    fontSize: '1rem',
+                    textTransform: 'none'
+                  }}
+                >
+                  Procedure Analysis
+                </Button>
+                <Button
+                  component={Link}
+                  to="/"
+                  variant="contained"
+                  startIcon={<MonetizationOn />}
+                  sx={{
+                    width: { xs: '100%', sm: 'auto' },
+                    minWidth: { sm: '200px' },
+                    py: 1.5,
+                    fontSize: '1rem',
+                    textTransform: 'none'
+                  }}
+                >
+                  Monthly Performance
+                </Button>
               </Box>
             </Container>
           </Box>
 
-          <Container maxWidth="lg">
+          <Container maxWidth="lg" sx={{ 
+            py: { xs: 3, sm: 4 },
+            px: { xs: 2, sm: 3 },
+            minHeight: '100vh',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
             <Routes>
               <Route path="/" element={<ProviderCompensation />} />
               <Route path="/quick-wrvu" element={<WRVUForecastingTool setTotalVisits={setTotalVisits} />} />
