@@ -1038,57 +1038,84 @@ function WRVUForecastingTool({ setTotalVisits }) {
           {/* Normal view content */}
           <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}> 
             <Box sx={{ position: 'relative', mb: 2 }}>
-              {/* Save button positioned on the left */}
-              <Box sx={{ position: 'absolute', left: 0, top: 0 }}>
+              {/* Header container with responsive layout */}
+              <Box sx={{ 
+                display: 'flex', 
+                flexDirection: { xs: 'column', sm: 'row' }, 
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: { xs: 2, sm: 0 },
+                mb: { xs: 3, sm: 2 }
+              }}>
+                {/* Save button */}
                 <Button 
                   variant="outlined" 
                   startIcon={<Save />} 
                   onClick={() => setShowSaveDialog(true)}
-                  sx={{ borderRadius: '20px' }}
+                  sx={{ 
+                    borderRadius: '20px',
+                    order: { xs: 2, sm: 1 },
+                    width: { xs: '100%', sm: 'auto' }
+                  }}
                 >
                   Save Scenario
                 </Button>
-              </Box>
 
-              {/* Centered title container - updated for consistent styling */}
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                {/* Centered title container */}
+                <Box sx={{ 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  alignItems: 'center',
+                  order: { xs: 1, sm: 2 },
+                  width: { xs: '100%', sm: 'auto' }
+                }}>
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '100%'
+                  }}>
+                    <Typography 
+                      variant="h4" 
+                      align="center"
+                      sx={{ 
+                        mb: 1, 
+                        fontWeight: 'bold', 
+                        color: '#1976d2',
+                        fontSize: { xs: '1.5rem', sm: '1.75rem' }
+                      }}
+                    >
+                      Compensation Forecast
+                    </Typography>
+                    <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
+                      <InfoOutlined />
+                    </IconButton>
+                  </Box>
                   <Typography 
-                    variant="h4" 
+                    variant="h6" 
+                    align="center" 
                     sx={{ 
-                      mb: 1, 
-                      fontWeight: 'bold', 
-                      color: '#1976d2',
-                      fontSize: '1.75rem'
+                      color: 'text.secondary', 
+                      mb: { xs: 2, sm: 4 }, 
+                      fontSize: '1.1rem',
+                      fontWeight: 'normal',
+                      px: { xs: 2, sm: 0 }
                     }}
                   >
-                    Compensation Forecast
+                    Schedule and Average wRVU Per Encounter Input
                   </Typography>
-                  <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
-                    <InfoOutlined />
-                  </IconButton>
                 </Box>
-                <Typography 
-                  variant="h6" 
-                  align="center" 
-                  sx={{ 
-                    color: 'text.secondary', 
-                    mb: 4, 
-                    fontSize: '1.1rem',
-                    fontWeight: 'normal' 
-                  }}
-                >
-                  Schedule and Average wRVU Per Encounter Input
-                </Typography>
-              </Box>
 
-              {/* Print button positioned on the right */}
-              <Box sx={{ position: 'absolute', right: 0, top: 0 }}>
+                {/* Print button */}
                 <Button 
                   variant="outlined" 
                   startIcon={<PrintIcon />} 
                   onClick={handlePrint}
-                  sx={{ borderRadius: '20px' }}
+                  sx={{ 
+                    borderRadius: '20px',
+                    order: { xs: 3, sm: 3 },
+                    width: { xs: '100%', sm: 'auto' }
+                  }}
                 >
                   Print Summary
                 </Button>
