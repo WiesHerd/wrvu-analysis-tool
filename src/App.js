@@ -218,16 +218,7 @@ function AppContent() {
                 <DetailedWRVUForecaster totalVisits={totalVisits} onUpdateForecast={handleUpdateForecast} />
               </motion.div>
             } />
-            <Route path="/" element={
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-              >
-                <ProviderCompensation />
-              </motion.div>
-            } />
+            <Route path="/" element={<Navigate to="/wrvu-forecast" replace />} />
             <Route path="*" element={<Navigate to="/wrvu-forecast" replace />} />
           </Routes>
         </AnimatePresence>
