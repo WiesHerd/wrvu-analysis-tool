@@ -261,68 +261,113 @@ function StatItem({ icon, label, value, difference, tooltipText }) {
   };
 
   return (
-    <Paper sx={{ 
-      p: 3,
-      height: '100%',
-      borderRadius: '16px',
-      border: '1px solid #e0e0e0',
-      backgroundColor: '#ffffff',
-      transition: 'all 0.3s ease',
-      '&:hover': {
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-        transform: 'translateY(-2px)'
-      }
-    }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-        <Box sx={{ color: '#1976d2', mr: 2 }}>{icon}</Box>
-        <Typography variant="subtitle1" color="text.secondary">{label}</Typography>
-        <Box sx={{ ml: 1, display: 'flex', alignItems: 'center' }}>
-          <Tooltip 
-            title={descriptions[label] || ""}
-            placement="top"
-            arrow
-          >
-            <IconButton size="small" sx={{ p: 0.5 }}>
-              <InfoOutlined sx={{ 
-                fontSize: '1.1rem', 
-                color: 'rgba(25, 118, 210, 0.7)',
-                '&:hover': {
-                  color: '#1976d2'
-                }
-              }} />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#333' }}>{value}</Typography>
-        {difference && (
-          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <Tooltip 
+      title={descriptions[label] || ""}
+      placement="top"
+      arrow
+      enterDelay={200}
+      leaveDelay={200}
+    >
+      <Paper sx={{ 
+        p: 3,
+        height: '100%',
+        borderRadius: '16px',
+        border: '1px solid #e0e0e0',
+        backgroundColor: '#ffffff',
+        transition: 'all 0.3s ease',
+        cursor: 'help',
+        '&:hover': {
+          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+          transform: 'translateY(-2px)',
+          borderColor: '#1976d2'
+        },
+        '@media (max-width: 600px)': {
+          p: 2
+        }
+      }}>
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: { xs: 'column', sm: 'row' },
+          alignItems: { xs: 'flex-start', sm: 'center' },
+          mb: 1 
+        }}>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            mb: { xs: 1, sm: 0 }
+          }}>
+            <Box sx={{ 
+              color: '#1976d2', 
+              mr: 2,
+              display: 'flex',
+              alignItems: 'center'
+            }}>
+              {icon}
+            </Box>
             <Typography 
               variant="subtitle1" 
-              sx={{ 
-                fontWeight: 'bold', 
-                color: 'success.main',
-                ml: 2
+              color="text.secondary"
+              sx={{
+                fontSize: { xs: '0.875rem', sm: '1rem' }
               }}
             >
-              {difference}
+              {label}
             </Typography>
-            <Tooltip title={tooltipText || "Potential increase using adjusted wRVU per encounter"}>
-              <IconButton size="small" sx={{ p: 0.5 }}>
-                <InfoOutlined sx={{ 
-                  fontSize: '1.1rem', 
-                  color: 'rgba(76, 175, 80, 0.7)',
-                  '&:hover': {
-                    color: '#4caf50'
-                  }
-                }} />
-              </IconButton>
-            </Tooltip>
           </Box>
-        )}
-      </Box>
-    </Paper>
+        </Box>
+
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          flexDirection: { xs: 'column', sm: 'row' },
+          gap: { xs: 1, sm: 0 }
+        }}>
+          <Typography 
+            variant="h5" 
+            sx={{ 
+              fontWeight: 'bold', 
+              color: '#333',
+              fontSize: { xs: '1.25rem', sm: '1.5rem' }
+            }}
+          >
+            {value}
+          </Typography>
+          
+          {difference && (
+            <Box sx={{ 
+              display: 'flex', 
+              alignItems: 'center',
+              backgroundColor: 'rgba(76, 175, 80, 0.1)',
+              borderRadius: '12px',
+              px: 1.5,
+              py: 0.5
+            }}>
+              <Typography 
+                variant="subtitle1" 
+                sx={{ 
+                  fontWeight: 'bold', 
+                  color: 'success.main',
+                  fontSize: { xs: '0.875rem', sm: '1rem' }
+                }}
+              >
+                {difference}
+              </Typography>
+              {tooltipText && (
+                <Tooltip title={tooltipText} placement="top" arrow>
+                  <InfoOutlined sx={{ 
+                    ml: 1, 
+                    fontSize: '1rem', 
+                    color: 'success.main',
+                    opacity: 0.7
+                  }} />
+                </Tooltip>
+              )}
+            </Box>
+          )}
+        </Box>
+      </Paper>
+    </Tooltip>
   );
 }
 
