@@ -189,9 +189,9 @@ function App() {
           }}>
             <Routes>
               <Route path="/" element={<ProviderCompensation />} />
-              <Route path="/quick-wrvu" element={<WRVUForecastingTool setTotalVisits={setTotalVisits} />} />
+              <Route path="/wrvu-forecast" element={<WRVUForecastingTool setTotalVisits={setTotalVisits} />} />
               <Route 
-                path="/advanced-wrvu" 
+                path="/detailed-wrvu" 
                 element={
                   <DetailedWRVUForecaster 
                     totalVisits={totalVisits} 
