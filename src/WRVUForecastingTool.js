@@ -1037,24 +1037,24 @@ function WRVUForecastingTool({ setTotalVisits }) {
         <Box sx={{ '@media print': { display: 'none' } }}>
           {/* Normal view content */}
           <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}> 
-            {/* Header section with improved mobile layout */}
+            {/* Mobile-friendly header layout */}
             <Box sx={{ 
               display: 'flex',
               flexDirection: 'column',
+              alignItems: 'center',
               width: '100%',
               mb: 4
             }}>
-              {/* Title and subtitle container */}
+              {/* Title and subtitle section */}
               <Box sx={{ 
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
+                textAlign: 'center',
                 mb: { xs: 3, sm: 4 }
               }}>
                 <Box sx={{ 
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  mb: 1
                 }}>
                   <Typography 
                     variant="h4" 
@@ -1077,22 +1077,21 @@ function WRVUForecastingTool({ setTotalVisits }) {
                   sx={{ 
                     color: 'text.secondary',
                     fontSize: '1.1rem',
-                    fontWeight: 'normal',
-                    mt: 1
+                    fontWeight: 'normal'
                   }}
                 >
                   Schedule and Average wRVU Per Encounter Input
                 </Typography>
               </Box>
 
-              {/* Buttons container */}
+              {/* Action buttons - always below title on mobile */}
               <Box sx={{ 
                 display: 'flex',
                 flexDirection: { xs: 'column', sm: 'row' },
-                gap: { xs: 2, sm: 3 },
-                justifyContent: 'center',
+                gap: 2,
                 width: '100%',
-                mt: { xs: 2, sm: 0 }
+                maxWidth: { xs: '100%', sm: '500px' },
+                mt: { xs: 2, sm: 3 }
               }}>
                 <Button 
                   variant="outlined" 
@@ -1101,7 +1100,6 @@ function WRVUForecastingTool({ setTotalVisits }) {
                   fullWidth
                   sx={{ 
                     borderRadius: '20px',
-                    maxWidth: { xs: '100%', sm: '200px' },
                     height: '40px'
                   }}
                 >
@@ -1114,7 +1112,6 @@ function WRVUForecastingTool({ setTotalVisits }) {
                   fullWidth
                   sx={{ 
                     borderRadius: '20px',
-                    maxWidth: { xs: '100%', sm: '200px' },
                     height: '40px'
                   }}
                 >
