@@ -234,21 +234,20 @@ function ProviderCompensation({ savedMonthlyRvus, setSavedMonthlyRvus }) {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ mt: 4 }}>
-      <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}>
+    <Container maxWidth="lg">
+      <Paper elevation={3} sx={{ p: 4, mt: 4, borderRadius: '16px', border: '1px solid #e0e0e0' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mb: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography 
               variant="h4" 
               align="center" 
               sx={{ 
-                fontWeight: 700,
-                background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
+                color: 'text.secondary',
+                fontWeight: 'normal',
+                fontSize: '1.1rem'
               }}
             >
-              Monthly Performance
+              Monthly Performance Tracking and Annual Compensation Projection
             </Typography>
             <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
               <InfoOutlined />
@@ -274,20 +273,6 @@ function ProviderCompensation({ savedMonthlyRvus, setSavedMonthlyRvus }) {
             projected total compensation, incentive payment, and other key metrics.
           </Typography>
         </Popover>
-
-        <Box sx={{ mb: 4 }}>
-          <Typography 
-            variant="h6" 
-            align="center" 
-            sx={{ 
-              color: 'text.secondary',
-              fontSize: '1.1rem',
-              fontWeight: 'normal'
-            }}
-          >
-            Track RVUs and Projected Compensation
-          </Typography>
-        </Box>
 
         <Grid container spacing={4}>
           <Grid item xs={12} md={6}>
