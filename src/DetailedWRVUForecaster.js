@@ -591,6 +591,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                 borderRadius: '16px !important',
                 border: '1px solid #e0e0e0',
                 overflow: 'hidden',
+                boxShadow: 'none',
                 '&.MuiAccordion-root': {
                   borderRadius: '16px',
                   '&:before': {
@@ -607,7 +608,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                   borderColor: 'divider',
                 }}
               >
-                <Typography variant="h6" sx={{ color: '#1976d2', fontWeight: 600 }}>
+                <Typography variant="h6" sx={{ color: 'text.primary', fontWeight: 600 }}>
                   CMS Fee Schedule Upload Instructions
                 </Typography>
               </AccordionSummary>
@@ -1107,18 +1108,6 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
 
         {procedureCodes.length > 0 ? (
           <Box sx={{ mb: 4 }}>
-            <Typography 
-              variant="h6" 
-              align="center" 
-              sx={{ 
-                color: 'text.secondary',
-                fontSize: '1.1rem',
-                fontWeight: 'normal'
-              }}
-            >
-              Analyze Procedure Codes and Calculate wRVU Production
-            </Typography>
-
             <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
               <TextField
                 fullWidth
