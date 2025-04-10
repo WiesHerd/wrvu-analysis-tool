@@ -85,11 +85,6 @@ function AppContent() {
   const [totalVisits, setTotalVisits] = useState(0);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    // Always navigate to Quick Forecast on app load
-    navigate('/wrvu-forecast');
-  }, [navigate]);
-
   const handleUpdateForecast = (newForecast) => {
     console.log('New forecast:', newForecast);
   };
@@ -203,16 +198,6 @@ function AppContent() {
       }}>
         <AnimatePresence mode="wait">
           <Routes>
-            <Route path="/" element={
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-              >
-                <ProviderCompensation />
-              </motion.div>
-            } />
             <Route path="/wrvu-forecast" element={
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -230,13 +215,20 @@ function AppContent() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5 }}
               >
-                <DetailedWRVUForecaster 
-                  totalVisits={totalVisits} 
-                  onUpdateForecast={handleUpdateForecast} 
-                />
+                <DetailedWRVUForecaster totalVisits={totalVisits} onUpdateForecast={handleUpdateForecast} />
               </motion.div>
             } />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="/" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+              >
+                <ProviderCompensation />
+              </motion.div>
+            } />
+            <Route path="*" element={<Navigate to="/wrvu-forecast" replace />} />
           </Routes>
         </AnimatePresence>
       </Container>
