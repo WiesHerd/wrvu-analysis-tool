@@ -180,23 +180,9 @@ function CustomNumberInput({ label, value, onChange, icon, min = 0, max = Infini
 function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDeleteShift }) {
   return (
     <Paper elevation={3} sx={{ p: 3, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0' }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h6" sx={{ mb: 0, fontWeight: 'bold', color: '#1976d2' }}>
-          Work Schedule
-        </Typography>
-        <Tooltip 
-          title="Configure your annual schedule including vacation time, CME days, and holidays. Add different shift types to accurately reflect your work patterns."
-          placement="top"
-          arrow
-        >
-          <IconButton size="small" sx={{ ml: 1 }}>
-            <InfoOutlined sx={{ fontSize: '1.1rem', color: 'rgba(25, 118, 210, 0.7)' }} />
-          </IconButton>
-        </Tooltip>
-      </Box>
-
+      <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>Work Schedule</Typography>
       <Box sx={{ mt: 2 }}>
-        <Tooltip title="Enter the number of vacation weeks you take per year" placement="right" arrow>
+        <Tooltip title="Enter the number of vacation weeks you take per year">
           <div>
             <CustomNumberInput
               label="Vacation Weeks per Year"
@@ -211,8 +197,7 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
           </div>
         </Tooltip>
       </Box>
-
-      <Tooltip title="Enter the number of statutory holidays per year" placement="right" arrow>
+      <Tooltip title="Enter the number of statutory holidays per year">
         <div>
           <CustomNumberInput
             label="Statutory Holidays per Year"
@@ -226,8 +211,7 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
           />
         </div>
       </Tooltip>
-
-      <Tooltip title="Enter the number of CME (Continuing Medical Education) days per year" placement="right" arrow>
+      <Tooltip title="Enter the number of CME (Continuing Medical Education) days per year">
         <div>
           <CustomNumberInput
             label="CME Days per Year"
@@ -241,24 +225,7 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
           />
         </div>
       </Tooltip>
-
-      <Box sx={{ mt: 3, mb: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-            Shift Types
-          </Typography>
-          <Tooltip 
-            title="Add different types of shifts with their duration and frequency per week"
-            placement="top"
-            arrow
-          >
-            <IconButton size="small" sx={{ ml: 1 }}>
-              <InfoOutlined sx={{ fontSize: '1rem', color: 'rgba(25, 118, 210, 0.7)' }} />
-            </IconButton>
-          </Tooltip>
-        </Box>
-      </Box>
-
+      <Typography variant="subtitle1" gutterBottom sx={{ mt: 3, mb: 2, fontWeight: 'bold' }}>Shift Types</Typography>
       {inputs.shifts.map((shift, index) => (
         <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <TextField
@@ -267,24 +234,20 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
             value={shift.name}
             onChange={(e) => handleShiftChange(index, 'name', e.target.value)}
           />
-          <Tooltip title="Duration of the shift in hours" placement="top" arrow>
-            <TextField
-              sx={{ mr: 1, width: '80px' }}
-              type="number"
-              label="Hours"
-              value={shift.hours}
-              onChange={(e) => handleShiftChange(index, 'hours', e.target.value)}
-            />
-          </Tooltip>
-          <Tooltip title="Number of times this shift occurs per week" placement="top" arrow>
-            <TextField
-              sx={{ mr: 1, width: '100px', '& .MuiInputBase-input': { px: 1 } }}
-              type="number"
-              label="Per Week"
-              value={shift.perWeek}
-              onChange={(e) => handleShiftChange(index, 'perWeek', e.target.value)}
-            />
-          </Tooltip>
+          <TextField
+            sx={{ mr: 1, width: '80px' }}
+            type="number"
+            label="Hours"
+            value={shift.hours}
+            onChange={(e) => handleShiftChange(index, 'hours', e.target.value)}
+          />
+          <TextField
+            sx={{ mr: 1, width: '100px', '& .MuiInputBase-input': { px: 1 } }}
+            type="number"
+            label="Per Week"
+            value={shift.perWeek}
+            onChange={(e) => handleShiftChange(index, 'perWeek', e.target.value)}
+          />
           <IconButton onClick={() => handleDeleteShift(index)}>
             <Delete />
           </IconButton>
@@ -297,163 +260,49 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
   );
 }
 
-function StatItem({ icon, label, value, difference, tooltipText }) {
-  const descriptions = {
-    "Estimated Total Compensation": "Total annual compensation including base salary and incentive payments based on wRVU production",
-    "Estimated Incentive Payment": "Additional compensation earned above base salary based on wRVU production",
-    "Weeks Worked Per Year": "Total working weeks per year after subtracting vacation, CME, and holidays",
-    "Encounters per Week": "Average number of patient encounters scheduled per week",
-    "Annual Clinic Days": "Total number of clinic days worked per year excluding holidays and time off",
-    "Annual Clinical Hours": "Total clinical hours worked per year based on your schedule",
-    "Annual Patient Encounters": "Total number of patient encounters projected for the year",
-    "Estimated Annual wRVUs": "Projected annual work Relative Value Units (wRVUs) based on your patient encounters and average wRVU per encounter"
-  };
-
+function DifferenceIndicator({ difference, tooltipText }) {
+  if (!difference || !difference.startsWith('+')) return null;
+  
   return (
-    <Paper 
-      sx={{ 
-        p: 3,
-        height: '100%',
-        borderRadius: '16px',
-        border: '1px solid rgba(0, 0, 0, 0.08)',
-        backgroundColor: '#ffffff',
-        transition: 'all 0.2s ease',
-        position: 'relative',
-        '&:hover': {
-          backgroundColor: 'rgba(25, 118, 210, 0.01)',
-          borderColor: 'rgba(25, 118, 210, 0.2)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.03)',
-          transform: 'translateY(-2px)',
-          '& .stat-icon': {
-            color: '#1976d2'
-          },
-          '& .stat-label': {
-            color: '#1976d2'
-          }
-        }
-      }}
-    >
-      <Box sx={{ 
-        display: 'flex', 
-        flexDirection: 'column',
-        height: '100%'
-      }}>
-        {/* Header with icon and label */}
-        <Box sx={{ 
-          display: 'flex', 
-          alignItems: 'center',
-          mb: 1
-        }}>
-          <Box 
-            className="stat-icon"
-            sx={{ 
-              color: 'rgba(25, 118, 210, 0.5)', 
-              mr: 2,
-              display: 'flex',
-              alignItems: 'center',
-              transition: 'color 0.2s ease'
-            }}
-          >
-            {icon}
-          </Box>
-          <Typography 
-            className="stat-label"
-            variant="subtitle1" 
-            sx={{
-              fontSize: { xs: '0.875rem', sm: '1rem' },
-              color: 'text.secondary',
-              transition: 'color 0.2s ease'
-            }}
-          >
-            {label}
-          </Typography>
-          <Tooltip 
-            title={descriptions[label]}
-            placement="top"
-            arrow
-            enterDelay={200}
-            leaveDelay={100}
-          >
-            <IconButton 
-              size="small" 
-              sx={{ 
-                ml: 'auto',
-                opacity: 0.4,
-                transition: 'opacity 0.2s ease',
-                '&:hover': {
-                  opacity: 0.8,
-                  backgroundColor: 'rgba(25, 118, 210, 0.05)'
-                }
-              }}
-            >
-              <InfoOutlined sx={{ 
-                fontSize: '1.1rem',
-                color: '#1976d2'
-              }} />
-            </IconButton>
-          </Tooltip>
-        </Box>
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Typography 
+        variant="subtitle1" 
+        sx={{ 
+          fontWeight: 'bold', 
+          color: 'success.main',
+          ml: 2
+        }}
+      >
+        {difference}
+      </Typography>
+      <Tooltip title={tooltipText || "Potential increase using adjusted wRVU per encounter"}>
+        <InfoOutlined sx={{ ml: 1, fontSize: '1rem', color: 'text.secondary', cursor: 'help' }} />
+      </Tooltip>
+    </Box>
+  );
+}
 
-        {/* Value and difference */}
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          mt: 'auto'
-        }}>
-          <Typography 
-            variant="h5" 
-            sx={{ 
-              fontWeight: 'bold', 
-              color: '#333',
-              fontSize: { xs: '1.25rem', sm: '1.5rem' }
-            }}
-          >
-            {value}
-          </Typography>
-          
-          {difference && (
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center',
-              backgroundColor: 'rgba(76, 175, 80, 0.04)',
-              borderRadius: '12px',
-              px: 1.5,
-              py: 0.5
-            }}>
-              <Typography 
-                variant="subtitle1" 
-                sx={{ 
-                  fontWeight: 'bold', 
-                  color: '#2e7d32',
-                  fontSize: { xs: '0.875rem', sm: '1rem' }
-                }}
-              >
-                {difference}
-              </Typography>
-              {tooltipText && (
-                <Tooltip 
-                  title={tooltipText} 
-                  placement="top" 
-                  arrow
-                  enterDelay={200}
-                  leaveDelay={100}
-                >
-                  <InfoOutlined sx={{ 
-                    ml: 1, 
-                    fontSize: '1rem', 
-                    color: '#2e7d32',
-                    opacity: 0.6,
-                    cursor: 'help',
-                    '&:hover': {
-                      opacity: 0.9
-                    }
-                  }} />
-                </Tooltip>
-              )}
-            </Box>
-          )}
-        </Box>
+function StatItem({ icon, label, value, difference, tooltipText }) {
+  return (
+    <Paper sx={{ 
+      p: 3,
+      height: '100%',
+      borderRadius: '16px',
+      border: '1px solid #e0e0e0',
+      backgroundColor: '#ffffff',
+      transition: 'all 0.3s ease',
+      '&:hover': {
+        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+        transform: 'translateY(-2px)'
+      }
+    }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+        <Box sx={{ color: '#1976d2', mr: 2 }}>{icon}</Box>
+        <Typography variant="subtitle1" color="text.secondary">{label}</Typography>
+      </Box>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#333' }}>{value}</Typography>
+        <DifferenceIndicator difference={difference} tooltipText={tooltipText} />
       </Box>
     </Paper>
   );
@@ -491,46 +340,52 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
     {
       icon: <AttachMoney fontSize="large" />,
       label: "Estimated Total Compensation",
-      value: formatCurrency(metrics.estimatedTotalCompensation)
+      value: formatCurrency(metrics.estimatedTotalCompensation),
+      tooltipText: "Total annual compensation including base salary and wRVU-based incentive payments"
     },
     {
       icon: <AttachMoney fontSize="large" />,
       label: "Estimated Incentive Payment",
       value: formatCurrency(currentIncentive),
       difference: formatDifference(currentIncentive, adjustedIncentive),
-      tooltipText: "Potential increase in incentive payment with adjusted wRVU per encounter"
+      tooltipText: "Additional compensation earned above base salary based on wRVU production"
     },
     {
       icon: <CalendarToday fontSize="large" />,
       label: "Weeks Worked Per Year",
-      value: formatNumber(metrics.weeksWorkedPerYear)
+      value: formatNumber(metrics.weeksWorkedPerYear),
+      tooltipText: "Total working weeks per year after subtracting vacation, CME, and holidays"
     },
     {
       icon: <People fontSize="large" />,
       label: "Encounters per Week",
-      value: formatNumber(metrics.encountersPerWeek)
+      value: formatNumber(metrics.encountersPerWeek),
+      tooltipText: "Average number of patient encounters per week based on your schedule"
     },
     {
       icon: <CalendarToday fontSize="large" />,
       label: "Annual Clinic Days",
-      value: formatNumber(metrics.annualClinicDays)
+      value: formatNumber(metrics.annualClinicDays),
+      tooltipText: "Total clinic days per year after subtracting vacation, CME, and holidays"
     },
     {
       icon: <AccessTime fontSize="large" />,
       label: "Annual Clinical Hours",
-      value: formatNumber(metrics.annualClinicalHours)
+      value: formatNumber(metrics.annualClinicalHours),
+      tooltipText: "Total clinical hours per year based on your schedule"
     },
     {
       icon: <People fontSize="large" />,
       label: "Annual Patient Encounters",
-      value: formatNumber(metrics.annualPatientEncounters)
+      value: formatNumber(metrics.annualPatientEncounters),
+      tooltipText: "Total patient encounters per year based on your schedule and daily/hourly patient load"
     },
     {
       icon: <TrendingUp fontSize="large" />,
       label: "Estimated Annual wRVUs",
       value: formatNumber(metrics.estimatedAnnualWRVUs),
       difference: formatWRVUDifference(metrics.estimatedAnnualWRVUs, adjustedAnnualWRVUs),
-      tooltipText: "Potential increase in annual wRVUs with adjusted wRVU per encounter"
+      tooltipText: "Total annual wRVUs based on patient encounters and average wRVU per encounter"
     }
   ];
 
@@ -543,7 +398,11 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
       <Grid container spacing={3}>
         {summaryItems.map((item, index) => (
           <Grid item xs={12} md={6} key={index}>
-            <StatItem {...item} />
+            <Tooltip title={item.tooltipText} placement="top">
+              <div style={{ height: '100%' }}>
+                <StatItem {...item} />
+              </div>
+            </Tooltip>
           </Grid>
         ))}
       </Grid>
@@ -624,7 +483,7 @@ function PrintableView({ metrics, inputs }) {
       sx={{ 
         display: 'none', 
         '@media print': { 
-          display: 'block',
+          display: 'block !important',
           width: '100%',
           padding: '10px',
           fontFamily: 'Arial, sans-serif',
@@ -1197,336 +1056,566 @@ function WRVUForecastingTool({ setTotalVisits }) {
   return (
     <ThemeProvider theme={printTheme}>
       <Container maxWidth="lg" sx={{ mt: 4, '@media print': { mt: 0 } }}>
-        <Paper elevation={3} sx={{ p: 4, mt: 4, borderRadius: '16px', border: '1px solid #e0e0e0' }}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mb: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Typography 
-                variant="h4" 
-                align="center" 
-                sx={{ 
-                  color: 'text.secondary',
-                  fontWeight: 'normal',
-                  fontSize: '1.1rem'
-                }}
-              >
-                Quick wRVU Forecast Based on Schedule and Average wRVU Per Encounter
-              </Typography>
-              <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
-                <InfoOutlined />
-              </IconButton>
-            </Box>
-          </Box>
-
-          {/* Scenario selector */}
-          {savedScenarios.length > 0 && (
-            <Box sx={{ 
-              display: 'flex', 
-              justifyContent: 'center', 
-              mb: 3,
-              mt: 2,
-              px: { xs: 2, sm: 0 }
-            }}>
-              <Box sx={{ 
-                display: 'inline-flex',
-                alignItems: 'center',
-                backgroundColor: 'rgba(25, 118, 210, 0.08)',
-                borderRadius: '24px',
-                px: { xs: 1.5, sm: 2 },
-                py: 0.5,
-                border: '1px solid rgba(25, 118, 210, 0.2)',
-                width: { xs: '100%', sm: 'auto' },
-                flexDirection: { xs: 'column', sm: 'row' },
-                gap: { xs: 1, sm: 0 }
-              }}>
-                <Box 
-                  component="span" 
-                  sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center',
-                    color: '#1976d2',
-                    mr: { xs: 0, sm: 1.5 },
-                    fontSize: '0.875rem',
-                    fontWeight: 500
-                  }}
-                >
-                  <TrendingUp fontSize="small" sx={{ mr: 0.5 }} />
-                  Scenarios:
-                </Box>
-                
-                <FormControl 
-                  variant="standard" 
-                  sx={{ 
-                    minWidth: { xs: '100%', sm: 180 },
-                    '& .MuiInput-underline:before': { borderBottom: 'none' },
-                    '& .MuiInput-underline:after': { borderBottom: 'none' },
-                    '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottom: 'none' },
-                  }}
-                >
-                  <Select
-                    value=""
-                    displayEmpty
-                    onChange={(e) => {
-                      if (!e.target.value) return;
-                      const scenario = savedScenarios.find(s => s.id === e.target.value);
-                      if (scenario) {
-                        handleLoadScenario(scenario);
-                        e.target.value = ""; // Reset select after loading
-                      }
-                    }}
+        <Box sx={{ '@media print': { display: 'none' } }}>
+          {/* Normal view content */}
+          <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}> 
+            {/* Mobile-friendly header layout */}
+            <Box sx={{ mb: 2 }}>
+              {/* Centered title container */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mb: 3 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Typography 
+                    variant="h4" 
                     sx={{ 
-                      fontSize: '0.875rem',
-                      color: '#1976d2',
-                      width: '100%',
-                      '& .MuiSelect-select': { 
-                        paddingBottom: 0,
-                        paddingTop: 0,
-                        paddingRight: '24px !important'
-                      }
+                      color: 'text.secondary',
+                      fontSize: '1.1rem',
+                      fontWeight: 'normal'
                     }}
                   >
-                    <MenuItem value="" disabled>
-                      <em>Select scenario</em>
-                    </MenuItem>
-                    {savedScenarios.map((scenario) => (
-                      <MenuItem 
-                        key={scenario.id} 
-                        value={scenario.id} 
-                        sx={{ 
-                          display: 'flex', 
-                          justifyContent: 'space-between',
-                          alignItems: 'center'
-                        }}
-                      >
-                        <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
-                          <TrendingUp fontSize="small" sx={{ mr: 1, color: 'action.active', opacity: 0.6 }} />
-                          {scenario.name}
-                        </Box>
-                        <IconButton 
-                          size="small" 
-                          onClick={(e) => handleDeleteScenario(scenario.id, e)}
-                          sx={{ 
-                            color: 'error.light', 
-                            opacity: 0.7,
-                            width: 28, 
-                            height: 28,
-                            '&:hover': { 
-                              opacity: 1,
-                              backgroundColor: 'rgba(211, 47, 47, 0.1)'
-                            }
-                          }}
-                        >
-                          <Delete fontSize="small" />
-                        </IconButton>
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
+                    Schedule and Average wRVU Per Encounter Input
+                  </Typography>
+                  <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
+                    <InfoOutlined />
+                  </IconButton>
+                </Box>
+              </Box>
+
+              {/* Centered buttons container */}
+              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+                <Button 
+                  variant="outlined" 
+                  startIcon={<Save />} 
+                  onClick={() => setShowSaveDialog(true)}
+                  sx={{ borderRadius: '20px' }}
+                >
+                  Save Scenario
+                </Button>
+                <Button 
+                  variant="outlined" 
+                  startIcon={<PrintIcon />} 
+                  onClick={handlePrint}
+                  sx={{ borderRadius: '20px' }}
+                >
+                  Print Summary
+                </Button>
               </Box>
             </Box>
-          )}
-
-          <Popover
-            open={Boolean(anchorEl)}
-            anchorEl={anchorEl}
-            onClose={handleInfoClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'center',
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'center',
-            }}
-          >
-            <Typography sx={{ p: 2, maxWidth: 350 }}>
-              This screen allows you to input your work schedule details and wRVU per encounter. 
-              It calculates your estimated annual wRVUs, encounters, and potential compensation based on 
-              your inputs. The "Adjusted wRVU Per Encounter" field lets you see how changes in your 
-              billing efficiency might affect your productivity and compensation. 
-              Adjustments are reflected in the Estimated Total Compensation and Estimated Annual wRVUs 
-              in the Productivity Summary section. Experiment with different values to forecast various scenarios.
-            </Typography>
-          </Popover>
-          
-          <Grid container spacing={4}>
-            <Grid item xs={12} md={6}>
-              <WorkSchedule 
-                inputs={inputs} 
-                handleInputChange={handleInputChange} 
-                handleShiftChange={handleShiftChange} 
-                handleDeleteShift={handleDeleteShift}
-              />
-            </Grid>
             
-            <Grid item xs={12} md={6}>
-              <Paper elevation={3} sx={{ p: 3, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="h6" sx={{ mb: 0, fontWeight: 'bold', color: '#1976d2' }}>
-                      Patient Encounters
-                    </Typography>
-                    <Tooltip 
-                      title="Configure your patient encounter settings, including the number of patients seen and wRVU values per encounter. Toggle between per-hour and per-day calculations."
-                      placement="top"
-                      arrow
-                    >
-                      <IconButton size="small" sx={{ ml: 1 }}>
-                        <InfoOutlined sx={{ fontSize: '1.1rem', color: 'rgba(25, 118, 210, 0.7)' }} />
-                      </IconButton>
-                    </Tooltip>
+            {/* Scenario selector */}
+            {savedScenarios.length > 0 && (
+              <Box sx={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                mb: 3,
+                mt: 2,
+                px: { xs: 2, sm: 0 }
+              }}>
+                <Box sx={{ 
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                  borderRadius: '24px',
+                  px: { xs: 1.5, sm: 2 },
+                  py: 0.5,
+                  border: '1px solid rgba(25, 118, 210, 0.2)',
+                  width: { xs: '100%', sm: 'auto' },
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  gap: { xs: 1, sm: 0 }
+                }}>
+                  <Box 
+                    component="span" 
+                    sx={{ 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      color: '#1976d2',
+                      mr: { xs: 0, sm: 1.5 },
+                      fontSize: '0.875rem',
+                      fontWeight: 500
+                    }}
+                  >
+                    <TrendingUp fontSize="small" sx={{ mr: 0.5 }} />
+                    Scenarios:
                   </Box>
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-                      {inputs.isPerHour ? "Patients Per Hour" : "Patients Per Day"}
-                    </Typography>
-                    <Tooltip title="Toggle between per-hour and per-day patient calculations" placement="top" arrow>
+                  
+                  <FormControl 
+                    variant="standard" 
+                    sx={{ 
+                      minWidth: { xs: '100%', sm: 180 },
+                      '& .MuiInput-underline:before': { borderBottom: 'none' },
+                      '& .MuiInput-underline:after': { borderBottom: 'none' },
+                      '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottom: 'none' },
+                    }}
+                  >
+                    <Select
+                      value=""
+                      displayEmpty
+                      onChange={(e) => {
+                        if (!e.target.value) return;
+                        const scenario = savedScenarios.find(s => s.id === e.target.value);
+                        if (scenario) {
+                          handleLoadScenario(scenario);
+                          e.target.value = ""; // Reset select after loading
+                        }
+                      }}
+                      sx={{ 
+                        fontSize: '0.875rem',
+                        color: '#1976d2',
+                        width: '100%',
+                        '& .MuiSelect-select': { 
+                          paddingBottom: 0,
+                          paddingTop: 0,
+                          paddingRight: '24px !important'
+                        }
+                      }}
+                    >
+                      <MenuItem value="" disabled>
+                        <em>Select scenario</em>
+                      </MenuItem>
+                      {savedScenarios.map((scenario) => (
+                        <MenuItem 
+                          key={scenario.id} 
+                          value={scenario.id} 
+                          sx={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
+                            <TrendingUp fontSize="small" sx={{ mr: 1, color: 'action.active', opacity: 0.6 }} />
+                            {scenario.name}
+                          </Box>
+                          <IconButton 
+                            size="small" 
+                            onClick={(e) => handleDeleteScenario(scenario.id, e)}
+                            sx={{ 
+                              color: 'error.light', 
+                              opacity: 0.7,
+                              width: 28, 
+                              height: 28,
+                              '&:hover': { 
+                                opacity: 1,
+                                backgroundColor: 'rgba(211, 47, 47, 0.1)'
+                              }
+                            }}
+                          >
+                            <Delete fontSize="small" />
+                          </IconButton>
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Box>
+              </Box>
+            )}
+
+            <Popover
+              open={Boolean(anchorEl)}
+              anchorEl={anchorEl}
+              onClose={handleInfoClose}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'center',
+              }}
+              transformOrigin={{
+                vertical: 'top',
+                horizontal: 'center',
+              }}
+            >
+              <Typography sx={{ p: 2, maxWidth: 350 }}>
+                This screen allows you to input your work schedule details and wRVU per encounter. 
+                It calculates your estimated annual wRVUs, encounters, and potential compensation based on 
+                your inputs. The "Adjusted wRVU Per Encounter" field lets you see how changes in your 
+                billing efficiency might affect your productivity and compensation. 
+                Adjustments are reflected in the Estimated Total Compensation and Estimated Annual wRVUs 
+                in the Productivity Summary section. Experiment with different values to forecast various scenarios.
+              </Typography>
+            </Popover>
+            
+            <Grid container spacing={4}>
+              <Grid item xs={12} md={6}>
+                <WorkSchedule 
+                  inputs={inputs} 
+                  handleInputChange={handleInputChange} 
+                  handleShiftChange={handleShiftChange} 
+                  handleDeleteShift={handleDeleteShift}
+                />
+              </Grid>
+              
+              <Grid item xs={12} md={6}>
+                <Paper elevation={3} sx={{ p: 3, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                    <Typography variant="h6" gutterBottom sx={{ mb: 0, fontWeight: 'bold', color: '#1976d2' }}>Patient Encounters</Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
+                        {inputs.isPerHour ? "Patients Per Hour" : "Patients Per Day"}
+                      </Typography>
                       <FormControlLabel
                         control={<Switch checked={inputs.isPerHour} onChange={(e) => handleSwitchChange(e.target.checked)} />}
                         label=""
                         sx={{ mb: 0, mr: 0 }}
                       />
+                    </Box>
+                  </Box>
+                  <Box sx={{ mt: '24px' }}> {/* Add top margin to align with left container */}
+                    <Tooltip title={inputs.isPerHour ? "Enter the average number of patients seen per hour" : "Enter the average number of patients seen per day"}>
+                      <div>
+                        <NumericFormat
+                          customInput={TextField}
+                          fullWidth
+                          margin="normal"
+                          label={inputs.isPerHour ? "Patients Seen Per Hour" : "Patients Seen Per Day"}
+                          value={inputs.isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay}
+                          onValueChange={(values) => {
+                            const value = values.floatValue || 0;
+                            handleInputChange(inputs.isPerHour ? 'patientsPerHour' : 'patientsPerDay', value);
+                          }}
+                          decimalScale={0}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <People />
+                              </InputAdornment>
+                            ),
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <Box sx={{ 
+                                  display: 'flex', 
+                                  gap: '2px',
+                                  bgcolor: 'rgba(0,0,0,0.03)',
+                                  borderRadius: '4px',
+                                  padding: '2px',
+                                  '&:hover': {
+                                    bgcolor: 'rgba(0,0,0,0.05)'
+                                  }
+                                }}>
+                                  <IconButton 
+                                    size="small" 
+                                    onClick={() => {
+                                      const field = inputs.isPerHour ? 'patientsPerHour' : 'patientsPerDay';
+                                      const currentValue = inputs.isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay;
+                                      handleInputChange(field, Math.max(0, currentValue - 1));
+                                    }}
+                                    sx={{
+                                      width: '20px',
+                                      height: '20px',
+                                      borderRadius: '4px',
+                                      '&:hover': {
+                                        bgcolor: 'primary.main',
+                                        color: 'white'
+                                      }
+                                    }}
+                                  >
+                                    <Remove sx={{ fontSize: '0.9rem' }} />
+                                  </IconButton>
+                                  <IconButton 
+                                    size="small" 
+                                    onClick={() => {
+                                      const field = inputs.isPerHour ? 'patientsPerHour' : 'patientsPerDay';
+                                      const currentValue = inputs.isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay;
+                                      handleInputChange(field, currentValue + 1);
+                                    }}
+                                    sx={{
+                                      width: '20px',
+                                      height: '20px',
+                                      borderRadius: '4px',
+                                      '&:hover': {
+                                        bgcolor: 'primary.main',
+                                        color: 'white'
+                                      }
+                                    }}
+                                  >
+                                    <Add sx={{ fontSize: '0.9rem' }} />
+                                  </IconButton>
+                                </Box>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </div>
                     </Tooltip>
                   </Box>
-                </Box>
-                
-                <Box sx={{ mt: '24px' }}>
-                  <Tooltip title={inputs.isPerHour ? "Average number of patients seen per hour" : "Average number of patients seen per day"} placement="right" arrow>
+                  <Tooltip title="Enter your current average wRVU per patient encounter">
                     <div>
                       <NumericFormat
                         customInput={TextField}
                         fullWidth
                         margin="normal"
-                        label={inputs.isPerHour ? "Patients Seen Per Hour" : "Patients Seen Per Day"}
-                        value={inputs.isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay}
-                        onValueChange={(values) => {
-                          const value = values.floatValue || 0;
-                          handleInputChange(inputs.isPerHour ? 'patientsPerHour' : 'patientsPerDay', value);
-                        }}
-                        decimalScale={0}
+                        label="Average wRVU Per Encounter"
+                        value={inputs.avgWRVUPerEncounter}
+                        onValueChange={(values) => handleInputChange('avgWRVUPerEncounter', values.floatValue || 0)}
+                        decimalScale={2}
+                        fixedDecimalScale
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
-                              <People />
+                              <TrendingUp />
+                            </InputAdornment>
+                          ),
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <Box sx={{ 
+                                display: 'flex', 
+                                gap: '2px',
+                                bgcolor: 'rgba(0,0,0,0.03)',
+                                borderRadius: '4px',
+                                padding: '2px',
+                                '&:hover': {
+                                  bgcolor: 'rgba(0,0,0,0.05)'
+                                }
+                              }}>
+                                <IconButton 
+                                  size="small" 
+                                  onClick={() => handleInputChange('avgWRVUPerEncounter', Math.max(0, Number((inputs.avgWRVUPerEncounter - 0.01).toFixed(2))))}
+                                  sx={{
+                                    width: '20px',
+                                    height: '20px',
+                                    borderRadius: '4px',
+                                    '&:hover': {
+                                      bgcolor: 'primary.main',
+                                      color: 'white'
+                                    }
+                                  }}
+                                >
+                                  <Remove sx={{ fontSize: '0.9rem' }} />
+                                </IconButton>
+                                <IconButton 
+                                  size="small" 
+                                  onClick={() => handleInputChange('avgWRVUPerEncounter', Number((inputs.avgWRVUPerEncounter + 0.01).toFixed(2)))}
+                                  sx={{
+                                    width: '20px',
+                                    height: '20px',
+                                    borderRadius: '4px',
+                                    '&:hover': {
+                                      bgcolor: 'primary.main',
+                                      color: 'white'
+                                    }
+                                  }}
+                                >
+                                  <Add sx={{ fontSize: '0.9rem' }} />
+                                </IconButton>
+                              </Box>
                             </InputAdornment>
                           ),
                         }}
                       />
                     </div>
                   </Tooltip>
-                </Box>
-
-                <Tooltip title="Current average work RVU value per patient encounter" placement="right" arrow>
-                  <div>
-                    <NumericFormat
-                      customInput={TextField}
-                      fullWidth
-                      margin="normal"
-                      label="Average wRVU Per Encounter"
-                      value={inputs.avgWRVUPerEncounter}
-                      onValueChange={(values) => handleInputChange('avgWRVUPerEncounter', values.floatValue || 0)}
-                      decimalScale={2}
-                      fixedDecimalScale
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <TrendingUp />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </div>
-                </Tooltip>
-
-                <Tooltip title="Adjusted work RVU value per encounter to calculate potential changes in productivity" placement="right" arrow>
-                  <div>
-                    <NumericFormat
-                      customInput={TextField}
-                      fullWidth
-                      margin="normal"
-                      label="Adjusted wRVU Per Encounter"
-                      value={inputs.adjustedWRVUPerEncounter}
-                      onValueChange={(values) => handleInputChange('adjustedWRVUPerEncounter', values.floatValue || 0)}
-                      decimalScale={2}
-                      fixedDecimalScale
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <TrendingUp />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </div>
-                </Tooltip>
-
-                <Tooltip title="Your guaranteed base salary before wRVU-based compensation" placement="right" arrow>
-                  <div>
-                    <NumericFormat
-                      customInput={TextField}
-                      fullWidth
-                      margin="normal"
-                      label="Base Salary"
-                      value={inputs.baseSalary}
-                      onValueChange={(values) => setInputs(prev => ({ ...prev, baseSalary: values.floatValue }))}
-                      thousandSeparator={true}
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <AttachMoney />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </div>
-                </Tooltip>
-
-                <Tooltip title="Dollar amount paid per work RVU generated" placement="right" arrow>
-                  <div>
-                    <NumericFormat
-                      customInput={TextField}
-                      fullWidth
-                      margin="normal"
-                      label="wRVU Conversion Factor"
-                      value={inputs.wrvuConversionFactor}
-                      onValueChange={(values) => setInputs(prev => ({ ...prev, wrvuConversionFactor: values.floatValue }))}
-                      decimalScale={2}
-                      fixedDecimalScale
-                      InputProps={{
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <AttachMoney />
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  </div>
-                </Tooltip>
-
-                <Tooltip title="Number of wRVUs needed to exceed base salary compensation" placement="right" arrow>
-                  <div>
-                    <TextField
-                      fullWidth
-                      margin="normal"
-                      label="Target Annual wRVUs"
-                      value={inputs.wrvuConversionFactor ? new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(inputs.baseSalary / inputs.wrvuConversionFactor) : '0'}
-                      InputProps={{
-                        readOnly: true,
-                        startAdornment: (
-                          <InputAdornment position="start">
-                            <TrendingUp />
-                          </InputAdornment>
-                        ),
-                      }}
-                      helperText="Target wRVUs needed to reach base salary (Base Salary ÷ Conversion Factor)"
-                    />
-                  </div>
-                </Tooltip>
-              </Paper>
+                  <Tooltip title="Enter an adjusted wRVU per encounter to see how changes in billing efficiency affect your compensation">
+                    <div>
+                      <NumericFormat
+                        customInput={TextField}
+                        fullWidth
+                        margin="normal"
+                        label="Adjusted wRVU Per Encounter"
+                        value={inputs.adjustedWRVUPerEncounter}
+                        onValueChange={(values) => handleInputChange('adjustedWRVUPerEncounter', values.floatValue || 0)}
+                        decimalScale={2}
+                        fixedDecimalScale
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <TrendingUp />
+                            </InputAdornment>
+                          ),
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <Box sx={{ 
+                                display: 'flex', 
+                                gap: '2px',
+                                bgcolor: 'rgba(0,0,0,0.03)',
+                                borderRadius: '4px',
+                                padding: '2px',
+                                '&:hover': {
+                                  bgcolor: 'rgba(0,0,0,0.05)'
+                                }
+                              }}>
+                                <IconButton 
+                                  size="small" 
+                                  onClick={() => handleInputChange('adjustedWRVUPerEncounter', Math.max(0, Number((inputs.adjustedWRVUPerEncounter - 0.01).toFixed(2))))}
+                                  sx={{
+                                    width: '20px',
+                                    height: '20px',
+                                    borderRadius: '4px',
+                                    '&:hover': {
+                                      bgcolor: 'primary.main',
+                                      color: 'white'
+                                    }
+                                  }}
+                                >
+                                  <Remove sx={{ fontSize: '0.9rem' }} />
+                                </IconButton>
+                                <IconButton 
+                                  size="small" 
+                                  onClick={() => handleInputChange('adjustedWRVUPerEncounter', Number((inputs.adjustedWRVUPerEncounter + 0.01).toFixed(2)))}
+                                  sx={{
+                                    width: '20px',
+                                    height: '20px',
+                                    borderRadius: '4px',
+                                    '&:hover': {
+                                      bgcolor: 'primary.main',
+                                      color: 'white'
+                                    }
+                                  }}
+                                >
+                                  <Add sx={{ fontSize: '0.9rem' }} />
+                                </IconButton>
+                              </Box>
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    </div>
+                  </Tooltip>
+                  <Tooltip title="Enter your base salary (minimum guaranteed compensation)">
+                    <div>
+                      <NumericFormat
+                        customInput={TextField}
+                        fullWidth
+                        margin="normal"
+                        label="Base Salary"
+                        value={inputs.baseSalary}
+                        onValueChange={(values) => setInputs(prev => ({ ...prev, baseSalary: values.floatValue }))}
+                        thousandSeparator={true}
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <AttachMoney />
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    </div>
+                  </Tooltip>
+                  <Tooltip title="Enter the dollar amount paid per wRVU">
+                    <div>
+                      <NumericFormat
+                        customInput={TextField}
+                        fullWidth
+                        margin="normal"
+                        label="wRVU Conversion Factor"
+                        value={inputs.wrvuConversionFactor}
+                        onValueChange={(values) => setInputs(prev => ({ ...prev, wrvuConversionFactor: values.floatValue }))}
+                        decimalScale={2}
+                        fixedDecimalScale
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <AttachMoney />
+                            </InputAdornment>
+                          ),
+                          endAdornment: (
+                            <InputAdornment position="end">
+                              <Box sx={{ 
+                                display: 'flex', 
+                                gap: '2px',
+                                bgcolor: 'rgba(0,0,0,0.03)',
+                                borderRadius: '4px',
+                                padding: '2px',
+                                '&:hover': {
+                                  bgcolor: 'rgba(0,0,0,0.05)'
+                                }
+                              }}>
+                                <IconButton 
+                                  size="small" 
+                                  onClick={() => {
+                                    const newValue = Number((inputs.wrvuConversionFactor - 0.01).toFixed(2));
+                                    setInputs(prev => ({ ...prev, wrvuConversionFactor: Math.max(0, newValue) }));
+                                  }}
+                                  sx={{
+                                    width: '20px',
+                                    height: '20px',
+                                    borderRadius: '4px',
+                                    '&:hover': {
+                                      bgcolor: 'primary.main',
+                                      color: 'white'
+                                    }
+                                  }}
+                                >
+                                  <Remove sx={{ fontSize: '0.9rem' }} />
+                                </IconButton>
+                                <IconButton 
+                                  size="small" 
+                                  onClick={() => {
+                                    const newValue = Number((inputs.wrvuConversionFactor + 0.01).toFixed(2));
+                                    setInputs(prev => ({ ...prev, wrvuConversionFactor: newValue }));
+                                  }}
+                                  sx={{
+                                    width: '20px',
+                                    height: '20px',
+                                    borderRadius: '4px',
+                                    '&:hover': {
+                                      bgcolor: 'primary.main',
+                                      color: 'white'
+                                    }
+                                  }}
+                                >
+                                  <Add sx={{ fontSize: '0.9rem' }} />
+                                </IconButton>
+                              </Box>
+                              <Box component="span" sx={{ ml: 1 }}>/ wRVU</Box>
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    </div>
+                  </Tooltip>
+                  <Tooltip title="Number of wRVUs needed to exceed base salary compensation">
+                    <div>
+                      <TextField
+                        fullWidth
+                        margin="normal"
+                        label="Target Annual wRVUs"
+                        value={inputs.wrvuConversionFactor ? new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(inputs.baseSalary / inputs.wrvuConversionFactor) : '0'}
+                        InputProps={{
+                          readOnly: true,
+                          startAdornment: (
+                            <InputAdornment position="start">
+                              <TrendingUp />
+                            </InputAdornment>
+                          ),
+                        }}
+                        helperText="Target wRVUs needed to reach base salary (Base Salary ÷ Conversion Factor)"
+                      />
+                    </div>
+                  </Tooltip>
+                </Paper>
+              </Grid>
             </Grid>
-          </Grid>
 
-          <ProductivitySummary metrics={metrics} adjustedMetrics={adjustedMetrics} inputs={inputs} />
-        </Paper>
+            <ProductivitySummary metrics={metrics} adjustedMetrics={adjustedMetrics} inputs={inputs} />
+          </Paper>
+        </Box>
+
+        {/* Printable view - Only shows when printing */}
+        <PrintableView metrics={metrics} inputs={inputs} />
+        
+        {/* Dialog for saving scenarios */}
+        <Dialog open={showSaveDialog} onClose={() => setShowSaveDialog(false)}>
+          <DialogTitle>Save Current Scenario</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Enter a name for this scenario to save the current settings and calculations.
+            </DialogContentText>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="name"
+              label="Scenario Name"
+              type="text"
+              fullWidth
+              variant="outlined"
+              value={scenarioName}
+              onChange={(e) => setScenarioName(e.target.value)}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => setShowSaveDialog(false)}>Cancel</Button>
+            <Button onClick={handleSaveScenario} variant="contained" disabled={!scenarioName.trim()}>
+              Save
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Container>
       
       {/* Add global print styles */}
