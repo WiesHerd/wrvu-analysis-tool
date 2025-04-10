@@ -102,12 +102,12 @@ function AppContent() {
       pb: 4 
     }}>
       <Container maxWidth="lg">
-        <Box sx={{ pt: 4, pb: 2 }}>
+        <Box sx={{ pt: 3, pb: 1 }}>
           <Typography 
             variant="h3" 
             align="center" 
             sx={{ 
-              mb: 4,
+              mb: 2.5,
               fontWeight: 'bold',
               background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
               WebkitBackgroundClip: 'text',
@@ -120,11 +120,12 @@ function AppContent() {
             display: 'flex',
             flexDirection: { xs: 'column', sm: 'row' },
             justifyContent: 'center',
-            gap: { xs: 1.5, sm: 2 },
+            gap: { xs: 1, sm: 1.5 },
             width: '100%',
             maxWidth: '800px',
             mx: 'auto',
-            px: { xs: 1, sm: 0 }
+            px: { xs: 1, sm: 0 },
+            mb: 1
           }}>
             <Button
               component={Link}
@@ -212,7 +213,7 @@ function AppContent() {
       </Container>
 
       <Container maxWidth="lg" sx={{ 
-        pt: { xs: 1, sm: 2 },
+        pt: { xs: 0, sm: 1 },
         pb: { xs: 3, sm: 4 },
         px: { xs: 2, sm: 3 },
         display: 'flex',
