@@ -254,19 +254,6 @@ function ProviderCompensation({ savedMonthlyRvus, setSavedMonthlyRvus }) {
               <InfoOutlined />
             </IconButton>
           </Box>
-          <Typography 
-            variant="h6" 
-            align="center" 
-            sx={{ 
-              color: 'text.secondary', 
-              mb: 3, 
-              mt: 0.5,
-              fontSize: '1.1rem',
-              fontWeight: 'normal' 
-            }}
-          >
-            Track RVUs and Projected Compensation
-          </Typography>
         </Box>
         <Popover
           open={Boolean(anchorEl)}
@@ -287,6 +274,20 @@ function ProviderCompensation({ savedMonthlyRvus, setSavedMonthlyRvus }) {
             projected total compensation, incentive payment, and other key metrics.
           </Typography>
         </Popover>
+
+        <Box sx={{ mb: 4 }}>
+          <Typography 
+            variant="h6" 
+            align="center" 
+            sx={{ 
+              color: 'text.secondary',
+              fontSize: '1.1rem',
+              fontWeight: 'normal'
+            }}
+          >
+            Track RVUs and Projected Compensation
+          </Typography>
+        </Box>
 
         <Grid container spacing={4}>
           <Grid item xs={12} md={6}>

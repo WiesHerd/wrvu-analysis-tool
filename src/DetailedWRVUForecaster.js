@@ -1107,6 +1107,18 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
 
         {procedureCodes.length > 0 ? (
           <Box sx={{ mb: 4 }}>
+            <Typography 
+              variant="h6" 
+              align="center" 
+              sx={{ 
+                color: 'text.secondary',
+                fontSize: '1.1rem',
+                fontWeight: 'normal'
+              }}
+            >
+              Analyze Procedure Codes and Calculate wRVU Production
+            </Typography>
+
             <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
               <TextField
                 fullWidth
