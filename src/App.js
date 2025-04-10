@@ -4,7 +4,7 @@ import { AppBar, Toolbar, Typography, Button, Container, Box, ThemeProvider, cre
 import ProviderCompensation from './ProviderCompensation';
 import WRVUForecastingTool from './WRVUForecastingTool';
 import DetailedWRVUForecaster from './DetailedWRVUForecaster';
-import { Speed, Analytics, MonetizationOn, Assessment } from '@mui/icons-material';
+import { Speed, Analytics, MonetizationOn, TrendingUp } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Create a professional theme with standardized typography
@@ -98,64 +98,136 @@ function App() {
           display: 'flex',
           flexDirection: 'column'
         }}>
-          {/* Main app title */}
           <Box sx={{ 
-            textAlign: 'center', 
-            py: 4,
-            mb: 2
+            width: '100%', 
+            background: 'transparent',
+            py: { xs: 2, sm: 3 },
+            mb: 0,
+            backgroundColor: 'transparent',
+            position: 'relative',
+            zIndex: 1
           }}>
-            <Typography 
-              variant="h3" 
-              component="h1"
-              sx={{ 
-                fontWeight: 700,
-                background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                mb: 1
-              }}
-            >
-              Provider Compensation Calculator
-            </Typography>
+            <Container maxWidth="lg">
+              <Typography 
+                variant="h3" 
+                align="center" 
+                sx={{ 
+                  mb: 2.5, 
+                  background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  fontWeight: 700,
+                  fontSize: { xs: '1.75rem', sm: '2rem' },
+                  transition: 'all 0.3s ease-in-out',
+                  '&:hover': {
+                    transform: 'scale(1.02)',
+                    background: 'linear-gradient(45deg, #1976d2 10%, #2196f3 90%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }
+                }}
+              >
+                Provider Compensation Calculator
+              </Typography>
+              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 4 }}>
+                <Button
+                  component={Link}
+                  to="/wrvu-forecast"
+                  variant="contained"
+                  startIcon={<TrendingUp />}
+                  sx={{
+                    borderRadius: '20px',
+                    px: 3,
+                    backgroundColor: '#1976d2',
+                    '&:hover': {
+                      backgroundColor: '#1565c0'
+                    }
+                  }}
+                >
+                  Compensation Forecast
+                </Button>
+                <Button
+                  component={Link}
+                  to="/detailed-wrvu"
+                  variant="contained"
+                  startIcon={<Analytics />}
+                  sx={{
+                    borderRadius: '20px',
+                    px: 3,
+                    backgroundColor: '#1976d2',
+                    '&:hover': {
+                      backgroundColor: '#1565c0'
+                    }
+                  }}
+                >
+                  Procedure Analysis
+                </Button>
+                <Button
+                  component={Link}
+                  to="/"
+                  variant="contained"
+                  startIcon={<MonetizationOn />}
+                  sx={{
+                    borderRadius: '20px',
+                    px: 3,
+                    backgroundColor: '#1976d2',
+                    '&:hover': {
+                      backgroundColor: '#1565c0'
+                    }
+                  }}
+                >
+                  Monthly Performance
+                </Button>
+              </Box>
+            </Container>
           </Box>
 
-          {/* Navigation */}
-          <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 4 }}>
-            <Button
-              component={Link}
-              to="/wrvu-forecast"
-              variant="contained"
-              startIcon={<Speed />}
-              sx={{ borderRadius: '20px', px: 3 }}
-            >
-              Quick Forecast
-            </Button>
-            <Button
-              component={Link}
-              to="/detailed-wrvu"
-              variant="contained"
-              startIcon={<Assessment />}
-              sx={{ borderRadius: '20px', px: 3 }}
-            >
-              Procedure Analysis
-            </Button>
-            <Button
-              component={Link}
-              to="/"
-              variant="contained"
-              startIcon={<MonetizationOn />}
-              sx={{ borderRadius: '20px', px: 3 }}
-            >
-              Monthly Performance
-            </Button>
-          </Box>
-
-          {/* Router content */}
-          <Routes>
-            <Route path="/" element={<ProviderCompensation />} />
-            <Route path="/wrvu-forecast" element={<WRVUForecastingTool />} />
-            <Route path="/detailed-wrvu" element={<DetailedWRVUForecaster />} />
-          </Routes>
+          <Container maxWidth="lg" sx={{ 
+            pt: { xs: 1, sm: 2 },
+            pb: { xs: 3, sm: 4 },
+            px: { xs: 2, sm: 3 },
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <AnimatePresence mode="wait">
+              <Routes>
+                <Route path="/" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <ProviderCompensation />
+                  </motion.div>
+                } />
+                <Route path="/wrvu-forecast" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <WRVUForecastingTool setTotalVisits={setTotalVisits} />
+                  </motion.div>
+                } />
+                <Route path="/detailed-wrvu" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <DetailedWRVUForecaster 
+                      totalVisits={totalVisits} 
+                      onUpdateForecast={handleUpdateForecast} 
+                    />
+                  </motion.div>
+                } />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </AnimatePresence>
+          </Container>
         </Box>
       </Router>
     </ThemeProvider>
