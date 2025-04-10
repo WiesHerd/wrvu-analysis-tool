@@ -101,9 +101,8 @@ function App() {
           <Box sx={{ 
             width: '100%', 
             background: 'transparent',
-            borderBottom: '1px solid rgba(25,118,210,0.12)',
-            py: 3,
-            mb: 4,
+            py: 2,
+            mb: 2,
             backgroundColor: 'transparent'
           }}>
             <Container maxWidth="lg">
@@ -111,7 +110,7 @@ function App() {
                 variant="h3" 
                 align="center" 
                 sx={{ 
-                  mb: 4, 
+                  mb: 3, 
                   background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
@@ -125,7 +124,6 @@ function App() {
                 flexDirection: { xs: 'column', sm: 'row' },
                 justifyContent: 'center',
                 gap: { xs: 2, sm: 3 },
-                mb: 4,
                 width: '100%',
                 maxWidth: '800px',
                 mx: 'auto',
@@ -181,9 +179,8 @@ function App() {
           </Box>
 
           <Container maxWidth="lg" sx={{ 
-            py: { xs: 3, sm: 4 },
+            py: { xs: 2, sm: 3 },
             px: { xs: 2, sm: 3 },
-            minHeight: '100vh',
             display: 'flex',
             flexDirection: 'column'
           }}>
