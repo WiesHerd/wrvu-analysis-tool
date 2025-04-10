@@ -534,31 +534,17 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
               variant="h4" 
               align="center" 
               sx={{ 
-                fontWeight: 700,
-                background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent'
+                color: 'text.secondary',
+                fontWeight: 'normal',
+                fontSize: '1.1rem'
               }}
             >
-              Procedure Code Analysis & Forecasting
+              Detailed wRVU Analysis Based on Procedure Code Distribution
             </Typography>
             <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
               <InfoOutlined />
             </IconButton>
           </Box>
-          <Typography 
-            variant="h6" 
-            align="center" 
-            sx={{ 
-              color: 'text.secondary', 
-              mb: 3, 
-              mt: 0.5,
-              fontSize: '1.1rem',
-              fontWeight: 'normal' 
-            }}
-          >
-            Detailed wRVU Analysis Based on Procedure Code Distribution
-          </Typography>
         </Box>
         <Popover
           open={Boolean(anchorEl)}
