@@ -1037,84 +1037,85 @@ function WRVUForecastingTool({ setTotalVisits }) {
         <Box sx={{ '@media print': { display: 'none' } }}>
           {/* Normal view content */}
           <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}> 
-            <Box sx={{ position: 'relative', mb: 2 }}>
-              {/* Header container with responsive layout */}
+            {/* Header section with improved mobile layout */}
+            <Box sx={{ 
+              display: 'flex',
+              flexDirection: 'column',
+              width: '100%',
+              mb: 4
+            }}>
+              {/* Title and subtitle container */}
               <Box sx={{ 
-                display: 'flex', 
-                flexDirection: { xs: 'column', sm: 'row' }, 
+                display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: { xs: 2, sm: 0 },
-                mb: { xs: 3, sm: 2 }
+                mb: { xs: 3, sm: 4 }
               }}>
-                {/* Save button */}
+                <Box sx={{ 
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Typography 
+                    variant="h4" 
+                    align="center"
+                    sx={{ 
+                      fontWeight: 'bold',
+                      color: '#1976d2',
+                      fontSize: { xs: '1.5rem', sm: '1.75rem' }
+                    }}
+                  >
+                    Compensation Forecast
+                  </Typography>
+                  <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
+                    <InfoOutlined />
+                  </IconButton>
+                </Box>
+                <Typography 
+                  variant="h6" 
+                  align="center" 
+                  sx={{ 
+                    color: 'text.secondary',
+                    fontSize: '1.1rem',
+                    fontWeight: 'normal',
+                    mt: 1
+                  }}
+                >
+                  Schedule and Average wRVU Per Encounter Input
+                </Typography>
+              </Box>
+
+              {/* Buttons container */}
+              <Box sx={{ 
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                gap: { xs: 2, sm: 3 },
+                justifyContent: 'center',
+                width: '100%',
+                mt: { xs: 2, sm: 0 }
+              }}>
                 <Button 
                   variant="outlined" 
                   startIcon={<Save />} 
                   onClick={() => setShowSaveDialog(true)}
+                  fullWidth
                   sx={{ 
                     borderRadius: '20px',
-                    order: { xs: 2, sm: 1 },
-                    width: { xs: '100%', sm: 'auto' }
+                    maxWidth: { xs: '100%', sm: '200px' },
+                    height: '40px'
                   }}
                 >
                   Save Scenario
                 </Button>
-
-                {/* Centered title container */}
-                <Box sx={{ 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  alignItems: 'center',
-                  order: { xs: 1, sm: 2 },
-                  width: { xs: '100%', sm: 'auto' }
-                }}>
-                  <Box sx={{ 
-                    display: 'flex', 
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    width: '100%'
-                  }}>
-                    <Typography 
-                      variant="h4" 
-                      align="center"
-                      sx={{ 
-                        mb: 1, 
-                        fontWeight: 'bold', 
-                        color: '#1976d2',
-                        fontSize: { xs: '1.5rem', sm: '1.75rem' }
-                      }}
-                    >
-                      Compensation Forecast
-                    </Typography>
-                    <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
-                      <InfoOutlined />
-                    </IconButton>
-                  </Box>
-                  <Typography 
-                    variant="h6" 
-                    align="center" 
-                    sx={{ 
-                      color: 'text.secondary', 
-                      mb: { xs: 2, sm: 4 }, 
-                      fontSize: '1.1rem',
-                      fontWeight: 'normal',
-                      px: { xs: 2, sm: 0 }
-                    }}
-                  >
-                    Schedule and Average wRVU Per Encounter Input
-                  </Typography>
-                </Box>
-
-                {/* Print button */}
                 <Button 
                   variant="outlined" 
                   startIcon={<PrintIcon />} 
                   onClick={handlePrint}
+                  fullWidth
                   sx={{ 
                     borderRadius: '20px',
-                    order: { xs: 3, sm: 3 },
-                    width: { xs: '100%', sm: 'auto' }
+                    maxWidth: { xs: '100%', sm: '200px' },
+                    height: '40px'
                   }}
                 >
                   Print Summary
@@ -1128,16 +1129,20 @@ function WRVUForecastingTool({ setTotalVisits }) {
                 display: 'flex', 
                 justifyContent: 'center', 
                 mb: 3,
-                mt: 2
+                mt: 2,
+                px: { xs: 2, sm: 0 }
               }}>
                 <Box sx={{ 
                   display: 'inline-flex',
                   alignItems: 'center',
                   backgroundColor: 'rgba(25, 118, 210, 0.08)',
                   borderRadius: '24px',
-                  px: 2,
+                  px: { xs: 1.5, sm: 2 },
                   py: 0.5,
-                  border: '1px solid rgba(25, 118, 210, 0.2)'
+                  border: '1px solid rgba(25, 118, 210, 0.2)',
+                  width: { xs: '100%', sm: 'auto' },
+                  flexDirection: { xs: 'column', sm: 'row' },
+                  gap: { xs: 1, sm: 0 }
                 }}>
                   <Box 
                     component="span" 
@@ -1145,7 +1150,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
                       display: 'flex', 
                       alignItems: 'center',
                       color: '#1976d2',
-                      mr: 1.5,
+                      mr: { xs: 0, sm: 1.5 },
                       fontSize: '0.875rem',
                       fontWeight: 500
                     }}
@@ -1157,7 +1162,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
                   <FormControl 
                     variant="standard" 
                     sx={{ 
-                      minWidth: 180,
+                      minWidth: { xs: '100%', sm: 180 },
                       '& .MuiInput-underline:before': { borderBottom: 'none' },
                       '& .MuiInput-underline:after': { borderBottom: 'none' },
                       '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottom: 'none' },
@@ -1177,6 +1182,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
                       sx={{ 
                         fontSize: '0.875rem',
                         color: '#1976d2',
+                        width: '100%',
                         '& .MuiSelect-select': { 
                           paddingBottom: 0,
                           paddingTop: 0,
