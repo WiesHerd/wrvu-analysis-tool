@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { HashRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { HashRouter as Router, Route, Routes, Link, Navigate, useNavigate } from 'react-router-dom';
 import { AppBar, Toolbar, Typography, Button, Container, Box, ThemeProvider, createTheme } from '@mui/material';
 import ProviderCompensation from './ProviderCompensation';
 import WRVUForecastingTool from './WRVUForecastingTool';
 import DetailedWRVUForecaster from './DetailedWRVUForecaster';
-import { Speed, Analytics, MonetizationOn, TrendingUp } from '@mui/icons-material';
+import { Speed, Analytics, MonetizationOn } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Create a professional theme with standardized typography
@@ -83,7 +83,13 @@ const theme = createTheme({
 
 function App() {
   const [totalVisits, setTotalVisits] = useState(0);
-  const [activeRoute, setActiveRoute] = useState(window.location.hash.replace('#', '') || '/');
+  const [activeRoute, setActiveRoute] = useState('/wrvu-forecast');
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    // Always navigate to Quick Forecast on app load
+    navigate('/wrvu-forecast');
+  }, [navigate]);
 
   const handleUpdateForecast = (newForecast) => {
     console.log('New forecast:', newForecast);
@@ -93,58 +99,62 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router>
         <Box sx={{ 
-          minHeight: '100vh', 
-          background: 'linear-gradient(180deg, rgba(240,244,248,0.8) 0%, rgba(250,252,254,0.9) 100%)',
-          display: 'flex',
-          flexDirection: 'column'
+          width: '100%', 
+          minHeight: '100vh',
+          backgroundColor: 'rgba(236, 242, 253, 0.3)', // Much lighter blue background
+          pb: 4 
         }}>
-          <Box sx={{ 
-            width: '100%', 
-            background: 'transparent',
-            py: { xs: 2, sm: 3 },
-            mb: 0,
-            backgroundColor: 'transparent',
-            position: 'relative',
-            zIndex: 1
-          }}>
-            <Container maxWidth="lg">
+          <Container maxWidth="lg">
+            <Box sx={{ pt: 4, pb: 2 }}>
               <Typography 
                 variant="h3" 
                 align="center" 
                 sx={{ 
-                  mb: 2.5, 
+                  mb: 4,
+                  fontWeight: 'bold',
                   background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
                   WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  fontWeight: 700,
-                  fontSize: { xs: '1.75rem', sm: '2rem' },
-                  transition: 'all 0.3s ease-in-out',
-                  '&:hover': {
-                    transform: 'scale(1.02)',
-                    background: 'linear-gradient(45deg, #1976d2 10%, #2196f3 90%)',
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                  }
+                  WebkitTextFillColor: 'transparent'
                 }}
               >
                 Provider Compensation Calculator
               </Typography>
-              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2, mb: 4 }}>
+              <Box sx={{
+                display: 'flex',
+                flexDirection: { xs: 'column', sm: 'row' },
+                justifyContent: 'center',
+                gap: { xs: 1.5, sm: 2 },
+                width: '100%',
+                maxWidth: '800px',
+                mx: 'auto',
+                px: { xs: 1, sm: 0 }
+              }}>
                 <Button
                   component={Link}
                   to="/wrvu-forecast"
                   variant="contained"
-                  startIcon={<TrendingUp />}
+                  startIcon={<Speed />}
                   sx={{
-                    borderRadius: '20px',
-                    px: 3,
-                    backgroundColor: '#1976d2',
+                    width: { xs: '100%', sm: 'auto' },
+                    minWidth: { sm: '200px' },
+                    py: 1.5,
+                    fontSize: '1rem',
+                    textTransform: 'none',
+                    boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
-                      backgroundColor: '#1565c0'
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
+                      '& .MuiSvgIcon-root': {
+                        transform: 'rotate(180deg)'
+                      }
+                    },
+                    '& .MuiSvgIcon-root': {
+                      transition: 'transform 0.5s ease-in-out'
                     }
                   }}
                 >
-                  Compensation Forecast
+                  Quick Forecast
                 </Button>
                 <Button
                   component={Link}
@@ -152,11 +162,22 @@ function App() {
                   variant="contained"
                   startIcon={<Analytics />}
                   sx={{
-                    borderRadius: '20px',
-                    px: 3,
-                    backgroundColor: '#1976d2',
+                    width: { xs: '100%', sm: 'auto' },
+                    minWidth: { sm: '200px' },
+                    py: 1.5,
+                    fontSize: '1rem',
+                    textTransform: 'none',
+                    boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
-                      backgroundColor: '#1565c0'
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
+                      '& .MuiSvgIcon-root': {
+                        transform: 'scale(1.2)'
+                      }
+                    },
+                    '& .MuiSvgIcon-root': {
+                      transition: 'transform 0.3s ease-in-out'
                     }
                   }}
                 >
@@ -168,19 +189,30 @@ function App() {
                   variant="contained"
                   startIcon={<MonetizationOn />}
                   sx={{
-                    borderRadius: '20px',
-                    px: 3,
-                    backgroundColor: '#1976d2',
+                    width: { xs: '100%', sm: 'auto' },
+                    minWidth: { sm: '200px' },
+                    py: 1.5,
+                    fontSize: '1rem',
+                    textTransform: 'none',
+                    boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
-                      backgroundColor: '#1565c0'
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
+                      '& .MuiSvgIcon-root': {
+                        transform: 'rotate(15deg) scale(1.2)'
+                      }
+                    },
+                    '& .MuiSvgIcon-root': {
+                      transition: 'transform 0.3s ease-in-out'
                     }
                   }}
                 >
                   Monthly Performance
                 </Button>
               </Box>
-            </Container>
-          </Box>
+            </Box>
+          </Container>
 
           <Container maxWidth="lg" sx={{ 
             pt: { xs: 1, sm: 2 },

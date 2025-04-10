@@ -1220,31 +1220,20 @@ function WRVUForecastingTool({ setTotalVisits }) {
                   mb: 1
                 }}>
                   <Typography 
-                    variant="h4" 
-                    align="center"
+                    variant="h6" 
+                    align="center" 
                     sx={{ 
-                      fontWeight: 'bold',
-                      color: '#1976d2',
-                      fontSize: { xs: '1.5rem', sm: '1.75rem' }
+                      color: 'text.secondary',
+                      fontSize: '1.1rem',
+                      fontWeight: 'normal'
                     }}
                   >
-                    Compensation Forecast
+                    Schedule and Average wRVU Per Encounter Input
                   </Typography>
                   <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
                     <InfoOutlined />
                   </IconButton>
                 </Box>
-                <Typography 
-                  variant="h6" 
-                  align="center" 
-                  sx={{ 
-                    color: 'text.secondary',
-                    fontSize: '1.1rem',
-                    fontWeight: 'normal'
-                  }}
-                >
-                  Schedule and Average wRVU Per Encounter Input
-                </Typography>
               </Box>
 
               {/* Action buttons - always below title on mobile */}
