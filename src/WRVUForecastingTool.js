@@ -250,14 +250,14 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
 
 function StatItem({ icon, label, value, difference, tooltipText }) {
   const descriptions = {
-    "Estimated Total Compensation": "Total annual compensation including base salary and incentive payments",
+    "Estimated Total Compensation": "Total annual compensation including base salary and incentive payments based on wRVU production",
     "Estimated Incentive Payment": "Additional compensation earned above base salary based on wRVU production",
-    "Weeks Worked Per Year": "Number of weeks worked per year after accounting for vacation and holidays",
-    "Encounters per Week": "Average number of patient encounters per week",
-    "Annual Clinic Days": "Total number of clinic days per year",
-    "Annual Clinical Hours": "Total clinical hours worked per year",
-    "Annual Patient Encounters": "Total number of patient encounters per year",
-    "Estimated Annual wRVUs": "Projected annual work Relative Value Units (wRVUs) based on patient encounters"
+    "Weeks Worked Per Year": "Total working weeks per year after subtracting vacation, CME, and holidays",
+    "Encounters per Week": "Average number of patient encounters scheduled per week",
+    "Annual Clinic Days": "Total number of clinic days worked per year excluding holidays and time off",
+    "Annual Clinical Hours": "Total clinical hours worked per year based on your schedule",
+    "Annual Patient Encounters": "Total number of patient encounters projected for the year",
+    "Estimated Annual wRVUs": "Projected annual work Relative Value Units (wRVUs) based on your patient encounters and average wRVU per encounter"
   };
 
   return (
@@ -282,14 +282,15 @@ function StatItem({ icon, label, value, difference, tooltipText }) {
             placement="top"
             arrow
           >
-            <InfoOutlined sx={{ 
-              fontSize: '1.1rem', 
-              color: 'rgba(25, 118, 210, 0.7)',
-              cursor: 'help',
-              '&:hover': {
-                color: '#1976d2'
-              }
-            }} />
+            <IconButton size="small" sx={{ p: 0.5 }}>
+              <InfoOutlined sx={{ 
+                fontSize: '1.1rem', 
+                color: 'rgba(25, 118, 210, 0.7)',
+                '&:hover': {
+                  color: '#1976d2'
+                }
+              }} />
+            </IconButton>
           </Tooltip>
         </Box>
       </Box>
@@ -308,15 +309,15 @@ function StatItem({ icon, label, value, difference, tooltipText }) {
               {difference}
             </Typography>
             <Tooltip title={tooltipText || "Potential increase using adjusted wRVU per encounter"}>
-              <InfoOutlined sx={{ 
-                ml: 1, 
-                fontSize: '1.1rem', 
-                color: 'rgba(76, 175, 80, 0.7)',
-                cursor: 'help',
-                '&:hover': {
-                  color: '#4caf50'
-                }
-              }} />
+              <IconButton size="small" sx={{ p: 0.5 }}>
+                <InfoOutlined sx={{ 
+                  fontSize: '1.1rem', 
+                  color: 'rgba(76, 175, 80, 0.7)',
+                  '&:hover': {
+                    color: '#4caf50'
+                  }
+                }} />
+              </IconButton>
             </Tooltip>
           </Box>
         )}
