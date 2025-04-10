@@ -1220,12 +1220,12 @@ function WRVUForecastingTool({ setTotalVisits }) {
                   mb: 2
                 }}>
                   <Typography 
-                    variant="h6" 
+                    variant="h4" 
                     align="center" 
                     sx={{ 
-                      color: 'text.secondary',
-                      fontSize: '1.1rem',
-                      fontWeight: 'normal'
+                      color: '#1976d2',
+                      fontWeight: 600,
+                      fontSize: '1.5rem'
                     }}
                   >
                     Schedule and Average wRVU Per Encounter Input
