@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Route, Routes, Link, Navigate, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button, Container, Box, ThemeProvider, createTheme } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Container, Box, ThemeProvider, createTheme, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import ProviderCompensation from './ProviderCompensation';
 import WRVUForecastingTool from './WRVUForecastingTool';
 import DetailedWRVUForecaster from './DetailedWRVUForecaster';
-import { Speed, Analytics, MonetizationOn } from '@mui/icons-material';
+import { Speed, Analytics, MonetizationOn, HelpOutline } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 
 // Create a professional theme with standardized typography
@@ -83,6 +83,7 @@ const theme = createTheme({
 
 function AppContent() {
   const [totalVisits, setTotalVisits] = useState(0);
+  const [isHelpOpen, setIsHelpOpen] = useState(false);
   const navigate = useNavigate();
 
   const handleUpdateForecast = (newForecast) => {
@@ -97,6 +98,48 @@ function AppContent() {
       pb: 4 
     }}>
       <Container maxWidth="lg">
+        {/* Title Section */}
+        <Box sx={{ 
+          display: 'flex', 
+          flexDirection: 'column',
+          alignItems: 'center',
+          pt: 4,
+          pb: 3
+        }}>
+          <Typography 
+            variant="h4" 
+            component="h1"
+            sx={{ 
+              fontWeight: 700,
+              color: 'primary.main',
+              textAlign: 'center',
+              mb: 1
+            }}
+          >
+            Provider Compensation Forecaster
+          </Typography>
+          <Typography 
+            variant="subtitle1" 
+            color="text.secondary"
+            sx={{ 
+              textAlign: 'center',
+              mb: 2,
+              maxWidth: '600px'
+            }}
+          >
+            Calculate and analyze provider compensation based on wRVUs, procedure codes, and scheduling patterns
+          </Typography>
+          <Button
+            startIcon={<HelpOutline />}
+            onClick={() => setIsHelpOpen(true)}
+            variant="outlined"
+            size="small"
+            sx={{ borderRadius: '20px' }}
+          >
+            How to Use
+          </Button>
+        </Box>
+
         <Box sx={{ 
           display: 'flex', 
           justifyContent: 'center',
@@ -188,6 +231,53 @@ function AppContent() {
           </Button>
         </Box>
       </Container>
+
+      {/* Help Dialog */}
+      <Dialog
+        open={isHelpOpen}
+        onClose={() => setIsHelpOpen(false)}
+        maxWidth="md"
+        fullWidth
+      >
+        <DialogTitle sx={{ pb: 1 }}>How to Use the Provider Compensation Forecaster</DialogTitle>
+        <DialogContent>
+          <DialogContentText component="div">
+            <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>Quick Forecast</Typography>
+            <Typography paragraph>
+              Use this screen for rapid compensation estimates based on your schedule and average wRVU per encounter.
+              Input your schedule details, base salary, and average wRVU values to see projected annual compensation.
+            </Typography>
+
+            <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>Procedure Analysis</Typography>
+            <Typography paragraph>
+              For detailed analysis using specific procedure codes:
+              1. Upload your CMS Fee Schedule using the provided template
+              2. Input your procedure code distribution
+              3. Set your schedule and compensation parameters
+              4. View detailed wRVU and compensation projections
+            </Typography>
+
+            <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>Monthly Performance</Typography>
+            <Typography paragraph>
+              Track your actual performance:
+              1. Enter your monthly wRVU totals
+              2. View trending and projections
+              3. Monitor progress toward compensation targets
+            </Typography>
+
+            <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>Tips for Best Results</Typography>
+            <Typography component="ul" sx={{ pl: 2 }}>
+              <li>Keep your CMS Fee Schedule up to date</li>
+              <li>Regularly update your monthly wRVU data</li>
+              <li>Use the detailed analysis for the most accurate projections</li>
+              <li>Save different scenarios to compare various schedules and compensation models</li>
+            </Typography>
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsHelpOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
 
       <Container maxWidth="lg" sx={{ 
         pt: { xs: 0, sm: 1 },
