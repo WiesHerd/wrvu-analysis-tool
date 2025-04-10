@@ -204,7 +204,7 @@ function AppContent() {
           </Button>
           <Button
             component={Link}
-            to="/"
+            to="/monthly-performance"
             variant="contained"
             startIcon={<MonetizationOn />}
             sx={{
@@ -306,6 +306,16 @@ function AppContent() {
                 transition={{ duration: 0.5 }}
               >
                 <DetailedWRVUForecaster totalVisits={totalVisits} onUpdateForecast={handleUpdateForecast} />
+              </motion.div>
+            } />
+            <Route path="/monthly-performance" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+              >
+                <ProviderCompensation />
               </motion.div>
             } />
             <Route path="/" element={<Navigate to="/wrvu-forecast" replace />} />
