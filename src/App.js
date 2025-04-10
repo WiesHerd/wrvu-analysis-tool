@@ -95,14 +95,14 @@ function App() {
           width: '100%', 
           minHeight: '100vh',
           bgcolor: 'background.default',
-          backgroundImage: 'linear-gradient(180deg, rgba(25,118,210,0.04) 0%, rgba(25,118,210,0.01) 100%)',
+          backgroundImage: 'linear-gradient(180deg, rgba(25,118,210,0.08) 0%, rgba(25,118,210,0.02) 100%)',
           backgroundAttachment: 'fixed'
         }}>
           <Box sx={{ 
             width: '100%', 
             background: 'transparent',
-            py: 2,
-            mb: 2,
+            py: { xs: 2, sm: 3 },
+            mb: 0,
             backgroundColor: 'transparent'
           }}>
             <Container maxWidth="lg">
@@ -110,11 +110,12 @@ function App() {
                 variant="h3" 
                 align="center" 
                 sx={{ 
-                  mb: 3, 
+                  mb: 2.5, 
                   background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  fontWeight: 700
+                  fontWeight: 700,
+                  fontSize: { xs: '1.75rem', sm: '2rem' }
                 }}
               >
                 Provider Compensation Calculator
@@ -123,11 +124,11 @@ function App() {
                 display: 'flex',
                 flexDirection: { xs: 'column', sm: 'row' },
                 justifyContent: 'center',
-                gap: { xs: 2, sm: 3 },
+                gap: { xs: 1.5, sm: 2 },
                 width: '100%',
                 maxWidth: '800px',
                 mx: 'auto',
-                px: { xs: 2, sm: 0 }
+                px: { xs: 1, sm: 0 }
               }}>
                 <Button
                   component={Link}
@@ -139,7 +140,11 @@ function App() {
                     minWidth: { sm: '200px' },
                     py: 1.5,
                     fontSize: '1rem',
-                    textTransform: 'none'
+                    textTransform: 'none',
+                    boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
+                    '&:hover': {
+                      boxShadow: '0 6px 10px rgba(25,118,210,0.2)'
+                    }
                   }}
                 >
                   Quick Forecast
@@ -154,7 +159,11 @@ function App() {
                     minWidth: { sm: '200px' },
                     py: 1.5,
                     fontSize: '1rem',
-                    textTransform: 'none'
+                    textTransform: 'none',
+                    boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
+                    '&:hover': {
+                      boxShadow: '0 6px 10px rgba(25,118,210,0.2)'
+                    }
                   }}
                 >
                   Procedure Analysis
@@ -169,7 +178,11 @@ function App() {
                     minWidth: { sm: '200px' },
                     py: 1.5,
                     fontSize: '1rem',
-                    textTransform: 'none'
+                    textTransform: 'none',
+                    boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
+                    '&:hover': {
+                      boxShadow: '0 6px 10px rgba(25,118,210,0.2)'
+                    }
                   }}
                 >
                   Monthly Performance
@@ -179,7 +192,8 @@ function App() {
           </Box>
 
           <Container maxWidth="lg" sx={{ 
-            py: { xs: 2, sm: 3 },
+            pt: { xs: 1, sm: 2 },
+            pb: { xs: 3, sm: 4 },
             px: { xs: 2, sm: 3 },
             display: 'flex',
             flexDirection: 'column'
