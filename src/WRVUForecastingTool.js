@@ -182,7 +182,12 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
     <Paper elevation={3} sx={{ p: 3, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0' }}>
       <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>Work Schedule</Typography>
       <Box sx={{ mt: 2 }}>
-        <Tooltip title="Enter the number of vacation weeks you take per year">
+        <Tooltip 
+          title="Enter the number of vacation weeks you take per year"
+          enterTouchDelay={50}
+          leaveTouchDelay={1500}
+          arrow
+        >
           <div>
             <CustomNumberInput
               label="Vacation Weeks per Year"
@@ -197,7 +202,12 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
           </div>
         </Tooltip>
       </Box>
-      <Tooltip title="Enter the number of statutory holidays per year">
+      <Tooltip 
+        title="Enter the number of statutory holidays per year"
+        enterTouchDelay={50}
+        leaveTouchDelay={1500}
+        arrow
+      >
         <div>
           <CustomNumberInput
             label="Statutory Holidays per Year"
@@ -211,7 +221,12 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
           />
         </div>
       </Tooltip>
-      <Tooltip title="Enter the number of CME (Continuing Medical Education) days per year">
+      <Tooltip 
+        title="Enter the number of CME (Continuing Medical Education) days per year"
+        enterTouchDelay={50}
+        leaveTouchDelay={1500}
+        arrow
+      >
         <div>
           <CustomNumberInput
             label="CME Days per Year"
@@ -398,7 +413,13 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
       <Grid container spacing={3}>
         {summaryItems.map((item, index) => (
           <Grid item xs={12} md={6} key={index}>
-            <Tooltip title={item.tooltipText} placement="top">
+            <Tooltip 
+              title={item.tooltipText} 
+              placement="top"
+              enterTouchDelay={50}
+              leaveTouchDelay={1500}
+              arrow
+            >
               <div style={{ height: '100%' }}>
                 <StatItem {...item} />
               </div>
@@ -1258,7 +1279,12 @@ function WRVUForecastingTool({ setTotalVisits }) {
                     </Box>
                   </Box>
                   <Box sx={{ mt: '24px' }}> {/* Add top margin to align with left container */}
-                    <Tooltip title={inputs.isPerHour ? "Enter the average number of patients seen per hour" : "Enter the average number of patients seen per day"}>
+                    <Tooltip 
+                      title={inputs.isPerHour ? "Enter the average number of patients seen per hour" : "Enter the average number of patients seen per day"}
+                      enterTouchDelay={50}
+                      leaveTouchDelay={1500}
+                      arrow
+                    >
                       <div>
                         <NumericFormat
                           customInput={TextField}
@@ -1335,7 +1361,12 @@ function WRVUForecastingTool({ setTotalVisits }) {
                       </div>
                     </Tooltip>
                   </Box>
-                  <Tooltip title="Enter your current average wRVU per patient encounter">
+                  <Tooltip 
+                    title="Enter your current average wRVU per patient encounter"
+                    enterTouchDelay={50}
+                    leaveTouchDelay={1500}
+                    arrow
+                  >
                     <div>
                       <NumericFormat
                         customInput={TextField}
@@ -1401,7 +1432,12 @@ function WRVUForecastingTool({ setTotalVisits }) {
                       />
                     </div>
                   </Tooltip>
-                  <Tooltip title="Enter an adjusted wRVU per encounter to see how changes in billing efficiency affect your compensation">
+                  <Tooltip 
+                    title="Enter an adjusted wRVU per encounter to see how changes in billing efficiency affect your compensation"
+                    enterTouchDelay={50}
+                    leaveTouchDelay={1500}
+                    arrow
+                  >
                     <div>
                       <NumericFormat
                         customInput={TextField}
@@ -1467,7 +1503,12 @@ function WRVUForecastingTool({ setTotalVisits }) {
                       />
                     </div>
                   </Tooltip>
-                  <Tooltip title="Enter your base salary (minimum guaranteed compensation)">
+                  <Tooltip 
+                    title="Enter your base salary (minimum guaranteed compensation)"
+                    enterTouchDelay={50}
+                    leaveTouchDelay={1500}
+                    arrow
+                  >
                     <div>
                       <NumericFormat
                         customInput={TextField}
@@ -1487,7 +1528,12 @@ function WRVUForecastingTool({ setTotalVisits }) {
                       />
                     </div>
                   </Tooltip>
-                  <Tooltip title="Enter the dollar amount paid per wRVU">
+                  <Tooltip 
+                    title="Enter the dollar amount paid per wRVU"
+                    enterTouchDelay={50}
+                    leaveTouchDelay={1500}
+                    arrow
+                  >
                     <div>
                       <NumericFormat
                         customInput={TextField}
@@ -1560,7 +1606,12 @@ function WRVUForecastingTool({ setTotalVisits }) {
                       />
                     </div>
                   </Tooltip>
-                  <Tooltip title="Number of wRVUs needed to exceed base salary compensation">
+                  <Tooltip 
+                    title="Number of wRVUs needed to exceed base salary compensation"
+                    enterTouchDelay={50}
+                    leaveTouchDelay={1500}
+                    arrow
+                  >
                     <div>
                       <TextField
                         fullWidth
