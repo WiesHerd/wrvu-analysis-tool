@@ -1192,205 +1192,200 @@ function WRVUForecastingTool({ setTotalVisits }) {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                mb: 2
+                mb: 4
               }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Box sx={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  justifyContent: 'center',
+                  mb: 1
+                }}>
                   <Typography 
                     variant="h4" 
                     sx={{ 
-                      mb: 1, 
                       fontWeight: 700,
                       background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
                       WebkitBackgroundClip: 'text',
                       WebkitTextFillColor: 'transparent'
                     }}
                   >
-                    Annual Income Forecast
+                    Compensation Forecast
                   </Typography>
                   <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
                     <InfoOutlined />
                   </IconButton>
                 </Box>
-                <Typography 
-                  variant="h6" 
-                  align="center" 
-                  sx={{ 
-                    color: 'text.secondary', 
-                    mb: 4, 
-                    fontSize: '1.1rem',
-                    fontWeight: 'normal' 
-                  }}
-                >
-                  Customize Your Schedule & Productivity Metrics
-                </Typography>
-              </Box>
 
-              {/* Action buttons - always below title on mobile */}
-              <Box sx={{ 
-                display: 'flex',
-                flexDirection: { xs: 'column', sm: 'row' },
-                gap: 2,
-                width: '100%',
-                maxWidth: { xs: '100%', sm: '500px' },
-                mt: { xs: 2, sm: 3 }
-              }}>
-                <Button 
-                  variant="outlined" 
-                  startIcon={<Save />} 
-                  onClick={() => setShowSaveDialog(true)}
-                  fullWidth
-                  sx={{ 
-                    borderRadius: '20px',
-                    height: '40px'
-                  }}
+                <Typography 
+                  variant="subtitle1" 
+                  align="center" 
+                  color="text.secondary"
+                  sx={{ mb: 2 }}
                 >
-                  Save Scenario
-                </Button>
-                <Button 
-                  variant="outlined" 
-                  startIcon={<PrintIcon />} 
-                  onClick={handlePrint}
-                  fullWidth
-                  sx={{ 
-                    borderRadius: '20px',
-                    height: '40px'
-                  }}
-                >
-                  Print Summary
-                </Button>
-              </Box>
-            </Box>
-            
-            {/* Scenario selector */}
-            {savedScenarios.length > 0 && (
-              <Box sx={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                mb: 3,
-                mt: 2,
-                px: { xs: 2, sm: 0 }
-              }}>
+                  Schedule and Average wRVU Per Encounter Input
+                </Typography>
+
                 <Box sx={{ 
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  backgroundColor: 'rgba(25, 118, 210, 0.08)',
-                  borderRadius: '24px',
-                  px: { xs: 1.5, sm: 2 },
-                  py: 0.5,
-                  border: '1px solid rgba(25, 118, 210, 0.2)',
-                  width: { xs: '100%', sm: 'auto' },
-                  flexDirection: { xs: 'column', sm: 'row' },
-                  gap: { xs: 1, sm: 0 }
+                  display: 'flex', 
+                  gap: 2,
+                  mt: 1
                 }}>
-                  <Box 
-                    component="span" 
+                  <Button
+                    variant="outlined"
+                    startIcon={<Save />}
+                    onClick={() => setShowSaveDialog(true)}
                     sx={{ 
-                      display: 'flex', 
-                      alignItems: 'center',
-                      color: '#1976d2',
-                      mr: { xs: 0, sm: 1.5 },
-                      fontSize: '0.875rem',
-                      fontWeight: 500
+                      borderRadius: '20px',
+                      px: 3
                     }}
                   >
-                    <TrendingUp fontSize="small" sx={{ mr: 0.5 }} />
-                    Scenarios:
-                  </Box>
-                  
-                  <FormControl 
-                    variant="standard" 
+                    SAVE SCENARIO
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    startIcon={<PrintIcon />}
+                    onClick={handlePrint}
                     sx={{ 
-                      minWidth: { xs: '100%', sm: 180 },
-                      '& .MuiInput-underline:before': { borderBottom: 'none' },
-                      '& .MuiInput-underline:after': { borderBottom: 'none' },
-                      '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottom: 'none' },
+                      borderRadius: '20px',
+                      px: 3
                     }}
                   >
-                    <Select
-                      value=""
-                      displayEmpty
-                      onChange={(e) => {
-                        if (!e.target.value) return;
-                        const scenario = savedScenarios.find(s => s.id === e.target.value);
-                        if (scenario) {
-                          handleLoadScenario(scenario);
-                          e.target.value = ""; // Reset select after loading
-                        }
-                      }}
-                      sx={{ 
-                        fontSize: '0.875rem',
-                        color: '#1976d2',
-                        width: '100%',
-                        '& .MuiSelect-select': { 
-                          paddingBottom: 0,
-                          paddingTop: 0,
-                          paddingRight: '24px !important'
-                        }
-                      }}
-                    >
-                      <MenuItem value="" disabled>
-                        <em>Select scenario</em>
-                      </MenuItem>
-                      {savedScenarios.map((scenario) => (
-                        <MenuItem 
-                          key={scenario.id} 
-                          value={scenario.id} 
-                          sx={{ 
-                            display: 'flex', 
-                            justifyContent: 'space-between',
-                            alignItems: 'center'
-                          }}
-                        >
-                          <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
-                            <TrendingUp fontSize="small" sx={{ mr: 1, color: 'action.active', opacity: 0.6 }} />
-                            {scenario.name}
-                          </Box>
-                          <IconButton 
-                            size="small" 
-                            onClick={(e) => handleDeleteScenario(scenario.id, e)}
-                            sx={{ 
-                              color: 'error.light', 
-                              opacity: 0.7,
-                              width: 28, 
-                              height: 28,
-                              '&:hover': { 
-                                opacity: 1,
-                                backgroundColor: 'rgba(211, 47, 47, 0.1)'
-                              }
-                            }}
-                          >
-                            <Delete fontSize="small" />
-                          </IconButton>
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
+                    PRINT SUMMARY
+                  </Button>
                 </Box>
               </Box>
-            )}
 
-            <Popover
-              open={Boolean(anchorEl)}
-              anchorEl={anchorEl}
-              onClose={handleInfoClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'center',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'center',
-              }}
-            >
-              <Typography sx={{ p: 2, maxWidth: 350 }}>
-                This screen allows you to input your work schedule details and wRVU per encounter. 
-                It calculates your estimated annual wRVUs, encounters, and potential compensation based on 
-                your inputs. The "Adjusted wRVU Per Encounter" field lets you see how changes in your 
-                billing efficiency might affect your productivity and compensation. 
-                Adjustments are reflected in the Estimated Total Compensation and Estimated Annual wRVUs 
-                in the Productivity Summary section. Experiment with different values to forecast various scenarios.
-              </Typography>
-            </Popover>
+              {/* Scenario selector */}
+              {savedScenarios.length > 0 && (
+                <Box sx={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  mb: 3,
+                  mt: 2,
+                  px: { xs: 2, sm: 0 }
+                }}>
+                  <Box sx={{ 
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                    borderRadius: '24px',
+                    px: { xs: 1.5, sm: 2 },
+                    py: 0.5,
+                    border: '1px solid rgba(25, 118, 210, 0.2)',
+                    width: { xs: '100%', sm: 'auto' },
+                    flexDirection: { xs: 'column', sm: 'row' },
+                    gap: { xs: 1, sm: 0 }
+                  }}>
+                    <Box 
+                      component="span" 
+                      sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        color: '#1976d2',
+                        mr: { xs: 0, sm: 1.5 },
+                        fontSize: '0.875rem',
+                        fontWeight: 500
+                      }}
+                    >
+                      <TrendingUp fontSize="small" sx={{ mr: 0.5 }} />
+                      Scenarios:
+                    </Box>
+                    
+                    <FormControl 
+                      variant="standard" 
+                      sx={{ 
+                        minWidth: { xs: '100%', sm: 180 },
+                        '& .MuiInput-underline:before': { borderBottom: 'none' },
+                        '& .MuiInput-underline:after': { borderBottom: 'none' },
+                        '& .MuiInput-underline:hover:not(.Mui-disabled):before': { borderBottom: 'none' },
+                      }}
+                    >
+                      <Select
+                        value=""
+                        displayEmpty
+                        onChange={(e) => {
+                          if (!e.target.value) return;
+                          const scenario = savedScenarios.find(s => s.id === e.target.value);
+                          if (scenario) {
+                            handleLoadScenario(scenario);
+                            e.target.value = ""; // Reset select after loading
+                          }
+                        }}
+                        sx={{ 
+                          fontSize: '0.875rem',
+                          color: '#1976d2',
+                          width: '100%',
+                          '& .MuiSelect-select': { 
+                            paddingBottom: 0,
+                            paddingTop: 0,
+                            paddingRight: '24px !important'
+                          }
+                        }}
+                      >
+                        <MenuItem value="" disabled>
+                          <em>Select scenario</em>
+                        </MenuItem>
+                        {savedScenarios.map((scenario) => (
+                          <MenuItem 
+                            key={scenario.id} 
+                            value={scenario.id} 
+                            sx={{ 
+                              display: 'flex', 
+                              justifyContent: 'space-between',
+                              alignItems: 'center'
+                            }}
+                          >
+                            <Box component="span" sx={{ display: 'flex', alignItems: 'center' }}>
+                              <TrendingUp fontSize="small" sx={{ mr: 1, color: 'action.active', opacity: 0.6 }} />
+                              {scenario.name}
+                            </Box>
+                            <IconButton 
+                              size="small" 
+                              onClick={(e) => handleDeleteScenario(scenario.id, e)}
+                              sx={{ 
+                                color: 'error.light', 
+                                opacity: 0.7,
+                                width: 28, 
+                                height: 28,
+                                '&:hover': { 
+                                  opacity: 1,
+                                  backgroundColor: 'rgba(211, 47, 47, 0.1)'
+                                }
+                              }}
+                            >
+                              <Delete fontSize="small" />
+                            </IconButton>
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Box>
+                </Box>
+              )}
+
+              <Popover
+                open={Boolean(anchorEl)}
+                anchorEl={anchorEl}
+                onClose={handleInfoClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'center',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'center',
+                }}
+              >
+                <Typography sx={{ p: 2, maxWidth: 350 }}>
+                  This screen allows you to input your work schedule details and wRVU per encounter. 
+                  It calculates your estimated annual wRVUs, encounters, and potential compensation based on 
+                  your inputs. The "Adjusted wRVU Per Encounter" field lets you see how changes in your 
+                  billing efficiency might affect your productivity and compensation. 
+                  Adjustments are reflected in the Estimated Total Compensation and Estimated Annual wRVUs 
+                  in the Productivity Summary section. Experiment with different values to forecast various scenarios.
+                </Typography>
+              </Popover>
+            </Box>
             
             <Grid container spacing={4}>
               <Grid item xs={12} md={6}>
