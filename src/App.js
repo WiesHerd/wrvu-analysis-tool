@@ -102,113 +102,95 @@ function AppContent() {
       pb: 4 
     }}>
       <Container maxWidth="lg">
-        <Box sx={{ pt: 3, pb: 1 }}>
-          <Typography 
-            variant="h3" 
-            align="center" 
-            sx={{ 
-              mb: 2.5,
-              fontWeight: 'bold',
-              background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
+        <Box sx={{ 
+          display: 'flex', 
+          justifyContent: 'center',
+          gap: 2,
+          flexWrap: 'wrap',
+          pt: 3,
+          pb: { xs: 2, sm: 3 }
+        }}>
+          <Button
+            component={Link}
+            to="/wrvu-forecast"
+            variant="contained"
+            startIcon={<Speed />}
+            sx={{
+              width: { xs: '100%', sm: 'auto' },
+              minWidth: { sm: '200px' },
+              py: 1.5,
+              fontSize: '1rem',
+              textTransform: 'none',
+              boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
+                '& .MuiSvgIcon-root': {
+                  transform: 'rotate(180deg)'
+                }
+              },
+              '& .MuiSvgIcon-root': {
+                transition: 'transform 0.5s ease-in-out'
+              }
             }}
           >
-            Provider Compensation Calculator
-          </Typography>
-          <Box sx={{
-            display: 'flex',
-            flexDirection: { xs: 'column', sm: 'row' },
-            justifyContent: 'center',
-            gap: { xs: 1, sm: 1.5 },
-            width: '100%',
-            maxWidth: '800px',
-            mx: 'auto',
-            px: { xs: 1, sm: 0 },
-            mb: 1
-          }}>
-            <Button
-              component={Link}
-              to="/wrvu-forecast"
-              variant="contained"
-              startIcon={<Speed />}
-              sx={{
-                width: { xs: '100%', sm: 'auto' },
-                minWidth: { sm: '200px' },
-                py: 1.5,
-                fontSize: '1rem',
-                textTransform: 'none',
-                boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
-                  '& .MuiSvgIcon-root': {
-                    transform: 'rotate(180deg)'
-                  }
-                },
+            Quick Forecast
+          </Button>
+          <Button
+            component={Link}
+            to="/detailed-wrvu"
+            variant="contained"
+            startIcon={<Analytics />}
+            sx={{
+              width: { xs: '100%', sm: 'auto' },
+              minWidth: { sm: '200px' },
+              py: 1.5,
+              fontSize: '1rem',
+              textTransform: 'none',
+              boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
                 '& .MuiSvgIcon-root': {
-                  transition: 'transform 0.5s ease-in-out'
+                  transform: 'scale(1.2)'
                 }
-              }}
-            >
-              Quick Forecast
-            </Button>
-            <Button
-              component={Link}
-              to="/detailed-wrvu"
-              variant="contained"
-              startIcon={<Analytics />}
-              sx={{
-                width: { xs: '100%', sm: 'auto' },
-                minWidth: { sm: '200px' },
-                py: 1.5,
-                fontSize: '1rem',
-                textTransform: 'none',
-                boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
-                  '& .MuiSvgIcon-root': {
-                    transform: 'scale(1.2)'
-                  }
-                },
+              },
+              '& .MuiSvgIcon-root': {
+                transition: 'transform 0.3s ease-in-out'
+              }
+            }}
+          >
+            Procedure Analysis
+          </Button>
+          <Button
+            component={Link}
+            to="/"
+            variant="contained"
+            startIcon={<MonetizationOn />}
+            sx={{
+              width: { xs: '100%', sm: 'auto' },
+              minWidth: { sm: '200px' },
+              py: 1.5,
+              fontSize: '1rem',
+              textTransform: 'none',
+              boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
+              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
                 '& .MuiSvgIcon-root': {
-                  transition: 'transform 0.3s ease-in-out'
+                  transform: 'rotate(15deg) scale(1.2)'
                 }
-              }}
-            >
-              Procedure Analysis
-            </Button>
-            <Button
-              component={Link}
-              to="/"
-              variant="contained"
-              startIcon={<MonetizationOn />}
-              sx={{
-                width: { xs: '100%', sm: 'auto' },
-                minWidth: { sm: '200px' },
-                py: 1.5,
-                fontSize: '1rem',
-                textTransform: 'none',
-                boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
-                  '& .MuiSvgIcon-root': {
-                    transform: 'rotate(15deg) scale(1.2)'
-                  }
-                },
-                '& .MuiSvgIcon-root': {
-                  transition: 'transform 0.3s ease-in-out'
-                }
-              }}
-            >
-              Monthly Performance
-            </Button>
-          </Box>
+              },
+              '& .MuiSvgIcon-root': {
+                transition: 'transform 0.3s ease-in-out'
+              }
+            }}
+          >
+            Monthly Performance
+          </Button>
         </Box>
       </Container>
 
