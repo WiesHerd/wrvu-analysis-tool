@@ -5,6 +5,7 @@ import ProviderCompensation from './ProviderCompensation';
 import WRVUForecastingTool from './WRVUForecastingTool';
 import DetailedWRVUForecaster from './DetailedWRVUForecaster';
 import { Speed, Analytics, MonetizationOn } from '@mui/icons-material';
+import { motion, AnimatePresence } from 'framer-motion';
 
 // Create a professional theme with standardized typography
 const theme = createTheme({
@@ -96,14 +97,33 @@ function App() {
           minHeight: '100vh',
           bgcolor: 'background.default',
           backgroundImage: 'linear-gradient(180deg, rgba(25,118,210,0.08) 0%, rgba(25,118,210,0.02) 100%)',
-          backgroundAttachment: 'fixed'
+          backgroundAttachment: 'fixed',
+          position: 'relative',
+          overflow: 'hidden',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'radial-gradient(circle at 50% 50%, rgba(25,118,210,0.03) 0%, transparent 50%)',
+            animation: 'pulse 15s ease-in-out infinite'
+          },
+          '@keyframes pulse': {
+            '0%': { transform: 'scale(1)' },
+            '50%': { transform: 'scale(1.5)' },
+            '100%': { transform: 'scale(1)' }
+          }
         }}>
           <Box sx={{ 
             width: '100%', 
             background: 'transparent',
             py: { xs: 2, sm: 3 },
             mb: 0,
-            backgroundColor: 'transparent'
+            backgroundColor: 'transparent',
+            position: 'relative',
+            zIndex: 1
           }}>
             <Container maxWidth="lg">
               <Typography 
@@ -115,7 +135,14 @@ function App() {
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
                   fontWeight: 700,
-                  fontSize: { xs: '1.75rem', sm: '2rem' }
+                  fontSize: { xs: '1.75rem', sm: '2rem' },
+                  transition: 'all 0.3s ease-in-out',
+                  '&:hover': {
+                    transform: 'scale(1.02)',
+                    background: 'linear-gradient(45deg, #1976d2 10%, #2196f3 90%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }
                 }}
               >
                 Provider Compensation Calculator
@@ -142,8 +169,16 @@ function App() {
                     fontSize: '1rem',
                     textTransform: 'none',
                     boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
-                      boxShadow: '0 6px 10px rgba(25,118,210,0.2)'
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
+                      '& .MuiSvgIcon-root': {
+                        transform: 'rotate(180deg)'
+                      }
+                    },
+                    '& .MuiSvgIcon-root': {
+                      transition: 'transform 0.5s ease-in-out'
                     }
                   }}
                 >
@@ -161,8 +196,16 @@ function App() {
                     fontSize: '1rem',
                     textTransform: 'none',
                     boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
-                      boxShadow: '0 6px 10px rgba(25,118,210,0.2)'
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
+                      '& .MuiSvgIcon-root': {
+                        transform: 'scale(1.2)'
+                      }
+                    },
+                    '& .MuiSvgIcon-root': {
+                      transition: 'transform 0.3s ease-in-out'
                     }
                   }}
                 >
@@ -180,8 +223,16 @@ function App() {
                     fontSize: '1rem',
                     textTransform: 'none',
                     boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
+                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
-                      boxShadow: '0 6px 10px rgba(25,118,210,0.2)'
+                      transform: 'translateY(-2px)',
+                      boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
+                      '& .MuiSvgIcon-root': {
+                        transform: 'rotate(15deg) scale(1.2)'
+                      }
+                    },
+                    '& .MuiSvgIcon-root': {
+                      transition: 'transform 0.3s ease-in-out'
                     }
                   }}
                 >
@@ -198,20 +249,44 @@ function App() {
             display: 'flex',
             flexDirection: 'column'
           }}>
-            <Routes>
-              <Route path="/" element={<ProviderCompensation />} />
-              <Route path="/wrvu-forecast" element={<WRVUForecastingTool setTotalVisits={setTotalVisits} />} />
-              <Route 
-                path="/detailed-wrvu" 
-                element={
-                  <DetailedWRVUForecaster 
-                    totalVisits={totalVisits} 
-                    onUpdateForecast={handleUpdateForecast} 
-                  />
-                } 
-              />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
+            <AnimatePresence mode="wait">
+              <Routes>
+                <Route path="/" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <ProviderCompensation />
+                  </motion.div>
+                } />
+                <Route path="/wrvu-forecast" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <WRVUForecastingTool setTotalVisits={setTotalVisits} />
+                  </motion.div>
+                } />
+                <Route path="/detailed-wrvu" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.5 }}
+                  >
+                    <DetailedWRVUForecaster 
+                      totalVisits={totalVisits} 
+                      onUpdateForecast={handleUpdateForecast} 
+                    />
+                  </motion.div>
+                } />
+                <Route path="*" element={<Navigate to="/" replace />} />
+              </Routes>
+            </AnimatePresence>
           </Container>
         </Box>
       </Router>
