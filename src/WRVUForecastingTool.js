@@ -271,6 +271,17 @@ function DifferenceIndicator({ difference, tooltipText }) {
 }
 
 function StatItem({ icon, label, value, difference, tooltipText }) {
+  const descriptions = {
+    "Estimated Total Compensation": "Total annual compensation including base salary and incentive payments",
+    "Estimated Incentive Payment": "Additional compensation earned above base salary based on wRVU production",
+    "Weeks Worked Per Year": "Number of weeks worked per year after accounting for vacation and holidays",
+    "Encounters per Week": "Average number of patient encounters per week",
+    "Annual Clinic Days": "Total number of clinic days per year",
+    "Annual Clinical Hours": "Total clinical hours worked per year",
+    "Annual Patient Encounters": "Total number of patient encounters per year",
+    "Estimated Annual wRVUs": "Projected annual work Relative Value Units (wRVUs) based on patient encounters"
+  };
+
   return (
     <Paper sx={{ 
       p: 3,
@@ -287,6 +298,12 @@ function StatItem({ icon, label, value, difference, tooltipText }) {
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
         <Box sx={{ color: '#1976d2', mr: 2 }}>{icon}</Box>
         <Typography variant="subtitle1" color="text.secondary">{label}</Typography>
+        <Tooltip title={tooltipText || descriptions[label] || ""}
+          placement="top"
+          arrow
+        >
+          <InfoOutlined sx={{ ml: 1, fontSize: '1rem', color: 'text.secondary', cursor: 'help' }} />
+        </Tooltip>
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#333' }}>{value}</Typography>
