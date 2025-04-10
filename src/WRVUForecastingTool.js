@@ -310,113 +310,151 @@ function StatItem({ icon, label, value, difference, tooltipText }) {
   };
 
   return (
-    <Tooltip 
-      title={descriptions[label] || ""}
-      placement="top"
-      arrow
-      enterDelay={200}
-      leaveDelay={200}
-    >
-      <Paper sx={{ 
+    <Paper 
+      sx={{ 
         p: 3,
         height: '100%',
         borderRadius: '16px',
         border: '1px solid #e0e0e0',
         backgroundColor: '#ffffff',
         transition: 'all 0.3s ease',
+        position: 'relative',
         cursor: 'help',
         '&:hover': {
-          boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-          transform: 'translateY(-2px)',
-          borderColor: '#1976d2'
+          boxShadow: '0 8px 24px rgba(0,0,0,0.15)',
+          transform: 'translateY(-4px)',
+          borderColor: '#1976d2',
+          '& .hover-info': {
+            opacity: 1,
+            visibility: 'visible'
+          }
         },
         '@media (max-width: 600px)': {
           p: 2
         }
+      }}
+    >
+      {/* Hover info overlay */}
+      <Box
+        className="hover-info"
+        sx={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          borderRadius: '16px',
+          backgroundColor: 'rgba(25, 118, 210, 0.04)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          opacity: 0,
+          visibility: 'hidden',
+          transition: 'all 0.3s ease',
+          p: 2,
+          zIndex: 1
+        }}
+      >
+        <Typography
+          sx={{
+            color: '#1976d2',
+            fontSize: '0.875rem',
+            textAlign: 'center',
+            maxWidth: '80%'
+          }}
+        >
+          {descriptions[label]}
+        </Typography>
+      </Box>
+
+      {/* Content */}
+      <Box sx={{ 
+        position: 'relative',
+        zIndex: 2,
+        display: 'flex', 
+        flexDirection: { xs: 'column', sm: 'row' },
+        alignItems: { xs: 'flex-start', sm: 'center' },
+        mb: 1 
       }}>
         <Box sx={{ 
           display: 'flex', 
-          flexDirection: { xs: 'column', sm: 'row' },
-          alignItems: { xs: 'flex-start', sm: 'center' },
-          mb: 1 
+          alignItems: 'center',
+          mb: { xs: 1, sm: 0 }
         }}>
+          <Box sx={{ 
+            color: '#1976d2', 
+            mr: 2,
+            display: 'flex',
+            alignItems: 'center'
+          }}>
+            {icon}
+          </Box>
+          <Typography 
+            variant="subtitle1" 
+            color="text.secondary"
+            sx={{
+              fontSize: { xs: '0.875rem', sm: '1rem' }
+            }}
+          >
+            {label}
+          </Typography>
+        </Box>
+      </Box>
+
+      <Box sx={{ 
+        position: 'relative',
+        zIndex: 2,
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        alignItems: 'center',
+        flexDirection: { xs: 'column', sm: 'row' },
+        gap: { xs: 1, sm: 0 }
+      }}>
+        <Typography 
+          variant="h5" 
+          sx={{ 
+            fontWeight: 'bold', 
+            color: '#333',
+            fontSize: { xs: '1.25rem', sm: '1.5rem' }
+          }}
+        >
+          {value}
+        </Typography>
+        
+        {difference && (
           <Box sx={{ 
             display: 'flex', 
             alignItems: 'center',
-            mb: { xs: 1, sm: 0 }
+            backgroundColor: 'rgba(76, 175, 80, 0.1)',
+            borderRadius: '12px',
+            px: 1.5,
+            py: 0.5
           }}>
-            <Box sx={{ 
-              color: '#1976d2', 
-              mr: 2,
-              display: 'flex',
-              alignItems: 'center'
-            }}>
-              {icon}
-            </Box>
             <Typography 
               variant="subtitle1" 
-              color="text.secondary"
-              sx={{
+              sx={{ 
+                fontWeight: 'bold', 
+                color: 'success.main',
                 fontSize: { xs: '0.875rem', sm: '1rem' }
               }}
             >
-              {label}
+              {difference}
             </Typography>
-          </Box>
-        </Box>
-
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          flexDirection: { xs: 'column', sm: 'row' },
-          gap: { xs: 1, sm: 0 }
-        }}>
-          <Typography 
-            variant="h5" 
-            sx={{ 
-              fontWeight: 'bold', 
-              color: '#333',
-              fontSize: { xs: '1.25rem', sm: '1.5rem' }
-            }}
-          >
-            {value}
-          </Typography>
-          
-          {difference && (
-            <Box sx={{ 
-              display: 'flex', 
-              alignItems: 'center',
-              backgroundColor: 'rgba(76, 175, 80, 0.1)',
-              borderRadius: '12px',
-              px: 1.5,
-              py: 0.5
-            }}>
-              <Typography 
-                variant="subtitle1" 
-                sx={{ 
-                  fontWeight: 'bold', 
+            {tooltipText && (
+              <Tooltip title={tooltipText} placement="top" arrow>
+                <InfoOutlined sx={{ 
+                  ml: 1, 
+                  fontSize: '1rem', 
                   color: 'success.main',
-                  fontSize: { xs: '0.875rem', sm: '1rem' }
-                }}
-              >
-                {difference}
-              </Typography>
-              {tooltipText && (
-                <Tooltip title={tooltipText} placement="top" arrow>
-                  <InfoOutlined sx={{ 
-                    ml: 1, 
-                    fontSize: '1rem', 
-                    color: 'success.main',
-                    opacity: 0.7
-                  }} />
-                </Tooltip>
-              )}
-            </Box>
-          )}
-        </Box>
-      </Paper>
-    </Tooltip>
+                  opacity: 0.7,
+                  cursor: 'help'
+                }} />
+              </Tooltip>
+            )}
+          </Box>
+        )}
+      </Box>
+    </Paper>
   );
 }
 
