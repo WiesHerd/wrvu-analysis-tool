@@ -93,28 +93,10 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router>
         <Box sx={{ 
-          width: '100%', 
-          minHeight: '100vh',
-          bgcolor: 'background.default',
-          backgroundImage: 'linear-gradient(180deg, rgba(25,118,210,0.08) 0%, rgba(25,118,210,0.02) 100%)',
-          backgroundAttachment: 'fixed',
-          position: 'relative',
-          overflow: 'hidden',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'radial-gradient(circle at 50% 50%, rgba(25,118,210,0.03) 0%, transparent 50%)',
-            animation: 'pulse 15s ease-in-out infinite'
-          },
-          '@keyframes pulse': {
-            '0%': { transform: 'scale(1)' },
-            '50%': { transform: 'scale(1.5)' },
-            '100%': { transform: 'scale(1)' }
-          }
+          minHeight: '100vh', 
+          background: 'linear-gradient(180deg, rgba(240,244,248,0.8) 0%, rgba(250,252,254,0.9) 100%)',
+          display: 'flex',
+          flexDirection: 'column'
         }}>
           <Box sx={{ 
             width: '100%', 
