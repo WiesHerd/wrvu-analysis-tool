@@ -81,9 +81,8 @@ const theme = createTheme({
   },
 });
 
-function App() {
+function AppContent() {
   const [totalVisits, setTotalVisits] = useState(0);
-  const [activeRoute, setActiveRoute] = useState('/wrvu-forecast');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -96,171 +95,177 @@ function App() {
   };
 
   return (
+    <Box sx={{ 
+      width: '100%', 
+      minHeight: '100vh',
+      backgroundColor: 'rgba(236, 242, 253, 0.3)', // Much lighter blue background
+      pb: 4 
+    }}>
+      <Container maxWidth="lg">
+        <Box sx={{ pt: 4, pb: 2 }}>
+          <Typography 
+            variant="h3" 
+            align="center" 
+            sx={{ 
+              mb: 4,
+              fontWeight: 'bold',
+              background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent'
+            }}
+          >
+            Provider Compensation Calculator
+          </Typography>
+          <Box sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            justifyContent: 'center',
+            gap: { xs: 1.5, sm: 2 },
+            width: '100%',
+            maxWidth: '800px',
+            mx: 'auto',
+            px: { xs: 1, sm: 0 }
+          }}>
+            <Button
+              component={Link}
+              to="/wrvu-forecast"
+              variant="contained"
+              startIcon={<Speed />}
+              sx={{
+                width: { xs: '100%', sm: 'auto' },
+                minWidth: { sm: '200px' },
+                py: 1.5,
+                fontSize: '1rem',
+                textTransform: 'none',
+                boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
+                  '& .MuiSvgIcon-root': {
+                    transform: 'rotate(180deg)'
+                  }
+                },
+                '& .MuiSvgIcon-root': {
+                  transition: 'transform 0.5s ease-in-out'
+                }
+              }}
+            >
+              Quick Forecast
+            </Button>
+            <Button
+              component={Link}
+              to="/detailed-wrvu"
+              variant="contained"
+              startIcon={<Analytics />}
+              sx={{
+                width: { xs: '100%', sm: 'auto' },
+                minWidth: { sm: '200px' },
+                py: 1.5,
+                fontSize: '1rem',
+                textTransform: 'none',
+                boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
+                  '& .MuiSvgIcon-root': {
+                    transform: 'scale(1.2)'
+                  }
+                },
+                '& .MuiSvgIcon-root': {
+                  transition: 'transform 0.3s ease-in-out'
+                }
+              }}
+            >
+              Procedure Analysis
+            </Button>
+            <Button
+              component={Link}
+              to="/"
+              variant="contained"
+              startIcon={<MonetizationOn />}
+              sx={{
+                width: { xs: '100%', sm: 'auto' },
+                minWidth: { sm: '200px' },
+                py: 1.5,
+                fontSize: '1rem',
+                textTransform: 'none',
+                boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
+                  '& .MuiSvgIcon-root': {
+                    transform: 'rotate(15deg) scale(1.2)'
+                  }
+                },
+                '& .MuiSvgIcon-root': {
+                  transition: 'transform 0.3s ease-in-out'
+                }
+              }}
+            >
+              Monthly Performance
+            </Button>
+          </Box>
+        </Box>
+      </Container>
+
+      <Container maxWidth="lg" sx={{ 
+        pt: { xs: 1, sm: 2 },
+        pb: { xs: 3, sm: 4 },
+        px: { xs: 2, sm: 3 },
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        <AnimatePresence mode="wait">
+          <Routes>
+            <Route path="/" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+              >
+                <ProviderCompensation />
+              </motion.div>
+            } />
+            <Route path="/wrvu-forecast" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+              >
+                <WRVUForecastingTool setTotalVisits={setTotalVisits} />
+              </motion.div>
+            } />
+            <Route path="/detailed-wrvu" element={
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ duration: 0.5 }}
+              >
+                <DetailedWRVUForecaster 
+                  totalVisits={totalVisits} 
+                  onUpdateForecast={handleUpdateForecast} 
+                />
+              </motion.div>
+            } />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AnimatePresence>
+      </Container>
+    </Box>
+  );
+}
+
+function App() {
+  return (
     <ThemeProvider theme={theme}>
       <Router>
-        <Box sx={{ 
-          width: '100%', 
-          minHeight: '100vh',
-          backgroundColor: 'rgba(236, 242, 253, 0.3)', // Much lighter blue background
-          pb: 4 
-        }}>
-          <Container maxWidth="lg">
-            <Box sx={{ pt: 4, pb: 2 }}>
-              <Typography 
-                variant="h3" 
-                align="center" 
-                sx={{ 
-                  mb: 4,
-                  fontWeight: 'bold',
-                  background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}
-              >
-                Provider Compensation Calculator
-              </Typography>
-              <Box sx={{
-                display: 'flex',
-                flexDirection: { xs: 'column', sm: 'row' },
-                justifyContent: 'center',
-                gap: { xs: 1.5, sm: 2 },
-                width: '100%',
-                maxWidth: '800px',
-                mx: 'auto',
-                px: { xs: 1, sm: 0 }
-              }}>
-                <Button
-                  component={Link}
-                  to="/wrvu-forecast"
-                  variant="contained"
-                  startIcon={<Speed />}
-                  sx={{
-                    width: { xs: '100%', sm: 'auto' },
-                    minWidth: { sm: '200px' },
-                    py: 1.5,
-                    fontSize: '1rem',
-                    textTransform: 'none',
-                    boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    '&:hover': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
-                      '& .MuiSvgIcon-root': {
-                        transform: 'rotate(180deg)'
-                      }
-                    },
-                    '& .MuiSvgIcon-root': {
-                      transition: 'transform 0.5s ease-in-out'
-                    }
-                  }}
-                >
-                  Quick Forecast
-                </Button>
-                <Button
-                  component={Link}
-                  to="/detailed-wrvu"
-                  variant="contained"
-                  startIcon={<Analytics />}
-                  sx={{
-                    width: { xs: '100%', sm: 'auto' },
-                    minWidth: { sm: '200px' },
-                    py: 1.5,
-                    fontSize: '1rem',
-                    textTransform: 'none',
-                    boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    '&:hover': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
-                      '& .MuiSvgIcon-root': {
-                        transform: 'scale(1.2)'
-                      }
-                    },
-                    '& .MuiSvgIcon-root': {
-                      transition: 'transform 0.3s ease-in-out'
-                    }
-                  }}
-                >
-                  Procedure Analysis
-                </Button>
-                <Button
-                  component={Link}
-                  to="/"
-                  variant="contained"
-                  startIcon={<MonetizationOn />}
-                  sx={{
-                    width: { xs: '100%', sm: 'auto' },
-                    minWidth: { sm: '200px' },
-                    py: 1.5,
-                    fontSize: '1rem',
-                    textTransform: 'none',
-                    boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                    '&:hover': {
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
-                      '& .MuiSvgIcon-root': {
-                        transform: 'rotate(15deg) scale(1.2)'
-                      }
-                    },
-                    '& .MuiSvgIcon-root': {
-                      transition: 'transform 0.3s ease-in-out'
-                    }
-                  }}
-                >
-                  Monthly Performance
-                </Button>
-              </Box>
-            </Box>
-          </Container>
-
-          <Container maxWidth="lg" sx={{ 
-            pt: { xs: 1, sm: 2 },
-            pb: { xs: 3, sm: 4 },
-            px: { xs: 2, sm: 3 },
-            display: 'flex',
-            flexDirection: 'column'
-          }}>
-            <AnimatePresence mode="wait">
-              <Routes>
-                <Route path="/" element={
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <ProviderCompensation />
-                  </motion.div>
-                } />
-                <Route path="/wrvu-forecast" element={
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <WRVUForecastingTool setTotalVisits={setTotalVisits} />
-                  </motion.div>
-                } />
-                <Route path="/detailed-wrvu" element={
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
-                  >
-                    <DetailedWRVUForecaster 
-                      totalVisits={totalVisits} 
-                      onUpdateForecast={handleUpdateForecast} 
-                    />
-                  </motion.div>
-                } />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </AnimatePresence>
-          </Container>
-        </Box>
+        <AppContent />
       </Router>
     </ThemeProvider>
   );
