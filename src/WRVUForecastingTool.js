@@ -248,28 +248,6 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
   );
 }
 
-function DifferenceIndicator({ difference, tooltipText }) {
-  if (!difference || !difference.startsWith('+')) return null;
-  
-  return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Typography 
-        variant="subtitle1" 
-        sx={{ 
-          fontWeight: 'bold', 
-          color: 'success.main',
-          ml: 2
-        }}
-      >
-        {difference}
-      </Typography>
-      <Tooltip title={tooltipText || "Potential increase using adjusted wRVU per encounter"}>
-        <InfoOutlined sx={{ ml: 1, fontSize: '1rem', color: 'text.secondary', cursor: 'help' }} />
-      </Tooltip>
-    </Box>
-  );
-}
-
 function StatItem({ icon, label, value, difference, tooltipText }) {
   const descriptions = {
     "Estimated Total Compensation": "Total annual compensation including base salary and incentive payments",
@@ -298,16 +276,50 @@ function StatItem({ icon, label, value, difference, tooltipText }) {
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
         <Box sx={{ color: '#1976d2', mr: 2 }}>{icon}</Box>
         <Typography variant="subtitle1" color="text.secondary">{label}</Typography>
-        <Tooltip title={tooltipText || descriptions[label] || ""}
-          placement="top"
-          arrow
-        >
-          <InfoOutlined sx={{ ml: 1, fontSize: '1rem', color: 'text.secondary', cursor: 'help' }} />
-        </Tooltip>
+        <Box sx={{ ml: 1, display: 'flex', alignItems: 'center' }}>
+          <Tooltip 
+            title={descriptions[label] || ""}
+            placement="top"
+            arrow
+          >
+            <InfoOutlined sx={{ 
+              fontSize: '1.1rem', 
+              color: 'rgba(25, 118, 210, 0.7)',
+              cursor: 'help',
+              '&:hover': {
+                color: '#1976d2'
+              }
+            }} />
+          </Tooltip>
+        </Box>
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#333' }}>{value}</Typography>
-        <DifferenceIndicator difference={difference} tooltipText={tooltipText} />
+        {difference && (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography 
+              variant="subtitle1" 
+              sx={{ 
+                fontWeight: 'bold', 
+                color: 'success.main',
+                ml: 2
+              }}
+            >
+              {difference}
+            </Typography>
+            <Tooltip title={tooltipText || "Potential increase using adjusted wRVU per encounter"}>
+              <InfoOutlined sx={{ 
+                ml: 1, 
+                fontSize: '1.1rem', 
+                color: 'rgba(76, 175, 80, 0.7)',
+                cursor: 'help',
+                '&:hover': {
+                  color: '#4caf50'
+                }
+              }} />
+            </Tooltip>
+          </Box>
+        )}
       </Box>
     </Paper>
   );
