@@ -541,11 +541,23 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
             >
               Detailed wRVU Analysis Based on Procedure Code Distribution
             </Typography>
-            <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
-              <InfoOutlined />
+            <IconButton 
+              onClick={handleInfoClick} 
+              size="small" 
+              sx={{ 
+                ml: 1,
+                '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
+                '@media (hover: none)': {
+                  '&:hover': { backgroundColor: 'transparent' }
+                }
+              }}
+              aria-label="More information"
+            >
+              <InfoOutlined sx={{ fontSize: '1.2rem' }} />
             </IconButton>
           </Box>
         </Box>
+
         <Popover
           open={Boolean(anchorEl)}
           anchorEl={anchorEl}
@@ -558,9 +570,20 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
             vertical: 'top',
             horizontal: 'center',
           }}
+          PaperProps={{
+            sx: {
+              maxWidth: '90vw',
+              width: 'max-content',
+              maxWidth: 350,
+              p: 2,
+              '@media (max-width: 600px)': {
+                margin: 2
+              }
+            }
+          }}
         >
-          <Typography sx={{ p: 2, maxWidth: 300 }}>
-           Before using this screen please upload your CMS Fee Schedule. 
+          <Typography sx={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
+            Before using this screen please upload your CMS Fee Schedule. 
             This screen allows you to perform a detailed analysis of your wRVU production by code.  
             You can input your work schedule, patient encounters, and customize your code utilization. 
             The tool calculates estimated annual wRVUs, patient encounters, and potential compensation 

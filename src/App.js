@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { HashRouter as Router, Route, Routes, Link, Navigate, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button, Container, Box, ThemeProvider, createTheme, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
+import { AppBar, Toolbar, Typography, Button, Container, Box, ThemeProvider, createTheme, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, IconButton } from '@mui/material';
 import ProviderCompensation from './ProviderCompensation';
 import WRVUForecastingTool from './WRVUForecastingTool';
 import DetailedWRVUForecaster from './DetailedWRVUForecaster';
@@ -90,6 +90,10 @@ function AppContent() {
     console.log('New forecast:', newForecast);
   };
 
+  const handleHowToUseClick = () => {
+    setIsHelpOpen(true);
+  };
+
   return (
     <Box sx={{ 
       width: '100%', 
@@ -101,43 +105,39 @@ function AppContent() {
         {/* Title Section */}
         <Box sx={{ 
           display: 'flex', 
-          flexDirection: 'column',
+          flexDirection: 'column', 
           alignItems: 'center',
-          pt: 4,
-          pb: 3
+          width: '100%',
+          mb: 2,
+          pt: 4
         }}>
-          <Typography 
-            variant="h4" 
-            component="h1"
-            sx={{ 
-              fontWeight: 700,
-              color: 'primary.main',
-              textAlign: 'center',
-              mb: 1
-            }}
-          >
-            Provider Compensation Forecaster
-          </Typography>
-          <Typography 
-            variant="subtitle1" 
-            color="text.secondary"
-            sx={{ 
-              textAlign: 'center',
-              mb: 2,
-              maxWidth: '600px'
-            }}
-          >
-            Calculate and analyze provider compensation based on wRVUs, procedure codes, and scheduling patterns
-          </Typography>
-          <Button
-            startIcon={<HelpOutline />}
-            onClick={() => setIsHelpOpen(true)}
-            variant="outlined"
-            size="small"
-            sx={{ borderRadius: '20px' }}
-          >
-            How to Use
-          </Button>
+          <Box sx={{ 
+            display: 'flex', 
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2
+          }}>
+            <Typography 
+              variant="h4" 
+              sx={{ 
+                color: '#1976d2',
+                fontSize: '1.75rem',
+                fontWeight: 500
+              }}
+            >
+              Provider Compensation Forecaster
+            </Typography>
+            <IconButton
+              onClick={handleHowToUseClick}
+              size="small"
+              sx={{
+                '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.04)' },
+                color: '#1976d2'
+              }}
+            >
+              <HelpOutline />
+            </IconButton>
+          </Box>
         </Box>
 
         <Box sx={{ 
@@ -145,7 +145,7 @@ function AppContent() {
           justifyContent: 'center',
           gap: 2,
           flexWrap: 'wrap',
-          pt: 3,
+          pt: 1,
           pb: { xs: 2, sm: 3 }
         }}>
           <Button
@@ -239,9 +239,13 @@ function AppContent() {
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle sx={{ pb: 1 }}>How to Use the Provider Compensation Forecaster</DialogTitle>
+        <DialogTitle sx={{ pb: 1 }}>Provider Compensation Forecaster</DialogTitle>
         <DialogContent>
           <DialogContentText component="div">
+            <Typography paragraph sx={{ mb: 2 }}>
+              Calculate and analyze provider compensation based on wRVUs, procedure codes, and scheduling patterns.
+            </Typography>
+
             <Typography variant="h6" sx={{ mt: 2, mb: 1 }}>Quick Forecast</Typography>
             <Typography paragraph>
               Use this screen for rapid compensation estimates based on your schedule and average wRVU per encounter.
@@ -263,6 +267,8 @@ function AppContent() {
               1. Enter your monthly wRVU totals
               2. View trending and projections
               3. Monitor progress toward compensation targets
+              4. Save scenarios for future reference
+              5. Print detailed performance reports
             </Typography>
 
             <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>Tips for Best Results</Typography>
@@ -271,6 +277,7 @@ function AppContent() {
               <li>Regularly update your monthly wRVU data</li>
               <li>Use the detailed analysis for the most accurate projections</li>
               <li>Save different scenarios to compare various schedules and compensation models</li>
+              <li>Print reports to share or review performance trends</li>
             </Typography>
           </DialogContentText>
         </DialogContent>

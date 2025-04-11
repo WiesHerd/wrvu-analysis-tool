@@ -280,18 +280,29 @@ function DifferenceIndicator({ difference, tooltipText }) {
   
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Typography 
-        variant="subtitle1" 
-        sx={{ 
-          fontWeight: 'bold', 
-          color: 'success.main',
-          ml: 2
-        }}
-      >
-        {difference}
-      </Typography>
-      <Tooltip title={tooltipText || "Potential increase using adjusted wRVU per encounter"}>
-        <InfoOutlined sx={{ ml: 1, fontSize: '1rem', color: 'text.secondary', cursor: 'help' }} />
+      <Tooltip title={tooltipText || "Potential increase using adjusted wRVU per encounter"} arrow placement="top">
+        <Typography 
+          variant="subtitle1" 
+          sx={{ 
+            fontWeight: 'bold', 
+            color: 'success.main',
+            bgcolor: 'rgba(76, 175, 80, 0.1)',
+            borderRadius: '8px',
+            px: 1.5,
+            py: 0.5,
+            ml: 2,
+            fontSize: '0.875rem',
+            display: 'flex',
+            alignItems: 'center',
+            cursor: 'help'
+          }}
+        >
+          {difference}
+          <InfoOutlined 
+            fontSize="small" 
+            sx={{ fontSize: '0.875rem', ml: 0.5, color: 'success.main' }} 
+          />
+        </Typography>
       </Tooltip>
     </Box>
   );
@@ -564,8 +575,22 @@ function PrintableView({ metrics, inputs }) {
               {formatCurrency(currentIncentive)}
             </Typography>
             {adjustedIncentive > currentIncentive && (
-              <Typography sx={{ ml: 1, fontSize: '11px', fontWeight: 'bold', color: '#4caf50' }}>
+              <Typography sx={{ 
+                ml: 1, 
+                fontSize: '11px', 
+                fontWeight: 'bold', 
+                color: '#4caf50',
+                bgcolor: 'rgba(76, 175, 80, 0.1)',
+                borderRadius: '8px',
+                px: 1,
+                py: 0.25,
+                display: 'flex',
+                alignItems: 'center'
+              }}>
                 +{formatCurrency(adjustedIncentive - currentIncentive).replace('$', '')}
+                <InfoOutlined 
+                  sx={{ fontSize: '10px', ml: 0.5, color: '#4caf50' }} 
+                />
               </Typography>
             )}
           </Box>
@@ -587,8 +612,22 @@ function PrintableView({ metrics, inputs }) {
               {formatNumber(metrics.estimatedAnnualWRVUs)}
             </Typography>
             {adjustedAnnualWRVUs > metrics.estimatedAnnualWRVUs && (
-              <Typography sx={{ ml: 1, fontSize: '11px', fontWeight: 'bold', color: '#4caf50' }}>
+              <Typography sx={{ 
+                ml: 1, 
+                fontSize: '11px', 
+                fontWeight: 'bold', 
+                color: '#4caf50',
+                bgcolor: 'rgba(76, 175, 80, 0.1)',
+                borderRadius: '8px',
+                px: 1,
+                py: 0.25,
+                display: 'flex',
+                alignItems: 'center'
+              }}>
                 +{formatNumber(adjustedAnnualWRVUs - metrics.estimatedAnnualWRVUs)}
+                <InfoOutlined 
+                  sx={{ fontSize: '10px', ml: 0.5, color: '#4caf50' }} 
+                />
               </Typography>
             )}
           </Box>
@@ -855,8 +894,21 @@ function PrintableView({ metrics, inputs }) {
                     <AttachMoney sx={{ fontSize: '11px', verticalAlign: 'text-bottom', mr: 0.5, color: '#4caf50' }} />
                     Potential Additional Incentive:
                   </Typography>
-                  <Typography sx={{ ...projectionValueStyles, fontWeight: 'bold', color: '#4caf50' }}>
+                  <Typography sx={{ 
+                    ...projectionValueStyles, 
+                    fontWeight: 'bold', 
+                    color: '#4caf50',
+                    bgcolor: 'rgba(76, 175, 80, 0.1)',
+                    borderRadius: '8px',
+                    px: 1,
+                    py: 0.25,
+                    display: 'flex',
+                    alignItems: 'center'
+                  }}>
                     +{formatCurrency(adjustedIncentive - currentIncentive)}
+                    <InfoOutlined 
+                      sx={{ fontSize: '10px', ml: 0.5, color: '#4caf50' }} 
+                    />
                   </Typography>
                 </Box>
               </Box>
@@ -1095,11 +1147,54 @@ function WRVUForecastingTool({ setTotalVisits }) {
                   >
                     Schedule and Average wRVU Per Encounter Input
                   </Typography>
-                  <IconButton onClick={handleInfoClick} size="small" sx={{ ml: 1 }}>
-                    <InfoOutlined />
+                  <IconButton 
+                    onClick={handleInfoClick} 
+                    size="small" 
+                    sx={{ 
+                      ml: 1,
+                      '&:hover': { backgroundColor: 'rgba(0, 0, 0, 0.04)' },
+                      '@media (hover: none)': {
+                        '&:hover': { backgroundColor: 'transparent' }
+                      }
+                    }}
+                    aria-label="More information"
+                  >
+                    <InfoOutlined sx={{ fontSize: '1.2rem' }} />
                   </IconButton>
                 </Box>
               </Box>
+
+              <Popover
+                open={Boolean(anchorEl)}
+                anchorEl={anchorEl}
+                onClose={handleInfoClose}
+                anchorOrigin={{
+                  vertical: 'bottom',
+                  horizontal: 'center',
+                }}
+                transformOrigin={{
+                  vertical: 'top',
+                  horizontal: 'center',
+                }}
+                PaperProps={{
+                  sx: {
+                    maxWidth: '90vw', // Limit width on mobile
+                    width: 'max-content',
+                    maxWidth: 350,
+                    p: 2,
+                    '@media (max-width: 600px)': {
+                      margin: 2
+                    }
+                  }
+                }}
+              >
+                <Typography sx={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
+                  This screen allows you to input your work schedule details and wRVU per encounter. 
+                  It calculates your estimated annual wRVUs, encounters, and potential compensation based on 
+                  your inputs. The "Adjusted wRVU Per Encounter" field lets you see how changes in your 
+                  billing efficiency might affect your productivity and compensation.
+                </Typography>
+              </Popover>
 
               {/* Centered buttons container */}
               <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
@@ -1230,29 +1325,6 @@ function WRVUForecastingTool({ setTotalVisits }) {
               </Box>
             )}
 
-            <Popover
-              open={Boolean(anchorEl)}
-              anchorEl={anchorEl}
-              onClose={handleInfoClose}
-              anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'center',
-              }}
-              transformOrigin={{
-                vertical: 'top',
-                horizontal: 'center',
-              }}
-            >
-              <Typography sx={{ p: 2, maxWidth: 350 }}>
-                This screen allows you to input your work schedule details and wRVU per encounter. 
-                It calculates your estimated annual wRVUs, encounters, and potential compensation based on 
-                your inputs. The "Adjusted wRVU Per Encounter" field lets you see how changes in your 
-                billing efficiency might affect your productivity and compensation. 
-                Adjustments are reflected in the Estimated Total Compensation and Estimated Annual wRVUs 
-                in the Productivity Summary section. Experiment with different values to forecast various scenarios.
-              </Typography>
-            </Popover>
-            
             <Grid container spacing={4}>
               <Grid item xs={12} md={6}>
                 <WorkSchedule 
