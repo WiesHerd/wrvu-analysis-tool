@@ -1,6 +1,6 @@
 {
-  "short_name": "Provider Comp",
-  "name": "Provider Compensation Forecaster",
+  "short_name": "Comp Modeler",
+  "name": "Comp Modeler",
   "icons": [
     {
       "src": "logo192.png",
@@ -20,6 +20,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#2196f3",
+  "theme_color": "#4f46e5",
   "background_color": "#ffffff"
 }

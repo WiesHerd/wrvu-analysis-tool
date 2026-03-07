@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#3730a3"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#1e293b" flood-opacity="0.2"/>
+    </filter>
+  </defs>
+  <rect width="192" height="192" rx="32" fill="url(#bg)" filter="url(#shadow)"/>
+  <!-- Trending-up chart line -->
+  <path d="M36 144 L72 96 L108 120 L144 48 L168 48" stroke="white" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="168" cy="48" r="10" fill="white"/>
+</svg>
