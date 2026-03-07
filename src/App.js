@@ -168,7 +168,6 @@ function AppContent() {
                     textTransform: 'none',
                     fontWeight: 500,
                     fontSize: '0.8125rem',
-                    minWidth: 0,
                     minHeight: 36,
                     px: { xs: 1.25, sm: 1.5 },
                     py: 0.75,
