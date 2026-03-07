@@ -117,10 +117,10 @@ function AppContent() {
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
             <img
-              src={`${process.env.PUBLIC_URL || ''}/logo.svg`}
+              src={`${process.env.PUBLIC_URL || ''}/Picture1.png`}
               alt=""
               aria-hidden
-              style={{ width: 36, height: 36, flexShrink: 0 }}
+              style={{ width: 48, height: 48, flexShrink: 0 }}
             />
             <Typography
               variant="h4"

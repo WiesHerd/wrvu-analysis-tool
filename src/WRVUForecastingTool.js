@@ -436,7 +436,34 @@ function DifferenceIndicator({ difference }) {
   );
 }
 
-function StatItem({ icon, label, value, difference }) {
+function ShortfallIndicator({ dollars, wrvus, formatCurrency, formatNumber }) {
+  if (dollars <= 0) return null;
+  const toIncentive = formatCurrency(dollars) + ' to incentive';
+  const wrvusPart = wrvus > 0 ? ' (or ' + formatNumber(wrvus) + ' wRVUs to go)' : '';
+  const shortfallText = toIncentive + wrvusPart;
+  return (
+    <Box sx={{ ml: { xs: 0, sm: 2 }, mt: 0.5 }}>
+      <Typography
+        variant="subtitle1"
+        sx={{
+          fontWeight: 'bold',
+          color: 'error.main',
+          bgcolor: 'rgba(211, 47, 47, 0.1)',
+          borderRadius: '8px',
+          px: 1.5,
+          py: 0.5,
+          fontSize: '0.875rem',
+          display: 'inline-block',
+        }}
+      >
+        {shortfallText}
+      </Typography>
+    </Box>
+  );
+}
+
+function StatItem({ icon, label, value, difference, valueColor, shortfall, formatCurrency, formatNumber }) {
+  const showShortfall = shortfall && shortfall.dollars > 0;
   return (
     <Paper sx={{ 
       p: 2,
@@ -448,12 +475,20 @@ function StatItem({ icon, label, value, difference }) {
     }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
         <Box sx={{ mr: 2, color: 'primary.main' }}>{icon}</Box>
-        <Box sx={{ flex: 1 }}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
           <Typography variant="body2" color="text.secondary">{label}</Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'text.primary' }}>{value}</Typography>
-            <DifferenceIndicator difference={difference} />
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 0.5 }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: valueColor || 'text.primary' }}>{value}</Typography>
+            {!showShortfall && <DifferenceIndicator difference={difference} />}
           </Box>
+          {showShortfall && (
+            <ShortfallIndicator
+              dollars={shortfall.dollars}
+              wrvus={shortfall.wrvus}
+              formatCurrency={formatCurrency}
+              formatNumber={formatNumber}
+            />
+          )}
         </Box>
       </Box>
     </Paper>
@@ -487,6 +522,12 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
     return `+${formatNumber(diff)}`;
   };
 
+  const gapDollars = Math.max(0, inputs.baseSalary - metrics.wrvuCompensation);
+  const gapWRVUs = inputs.wrvuConversionFactor > 0 ? Math.round(gapDollars / inputs.wrvuConversionFactor) : 0;
+  const incentiveShortfall = currentIncentive === 0 && gapDollars > 0
+    ? { dollars: gapDollars, wrvus: gapWRVUs }
+    : null;
+
   const summaryItems = [
     {
       icon: <AttachMoney fontSize="large" />,
@@ -497,7 +538,11 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
       icon: <AttachMoney fontSize="large" />,
       label: "Estimated Incentive Payment",
       value: formatCurrency(currentIncentive),
-      difference: formatDifference(currentIncentive, adjustedIncentive)
+      difference: formatDifference(currentIncentive, adjustedIncentive),
+      valueColor: incentiveShortfall ? 'error.main' : undefined,
+      shortfall: incentiveShortfall,
+      formatCurrency: incentiveShortfall ? formatCurrency : undefined,
+      formatNumber: incentiveShortfall ? formatNumber : undefined,
     },
     {
       icon: <CalendarToday fontSize="large" />,
