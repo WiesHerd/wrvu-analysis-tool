@@ -142,12 +142,13 @@ function AppContent() {
             aria-label="Tool selection"
             sx={{
               display: 'flex',
-              alignItems: 'center',
+              alignItems: 'stretch',
               gap: 0,
               p: 0.25,
               borderRadius: 2,
               backgroundColor: 'rgba(0,0,0,0.06)',
               width: { xs: '100%', sm: 'auto' },
+              minWidth: 0,
             }}
           >
             {menuItems.map((item) => {
@@ -161,7 +162,9 @@ function AppContent() {
                   aria-selected={active}
                   startIcon={item.icon}
                   sx={{
-                    flex: { xs: 1, sm: '0 0 auto' },
+                    flex: { xs: '1 1 0%', sm: '0 0 auto' },
+                    minWidth: { xs: 0, sm: 'auto' },
+                    maxWidth: { xs: 'none', sm: 'none' },
                     textTransform: 'none',
                     fontWeight: 500,
                     fontSize: '0.8125rem',
