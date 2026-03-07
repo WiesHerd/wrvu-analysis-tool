@@ -56,6 +56,7 @@ function CustomNumberInput({ label, value, onChange, icon, min = 0, max = Infini
       label={label}
       value={value}
       onChange={handleChange}
+      inputProps={{ inputMode: 'decimal', ...props.inputProps }}
       sx={{
         '@media (max-width: 600px)': {
           '& .MuiInputBase-root': { minHeight: 44 },
@@ -724,6 +725,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                 value={vacationWeeks}
                 onValueChange={(values) => setVacationWeeks(values.floatValue || 0)}
                 decimalScale={0}
+                inputProps={{ inputMode: 'numeric' }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -785,6 +787,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                 value={statutoryHolidays}
                 onValueChange={(values) => setStatutoryHolidays(values.floatValue || 0)}
                 decimalScale={0}
+                inputProps={{ inputMode: 'numeric' }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -846,6 +849,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                 value={cmeDays}
                 onValueChange={(values) => setCmeDays(values.floatValue || 0)}
                 decimalScale={0}
+                inputProps={{ inputMode: 'numeric' }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -914,6 +918,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                     label="Hours"
                     value={shift.hours || 0}
                     onChange={(e) => handleShiftChange(index, 'hours', e.target.value)}
+                    inputProps={{ inputMode: 'decimal' }}
                   />
                   <TextField
                     sx={{ mr: { sm: 1 }, width: { xs: '100%', sm: '80px' } }}
@@ -921,6 +926,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                     label="Per Week"
                     value={shift.perWeek || 0}
                     onChange={(e) => handleShiftChange(index, 'perWeek', e.target.value)}
+                    inputProps={{ inputMode: 'numeric' }}
                   />
                   <IconButton onClick={() => handleShiftChange(index, 'remove')} sx={{ alignSelf: { xs: 'flex-start', sm: 'center' }, minWidth: 44, minHeight: 44 }}>
                     <Delete />
@@ -956,6 +962,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                   }
                 }}
                 decimalScale={0}
+                inputProps={{ inputMode: 'numeric' }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -1029,6 +1036,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                 value={baseSalary}
                 onValueChange={(values) => setBaseSalary(values.floatValue)}
                 thousandSeparator={true}
+                inputProps={{ inputMode: 'decimal' }}
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -1570,7 +1578,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                     variant="outlined"
                     required
                     type="number"
-                    inputProps={{ step: "0.01", min: "0" }}
+                    inputProps={{ step: "0.01", min: "0", inputMode: "decimal" }}
                     fullWidth
                     placeholder="e.g. 1.30"
                   />

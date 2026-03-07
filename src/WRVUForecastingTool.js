@@ -189,6 +189,7 @@ function CustomNumberInput({ label, value, onChange, icon, min = 0, max = Infini
         const val = e.target.value === '' ? min : Number(e.target.value);
         onChange(isNaN(val) ? min : Math.max(min, Math.min(val, max)));
       }}
+      inputProps={{ inputMode: 'decimal', ...props.inputProps }}
       sx={{
         '@media (max-width: 600px)': {
           '& .MuiInputBase-root': { minHeight: 44 },
@@ -254,6 +255,7 @@ function CustomNumberInput({ label, value, onChange, icon, min = 0, max = Infini
 }
 
 const WEEKDAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const WEEKDAY_LABELS_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDeleteShift, typicalWeekHours, onTypicalWeekChange, onClearTypicalWeek, scheduleInputMode, onScheduleInputModeChange }) {
   const week = typicalWeekHours || [0, 0, 0, 0, 0, 0, 0];
@@ -330,20 +332,26 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
         <>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
             {WEEKDAY_LABELS.map((label, i) => (
-              <Box key={i} sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 0.5, sm: 2 } }}>
-                <Typography sx={{ width: { sm: 100 }, flexShrink: 0, fontSize: '0.875rem' }}>{label}</Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <TextField
-                    size="small"
-                    type="number"
-                    value={week[i] || 0}
-                    onChange={(e) => onTypicalWeekChange(i, e.target.value)}
-                    inputProps={{ min: 0, max: 24, step: 0.5 }}
-                    sx={{ width: { xs: '100%', sm: 100 }, minWidth: 0, flexShrink: 0 }}
-                    placeholder="0"
-                  />
-                  <Typography variant="body2" color="text.secondary">hrs</Typography>
-                </Box>
+              <Box key={i} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: { xs: 1, sm: 2 }, minWidth: 0 }}>
+                <Typography sx={{ width: { xs: 56, sm: 100 }, flexShrink: 0, fontSize: '0.875rem' }} title={label}>
+                  <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>{label}</Box>
+                  <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>{WEEKDAY_LABELS_SHORT[i]}</Box>
+                </Typography>
+                <TextField
+                  size="small"
+                  type="number"
+                  value={week[i] || 0}
+                  onChange={(e) => onTypicalWeekChange(i, e.target.value)}
+                  inputProps={{ min: 0, max: 24, step: 0.5, inputMode: 'decimal' }}
+                  sx={{
+                    width: { xs: 72, sm: 100 },
+                    minWidth: { xs: 72, sm: 100 },
+                    flexShrink: 0,
+                    '& .MuiInputBase-input': { textAlign: 'right', paddingLeft: { xs: 1, sm: 2 }, paddingRight: { xs: 1, sm: 2 } },
+                  }}
+                  placeholder="0"
+                />
+                <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0, width: 28 }}>hrs</Typography>
               </Box>
             ))}
           </Box>
@@ -374,6 +382,7 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
                 label="Hours"
                 value={shift.hours}
                 onChange={(e) => handleShiftChange(index, 'hours', e.target.value)}
+                inputProps={{ inputMode: 'decimal' }}
               />
               <TextField
                 sx={{ mr: { sm: 1 }, width: { xs: '100%', sm: '80px' } }}
@@ -381,6 +390,7 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
                 label="Per Week"
                 value={shift.perWeek}
                 onChange={(e) => handleShiftChange(index, 'perWeek', e.target.value)}
+                inputProps={{ inputMode: 'numeric' }}
               />
               <IconButton onClick={() => handleDeleteShift(index)} sx={{ alignSelf: { xs: 'flex-start', sm: 'center' }, minWidth: 44, minHeight: 44 }}>
                 <Delete />
@@ -1522,6 +1532,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
                             handleInputChange(inputs.isPerHour ? 'patientsPerHour' : 'patientsPerDay', value);
                           }}
                           decimalScale={0}
+                          inputProps={{ inputMode: 'numeric' }}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
@@ -1592,6 +1603,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
                         onValueChange={(values) => handleInputChange('avgWRVUPerEncounter', values.floatValue || 0)}
                         decimalScale={2}
                         fixedDecimalScale
+                        inputProps={{ inputMode: 'decimal' }}
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
@@ -1654,6 +1666,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
                         onValueChange={(values) => handleInputChange('adjustedWRVUPerEncounter', values.floatValue || 0)}
                         decimalScale={2}
                         fixedDecimalScale
+                        inputProps={{ inputMode: 'decimal' }}
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
@@ -1715,6 +1728,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
                         value={inputs.baseSalary}
                         onValueChange={(values) => setInputs(prev => ({ ...prev, baseSalary: values.floatValue }))}
                         thousandSeparator={true}
+                        inputProps={{ inputMode: 'decimal' }}
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
@@ -1732,6 +1746,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
                         onValueChange={(values) => setInputs(prev => ({ ...prev, wrvuConversionFactor: values.floatValue }))}
                         decimalScale={2}
                         fixedDecimalScale
+                        inputProps={{ inputMode: 'decimal' }}
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
