@@ -430,11 +430,11 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
   );
 }
 
-function DifferenceIndicator({ difference }) {
+function DifferenceIndicator({ difference, attribution }) {
   if (!difference || !difference.startsWith('+')) return null;
   
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', ml: 2 }}>
       <Typography 
         variant="subtitle1" 
         sx={{ 
@@ -444,7 +444,6 @@ function DifferenceIndicator({ difference }) {
           borderRadius: '8px',
           px: 1.5,
           py: 0.5,
-          ml: 2,
           fontSize: '0.875rem',
           display: 'flex',
           alignItems: 'center'
@@ -456,6 +455,11 @@ function DifferenceIndicator({ difference }) {
           sx={{ fontSize: '0.875rem', ml: 0.5, color: 'success.main' }} 
         />
       </Typography>
+      {attribution && (
+        <Typography variant="caption" sx={{ color: 'text.secondary', mt: 0.25, fontStyle: 'italic' }}>
+          {attribution}
+        </Typography>
+      )}
     </Box>
   );
 }
@@ -486,7 +490,7 @@ function ShortfallIndicator({ dollars, wrvus, formatCurrency, formatNumber }) {
   );
 }
 
-function StatItem({ icon, label, value, difference, valueColor, shortfall, formatCurrency, formatNumber }) {
+function StatItem({ icon, label, value, difference, attribution, valueColor, shortfall, formatCurrency, formatNumber }) {
   const showShortfall = shortfall && shortfall.dollars > 0;
   return (
     <Paper sx={{ 
@@ -503,7 +507,7 @@ function StatItem({ icon, label, value, difference, valueColor, shortfall, forma
           <Typography variant="body2" color="text.secondary">{label}</Typography>
           <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 0.5 }}>
             <Typography variant="h6" sx={{ fontWeight: 'bold', color: valueColor || 'text.primary' }}>{value}</Typography>
-            {!showShortfall && <DifferenceIndicator difference={difference} />}
+            {!showShortfall && <DifferenceIndicator difference={difference} attribution={attribution} />}
           </Box>
           {showShortfall && (
             <ShortfallIndicator
@@ -552,6 +556,9 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
     ? { dollars: gapDollars, wrvus: gapWRVUs }
     : null;
 
+  const isBillingAdjustment = inputs.adjustedWRVUPerEncounter !== inputs.avgWRVUPerEncounter;
+  const billingAttribution = isBillingAdjustment ? 'From improved wRVU per encounter (billing)' : null;
+
   const summaryItems = [
     {
       icon: <AttachMoney fontSize="large" />,
@@ -563,6 +570,7 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
       label: "Estimated Incentive Payment",
       value: formatCurrency(currentIncentive),
       difference: formatDifference(currentIncentive, adjustedIncentive),
+      attribution: billingAttribution,
       valueColor: incentiveShortfall ? 'error.main' : undefined,
       shortfall: incentiveShortfall,
       formatCurrency: incentiveShortfall ? formatCurrency : undefined,
@@ -597,7 +605,8 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
       icon: <TrendingUp fontSize="large" />,
       label: "Estimated Annual wRVUs",
       value: formatNumber(metrics.estimatedAnnualWRVUs),
-      difference: formatWRVUDifference(metrics.estimatedAnnualWRVUs, adjustedAnnualWRVUs)
+      difference: formatWRVUDifference(metrics.estimatedAnnualWRVUs, adjustedAnnualWRVUs),
+      attribution: billingAttribution,
     }
   ];
 
@@ -1044,13 +1053,18 @@ function PrintableView({ metrics, inputs }) {
                   fontSize: '13px', 
                   fontWeight: 'bold', 
                   color: 'text.secondary', 
-                  mb: 1,
+                  mb: inputs.adjustedWRVUPerEncounter !== inputs.avgWRVUPerEncounter ? 0.5 : 1,
                   display: 'flex',
                   alignItems: 'center'
                 }}>
                   <TrendingUp sx={{ fontSize: '14px', mr: 0.5, color: 'success.main' }} />
                   Projected Increase with Adjusted wRVU
                 </Typography>
+                {inputs.adjustedWRVUPerEncounter !== inputs.avgWRVUPerEncounter && (
+                  <Typography sx={{ fontSize: '10px', color: 'text.disabled', mb: 1, fontStyle: 'italic' }}>
+                    From improved wRVU per encounter (billing).
+                  </Typography>
+                )}
                 
                 <Box sx={rowStyles}>
                   <Typography sx={labelStyles}>
@@ -1109,7 +1123,7 @@ function PrintableView({ metrics, inputs }) {
       }}>
         <Typography sx={{ fontSize: '10px', color: 'text.disabled', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <InfoOutlined sx={{ fontSize: '10px', mr: 0.5 }} />
-          *Green values indicate potential increases with adjusted wRVU per encounter.
+          *Green values show potential increases from improved wRVU per encounter (billing improvement).
         </Typography>
       </Box>
     </Box>
@@ -1423,10 +1437,11 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
                 }}
               >
                 <Typography sx={{ fontSize: '0.9rem', lineHeight: 1.5 }}>
-                  This screen allows you to input your work schedule details and wRVU per encounter. 
-                  It calculates your estimated annual wRVUs, encounters, and potential compensation based on 
-                  your inputs. The "Adjusted wRVU Per Encounter" field lets you see how changes in your 
-                  billing efficiency might affect your productivity and compensation.
+                  This screen lets you enter your work schedule and wRVU per encounter. It calculates estimated 
+                  annual wRVUs, encounters, and compensation. A key feature: <strong>Adjusted wRVU Per Encounter (billing impact)</strong>—set 
+                  this higher than your current average to model how improving your billing (e.g. more accurate or complete 
+                  documentation) would affect your incentive pay and annual wRVUs. When you view results, any green 
+                  increases are attributed to that billing improvement when the two values differ.
                 </Typography>
               </Popover>
 
@@ -1747,12 +1762,13 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
                     customInput={TextField}
                     fullWidth
                     margin="normal"
-                    label="Adjusted wRVU Per Encounter"
+                    label="Adjusted wRVU Per Encounter (billing impact)"
                         value={inputs.adjustedWRVUPerEncounter}
                         onValueChange={(values) => handleInputChange('adjustedWRVUPerEncounter', values.floatValue || 0)}
                         decimalScale={2}
                         fixedDecimalScale
                         inputProps={{ inputMode: 'decimal' }}
+                        helperText="Model improved billing: set higher than your average to see how better wRVU per encounter would affect your incentive and annual wRVUs."
                         InputProps={{
                           startAdornment: (
                             <InputAdornment position="start">
