@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, Paper, Grid, Container, TextField, InputAdornment,
-  IconButton, FormControlLabel, Switch, Button, FormControl, InputLabel, Select, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
+  IconButton, FormControlLabel, Switch, Button, FormControl, Select, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
   Popover, ThemeProvider, createTheme, Snackbar, ToggleButton, ToggleButtonGroup
 } from '@mui/material';
 import CalendarToday from '@mui/icons-material/CalendarToday';
@@ -446,7 +446,6 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
   // Calculate adjusted metrics
   const adjustedAnnualWRVUs = metrics.annualPatientEncounters * inputs.adjustedWRVUPerEncounter;
   const adjustedWRVUCompensation = adjustedAnnualWRVUs * inputs.wrvuConversionFactor;
-  const adjustedTotalCompensation = Math.max(inputs.baseSalary, adjustedWRVUCompensation);
   
   // Calculate incentive payments
   const currentIncentive = Math.max(0, metrics.wrvuCompensation - inputs.baseSalary);
@@ -1087,12 +1086,13 @@ function WRVUForecastingTool({ setTotalVisits }) {
     wrvuCompensation: 0
   });
 
-  const [detailedForecast, setDetailedForecast] = useState([]);
-  const [totalEstimatedWRVUs, setTotalEstimatedWRVUs] = useState(0);
-  const [totalVisitsLocal, setTotalVisitsLocal] = useState(0);
+  const [, setDetailedForecast] = useState([]);
+  const [, setTotalEstimatedWRVUs] = useState(0);
+  const [totalVisitsLocal] = useState(0);
   const [anchorEl, setAnchorEl] = useState(null);
+  // eslint-disable-next-line no-unused-vars -- setter reserved for future sync with Procedure Analysis
   const [adjustedMetrics, setAdjustedMetrics] = useState({});
-  const [isUploadInstructionsOpen, setIsUploadInstructionsOpen] = useState(false);
+  const [, setIsUploadInstructionsOpen] = useState(false); // eslint-disable-line no-unused-vars
 
   // Add state for saved scenarios
   const [savedScenarios, setSavedScenarios] = useState(() => {
@@ -1194,7 +1194,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
     setTotalVisits(annualPatientEncounters);
   }, [inputs, setTotalVisits]);
 
-  const handleUpdateForecast = (newForecast) => {
+  const _handleUpdateForecast = (newForecast) => { // eslint-disable-line no-unused-vars
     setDetailedForecast(newForecast.detailedForecast);
     setTotalEstimatedWRVUs(newForecast.totalEstimatedWRVUs);
     
@@ -1309,9 +1309,8 @@ function WRVUForecastingTool({ setTotalVisits }) {
                 }}
                 PaperProps={{
                   sx: {
-                    maxWidth: '90vw', // Limit width on mobile
                     width: 'max-content',
-                    maxWidth: 350,
+                    maxWidth: 'min(350px, 90vw)',
                     p: 2,
                     '@media (max-width: 600px)': {
                       margin: 2

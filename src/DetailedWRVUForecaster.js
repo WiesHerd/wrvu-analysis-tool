@@ -4,8 +4,8 @@ import {
   TableContainer, TableHead, TableRow, Slider, Box,
   CircularProgress, Alert, TextField, Grid, FormControlLabel,
   Switch, InputAdornment, IconButton, TableFooter, Container,
-  Autocomplete, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
-  Popover, Accordion, AccordionSummary, AccordionDetails, Divider, AlertTitle
+  Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle,
+  Popover, Accordion, AccordionSummary, AccordionDetails
 } from '@mui/material';
 import { UploadFile, CalendarToday, AccessTime, People, TrendingUp, AttachMoney, Add, Delete, Celebration, Event, School, Refresh, Remove, InfoOutlined, Download, ExpandMore, Search } from '@mui/icons-material';
 import Papa from 'papaparse';
@@ -131,8 +131,6 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
   const [baseSalary, setBaseSalary] = useState(150000);
   const [wrvuConversionFactor, setWrvuConversionFactor] = useState(45.52);
   const [patientsPerDay, setPatientsPerDay] = useState(20);
-  const [weeksWorkedPerYear, setWeeksWorkedPerYear] = useState(47);
-  const [annualClinicDays, setAnnualClinicDays] = useState(235);
   const [vacationWeeks, setVacationWeeks] = useState(4);
   const [statutoryHolidays, setStatutoryHolidays] = useState(0);
   const [cmeDays, setCmeDays] = useState(5);
@@ -147,7 +145,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [confirmDelete, setConfirmDelete] = useState(null);
   const [anchorEl, setAnchorEl] = useState(null);
-  const [inputs, setInputs] = useState({});
+  const [, setInputs] = useState({});
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [confirmClearAll, setConfirmClearAll] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
@@ -185,6 +183,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
         totalEstimatedWRVUs: newMetrics.estimatedAnnualWRVUs
       });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shifts, procedureCodes, utilizationPercentages, baseSalary, wrvuConversionFactor, patientsPerDay, onUpdateForecast]);
 
   const handleFileUpload = (event) => {
@@ -273,8 +272,6 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
   const handleSliderChange = (procedureCode, newValue) => {
     setUtilizationPercentages(prev => {
       const allCodes = [...procedureCodes, ...customProcedureCodes].map(cpt => cpt.code);
-      const oldValue = prev[procedureCode] || 0;
-      const diff = newValue - oldValue;
       const otherCodes = allCodes.filter(code => code !== procedureCode);
       
       const updated = { ...prev, [procedureCode]: newValue };
@@ -410,7 +407,8 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
     });
   };
 
-  const handleRemoveCustomProcedureCode = (codeToRemove) => {
+  // Reserved for future UI to remove custom codes
+  const _handleRemoveCustomProcedureCode = (codeToRemove) => { // eslint-disable-line no-unused-vars
     setCustomProcedureCodes(prev => prev.filter(code => code.code !== codeToRemove.code));
     setProcedureCodes(prev => prev.filter(cpt => cpt.code !== codeToRemove.code));
     setUtilizationPercentages(prev => {
@@ -495,7 +493,8 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
     setAnchorEl(null);
   };
 
-  const handleInputChange = (name, value) => {
+  // Reserved for future form sync
+  const _handleInputChange = (name, value) => { // eslint-disable-line no-unused-vars
     setInputs(prevInputs => ({
       ...prevInputs,
       [name]: value
@@ -575,9 +574,8 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
           }}
           PaperProps={{
             sx: {
-              maxWidth: '90vw',
               width: 'max-content',
-              maxWidth: 350,
+              maxWidth: 'min(350px, 90vw)',
               p: 2,
               '@media (max-width: 600px)': {
                 margin: 2
