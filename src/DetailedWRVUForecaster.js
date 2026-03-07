@@ -1087,7 +1087,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                     borderColor: 'primary.main',
                     color: 'primary.main',
                     '&:hover': {
-                      backgroundColor: 'rgba(25, 118, 210, 0.04)',
+                      backgroundColor: 'rgba(79, 70, 229, 0.04)',
                       borderColor: 'primary.dark'
                     }
                   }}

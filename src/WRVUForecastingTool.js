@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, Paper, Grid, Container, TextField, InputAdornment,
   IconButton, FormControlLabel, Switch, Button, Tooltip, FormControl, InputLabel, Select, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
-  Popover, ThemeProvider, createTheme
+  Popover, ThemeProvider, createTheme, Snackbar
 } from '@mui/material';
 import CalendarToday from '@mui/icons-material/CalendarToday';
 import AccessTime from '@mui/icons-material/AccessTime';
@@ -24,8 +24,22 @@ import { NumericFormat } from 'react-number-format';
 // Add this constant at the top of the file
 const STORAGE_KEY = 'wrvuForecastingState';
 
-// Create a print-specific theme with reduced spacing and smaller font sizes
+// Create a print-specific theme with reduced spacing and smaller font sizes.
+// Use same palette as App so buttons/tabs/primary elements stay indigo (not default blue).
 const printTheme = createTheme({
+  palette: {
+    primary: {
+      main: '#4f46e5',
+      light: '#818cf8',
+      dark: '#3730a3',
+      contrastText: '#fff',
+    },
+    secondary: {
+      main: '#6366f1',
+      light: '#818cf8',
+      dark: '#4f46e5',
+    },
+  },
   components: {
     MuiPaper: {
       styleOverrides: {
@@ -1003,6 +1017,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
   const [scenarioName, setScenarioName] = useState('');
   const [showSaveDialog, setShowSaveDialog] = useState(false);
   const [activeStep, setActiveStep] = useState(0);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
 
   const handleInputChange = (name, value) => {
     setInputs(prevInputs => ({
@@ -1122,6 +1137,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
     localStorage.setItem('savedScenarios', JSON.stringify(updatedScenarios));
     setScenarioName('');
     setShowSaveDialog(false);
+    setSnackbarOpen(true);
   };
   
   const handleLoadScenario = (scenario) => {
@@ -1208,23 +1224,25 @@ function WRVUForecastingTool({ setTotalVisits }) {
                 </Typography>
               </Popover>
 
-              {/* Centered buttons container */}
-              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 2 }}>
+              {/* Secondary actions: Save / Print (Gmail-style — less prominent than primary CTA) */}
+              <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap' }}>
                 <Button 
                   variant="outlined" 
+                  size="small"
                   startIcon={<Save />} 
                   onClick={() => setShowSaveDialog(true)}
-                  sx={{ borderRadius: '20px' }}
+                  sx={{ borderRadius: '20px', fontSize: '0.8rem' }}
                 >
                   Save Scenario
                 </Button>
                 <Button 
                   variant="outlined" 
+                  size="small"
                   startIcon={<PrintIcon />} 
                   onClick={handlePrint}
-                  sx={{ borderRadius: '20px' }}
+                  sx={{ borderRadius: '20px', fontSize: '0.8rem' }}
                 >
-                  Print Summary
+                  Print
                 </Button>
               </Box>
             </Box>
@@ -1241,11 +1259,11 @@ function WRVUForecastingTool({ setTotalVisits }) {
                 <Box sx={{ 
                   display: 'inline-flex',
                   alignItems: 'center',
-                  backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                  backgroundColor: 'rgba(79, 70, 229, 0.08)',
                   borderRadius: '24px',
                   px: { xs: 1.5, sm: 2 },
                   py: 0.5,
-                  border: '1px solid rgba(25, 118, 210, 0.2)',
+                  border: '1px solid rgba(79, 70, 229, 0.2)',
                   width: { xs: '100%', sm: 'auto' },
                   flexDirection: { xs: 'column', sm: 'row' },
                   gap: { xs: 1, sm: 0 }
@@ -1764,7 +1782,13 @@ function WRVUForecastingTool({ setTotalVisits }) {
             )}
             {activeStep === 0 && (
               <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-                <Button variant="contained" onClick={() => setActiveStep(1)} sx={{ minWidth: 160 }}>
+                <Button 
+                  variant="contained" 
+                  size="large"
+                  startIcon={<TrendingUp />}
+                  onClick={() => setActiveStep(1)} 
+                  sx={{ minWidth: 200, py: 1.25, px: 3, fontWeight: 600, boxShadow: 2 }}
+                >
                   View results
                 </Button>
               </Box>
@@ -1805,6 +1829,15 @@ function WRVUForecastingTool({ setTotalVisits }) {
             </Button>
           </DialogActions>
         </Dialog>
+
+        <Snackbar
+          open={snackbarOpen}
+          onClose={() => setSnackbarOpen(false)}
+          autoHideDuration={4000}
+          message="Scenario saved"
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          sx={{ bottom: { xs: 72, sm: 24 } }}
+        />
       </Container>
       
       {/* Add global print styles */}

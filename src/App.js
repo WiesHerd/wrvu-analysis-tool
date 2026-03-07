@@ -17,9 +17,9 @@ const theme = createTheme({
       contrastText: '#fff',
     },
     secondary: {
-      main: '#0ea5e9',
-      light: '#38bdf8',
-      dark: '#0284c7',
+      main: '#6366f1',
+      light: '#818cf8',
+      dark: '#4f46e5',
     },
     background: {
       default: 'transparent',
@@ -99,59 +99,62 @@ function AppContent() {
   return (
     <Box sx={{ width: '100%', minHeight: '100vh', pb: 4 }}>
       <Container maxWidth="lg">
-        {/* Header: title left, menu right — stacks on mobile */}
+        {/* Header: Gmail-style compact bar — title + nav in one row */}
         <Box
           sx={{
             display: 'flex',
             flexDirection: { xs: 'column', sm: 'row' },
             alignItems: { xs: 'stretch', sm: 'center' },
             justifyContent: 'space-between',
-            gap: 2,
-            pt: { xs: 2, sm: 2.5 },
-            pb: { xs: 2, sm: 2 },
+            gap: { xs: 1.5, sm: 2 },
+            pt: { xs: 1.25, sm: 1.5 },
+            pb: { xs: 1.25, sm: 1.5 },
             borderBottom: '1px solid',
             borderColor: 'divider',
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
             <Typography
-              variant="h6"
+              variant="subtitle1"
               sx={{
                 fontWeight: 600,
                 color: 'primary.main',
                 letterSpacing: '-0.01em',
+                fontSize: { xs: '0.95rem', sm: '1rem' },
               }}
             >
               Provider Compensation Forecaster
             </Typography>
+            <Typography component="span" sx={{ color: 'divider', mx: 0.5, fontSize: '0.75rem' }} aria-hidden>·</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+              wRVU and compensation estimates
+            </Typography>
             <IconButton
               onClick={handleHowToUseClick}
               size="small"
-              sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main', backgroundColor: 'rgba(79, 70, 229, 0.06)' } }}
+              sx={{ color: 'text.secondary', ml: 0.25, '&:hover': { color: 'primary.main', backgroundColor: 'rgba(79, 70, 229, 0.06)' } }}
               aria-label="Help"
             >
               <HelpOutline fontSize="small" />
             </IconButton>
-            <Typography variant="body2" color="text.secondary" sx={{ width: '100%', mt: 0.25 }}>
-              wRVU and compensation estimates
-            </Typography>
           </Box>
 
-          {/* Tool selection menu — segmented style, mobile-friendly */}
+          {/* Tool selection — segmented style */}
           <ButtonGroup
             variant="outlined"
-            size="medium"
+            size="small"
             fullWidth
             sx={{
               width: { xs: '100%', sm: 'auto' },
-              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+              boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
               '& .MuiButton-root': {
                 textTransform: 'none',
                 fontWeight: 500,
-                minWidth: { xs: 0, sm: 140 },
-                px: { xs: 1.5, sm: 2 },
-                py: { xs: 1.25, sm: 1 },
+                minWidth: { xs: 0, sm: 120 },
+                px: { xs: 1.25, sm: 1.5 },
+                py: { xs: 0.875, sm: 0.75 },
                 borderColor: 'divider',
+                fontSize: '0.875rem',
                 '&.active': {
                   backgroundColor: 'primary.main',
                   color: 'primary.contrastText',
