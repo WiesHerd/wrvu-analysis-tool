@@ -130,7 +130,7 @@ const fabStyle = {
   zIndex: 1000,
 };
 
-function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
+function DetailedWRVUForecaster({ totalVisits, quickForecastMetrics, onUpdateForecast }) {
   const [procedureCodes, setProcedureCodes] = useState([]);
   const [utilizationPercentages, setUtilizationPercentages] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -1397,62 +1397,73 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
           Productivity Summary
         </Typography>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <StatItem 
-              icon={<AttachMoney fontSize="large" />}
-              label="Estimated Incentive Payment"
-              value={formatCurrency(metrics.estimatedIncentivePayment)}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <StatItem 
-              icon={<AttachMoney fontSize="large" />}
-              label="Estimated Total Compensation"
-              value={formatCurrency(metrics.estimatedTotalCompensation)}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <StatItem 
-              icon={<CalendarToday fontSize="large" />}
-              label="Weeks Worked Per Year"
-              value={formatNumber(metrics.weeksWorkedPerYear)}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <StatItem 
-              icon={<People fontSize="large" />}
-              label="Encounters per Week"
-              value={formatNumber(metrics.patientsPerWeek)}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <StatItem 
-              icon={<CalendarToday fontSize="large" />}
-              label="Annual Clinic Days"
-              value={formatNumber(metrics.annualClinicDays)}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <StatItem 
-              icon={<People fontSize="large" />}
-              label="Annual Patient Encounters"
-              value={formatNumber(metrics.annualPatientEncounters)}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <StatItem 
-              icon={<AccessTime fontSize="large" />}
-              label="Annual Clinical Hours"
-              value={formatNumber(metrics.annualClinicalHours)}
-            />
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <StatItem 
-              icon={<TrendingUp fontSize="large" />}
-              label="Estimated Annual wRVUs"
-              value={formatNumber(metrics.estimatedAnnualWRVUs)}
-            />
-          </Grid>
+          {(() => {
+            // Use Quick Forecast metrics when available so Procedure Analysis matches Quick Forecast exactly
+            const m = (quickForecastMetrics && totalVisits > 0 && quickForecastMetrics.annualPatientEncounters === totalVisits)
+              ? quickForecastMetrics
+              : metrics;
+            const encountersPerWeek = m.encountersPerWeek ?? m.patientsPerWeek ?? 0;
+            return (
+              <>
+                <Grid item xs={12} md={6}>
+                  <StatItem 
+                    icon={<AttachMoney fontSize="large" />}
+                    label="Estimated Total Compensation"
+                    value={formatCurrency(m.estimatedTotalCompensation)}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <StatItem 
+                    icon={<AttachMoney fontSize="large" />}
+                    label="Estimated Incentive Payment"
+                    value={formatCurrency(m.estimatedIncentivePayment ?? Math.max(0, (m.wrvuCompensation ?? 0) - (baseSalary || 0)))}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <StatItem 
+                    icon={<CalendarToday fontSize="large" />}
+                    label="Weeks Worked Per Year"
+                    value={formatNumber(m.weeksWorkedPerYear)}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <StatItem 
+                    icon={<People fontSize="large" />}
+                    label="Encounters per Week"
+                    value={formatNumber(encountersPerWeek)}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <StatItem 
+                    icon={<CalendarToday fontSize="large" />}
+                    label="Annual Clinic Days"
+                    value={formatNumber(m.annualClinicDays)}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <StatItem 
+                    icon={<AccessTime fontSize="large" />}
+                    label="Annual Clinical Hours"
+                    value={formatNumber(m.annualClinicalHours)}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <StatItem 
+                    icon={<People fontSize="large" />}
+                    label="Annual Patient Encounters"
+                    value={formatNumber(m.annualPatientEncounters)}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <StatItem 
+                    icon={<TrendingUp fontSize="large" />}
+                    label="Estimated Annual wRVUs"
+                    value={formatNumber(m.estimatedAnnualWRVUs)}
+                  />
+                </Grid>
+              </>
+            );
+          })()}
         </Grid>
         </>
         )}
@@ -1601,7 +1612,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
 
         {/* Remove or comment out the following Typography component */}
         {/* <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 4 }}>
-          © {new Date().getFullYear()} Provider Compensation Forecaster. All rights reserved.
+          © {new Date().getFullYear()} Comp Modeler. All rights reserved.
         </Typography> */}
       </Paper>
     </Container>

@@ -340,7 +340,7 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
                 <TextField
                   size="small"
                   type="number"
-                  value={week[i] || 0}
+                  value={week[i] === 0 || week[i] === '' ? '' : (typeof week[i] === 'string' ? week[i] : String(week[i]))}
                   onChange={(e) => onTypicalWeekChange(i, e.target.value)}
                   inputProps={{ min: 0, max: 24, step: 0.5, inputMode: 'decimal' }}
                   sx={{
@@ -537,9 +537,6 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
       <Typography variant="h5" gutterBottom sx={{ mt: 2, mb: 3, fontWeight: 'bold', color: 'primary.main' }}>
         Productivity Summary
       </Typography>
-      <Paper elevation={3} sx={{ p: 3, mb: 4, borderRadius: '16px', border: '1px solid',
-      borderColor: 'divider' }}>
-
       <Grid container spacing={2}>
         {summaryItems.map((item, index) => (
           <Grid item xs={12} md={6} key={index}>
@@ -549,7 +546,6 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
           </Grid>
         ))}
       </Grid>
-      </Paper>
     </>
   );
 }
@@ -1051,7 +1047,7 @@ function PrintableView({ metrics, inputs }) {
   );
 }
 
-function WRVUForecastingTool({ setTotalVisits }) {
+function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
   // Load initial state from localStorage or use default values
   const getInitialState = () => {
     const savedState = localStorage.getItem(STORAGE_KEY);
@@ -1154,12 +1150,31 @@ function WRVUForecastingTool({ setTotalVisits }) {
   };
 
   const handleTypicalWeekChange = (dayIndex, value) => {
-    const hours = Math.max(0, Math.min(24, Number(value) || 0));
-    setInputs(prev => {
-      const next = [...(prev.typicalWeekHours || [0, 0, 0, 0, 0, 0, 0])];
-      next[dayIndex] = hours;
-      return { ...prev, typicalWeekHours: next };
-    });
+    const trimmed = typeof value === 'string' ? value.trim() : String(value);
+    if (trimmed === '') {
+      setInputs(prev => {
+        const next = [...(prev.typicalWeekHours || [0, 0, 0, 0, 0, 0, 0])];
+        next[dayIndex] = 0;
+        return { ...prev, typicalWeekHours: next };
+      });
+      return;
+    }
+    const num = parseFloat(trimmed);
+    const inRange = !Number.isNaN(num) && num >= 0 && num <= 24;
+    const isPartialNumber = /^\d*\.?\d*$/.test(trimmed);
+    if (inRange && !trimmed.endsWith('.')) {
+      setInputs(prev => {
+        const next = [...(prev.typicalWeekHours || [0, 0, 0, 0, 0, 0, 0])];
+        next[dayIndex] = num;
+        return { ...prev, typicalWeekHours: next };
+      });
+    } else if (isPartialNumber) {
+      setInputs(prev => {
+        const next = [...(prev.typicalWeekHours || [0, 0, 0, 0, 0, 0, 0])];
+        next[dayIndex] = trimmed;
+        return { ...prev, typicalWeekHours: next };
+      });
+    }
   };
 
   const handleClearTypicalWeek = () => {
@@ -1196,9 +1211,9 @@ function WRVUForecastingTool({ setTotalVisits }) {
     const estimatedAnnualWRVUs = annualPatientEncounters * inputs.avgWRVUPerEncounter;
     const wrvuCompensation = estimatedAnnualWRVUs * inputs.wrvuConversionFactor;
     const estimatedTotalCompensation = Math.max(inputs.baseSalary, wrvuCompensation);
+    const estimatedIncentivePayment = Math.max(0, wrvuCompensation - inputs.baseSalary);
 
-    // Update summary state
-    setMetrics({
+    const nextMetrics = {
       weeksWorkedPerYear,
       annualClinicDays,
       annualClinicalHours,
@@ -1206,11 +1221,13 @@ function WRVUForecastingTool({ setTotalVisits }) {
       annualPatientEncounters,
       estimatedAnnualWRVUs,
       estimatedTotalCompensation,
-      wrvuCompensation
-    });
-
+      wrvuCompensation,
+      estimatedIncentivePayment
+    };
+    setMetrics(nextMetrics);
     setTotalVisits(annualPatientEncounters);
-  }, [inputs, setTotalVisits]);
+    if (setQuickForecastMetrics) setQuickForecastMetrics(nextMetrics);
+  }, [inputs, setTotalVisits, setQuickForecastMetrics]);
 
   const _handleUpdateForecast = (newForecast) => { // eslint-disable-line no-unused-vars
     setDetailedForecast(newForecast.detailedForecast);

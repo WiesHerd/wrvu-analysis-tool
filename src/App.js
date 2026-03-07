@@ -80,6 +80,8 @@ const theme = createTheme({
 
 function AppContent() {
   const [totalVisits, setTotalVisits] = useState(0);
+  /** When user has used Quick Forecast, these metrics are set so Procedure Analysis can show the same Productivity Summary. */
+  const [quickForecastMetrics, setQuickForecastMetrics] = useState(null);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
   const location = useLocation();
 
@@ -114,6 +116,12 @@ function AppContent() {
           }}
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
+            <img
+              src={`${process.env.PUBLIC_URL || ''}/logo.svg`}
+              alt=""
+              aria-hidden
+              style={{ width: 36, height: 36, flexShrink: 0 }}
+            />
             <Typography
               variant="h4"
               sx={{
@@ -123,7 +131,7 @@ function AppContent() {
                 fontSize: { xs: '1.5rem', sm: '1.75rem' },
               }}
             >
-              Provider Compensation Forecaster
+              Comp Modeler
             </Typography>
             <IconButton
               onClick={handleHowToUseClick}
@@ -200,7 +208,7 @@ function AppContent() {
         maxWidth="md"
         fullWidth
       >
-        <DialogTitle sx={{ pb: 1 }}>Provider Compensation Forecaster</DialogTitle>
+        <DialogTitle sx={{ pb: 1 }}>Comp Modeler</DialogTitle>
         <DialogContent>
           <DialogContentText component="div">
             <Typography paragraph sx={{ mb: 2 }}>
@@ -253,7 +261,7 @@ function AppContent() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5 }}
               >
-                <WRVUForecastingTool setTotalVisits={setTotalVisits} />
+                <WRVUForecastingTool setTotalVisits={setTotalVisits} setQuickForecastMetrics={setQuickForecastMetrics} />
               </motion.div>
             } />
             <Route path="/detailed-wrvu" element={
@@ -263,7 +271,7 @@ function AppContent() {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.5 }}
               >
-                <DetailedWRVUForecaster totalVisits={totalVisits} onUpdateForecast={handleUpdateForecast} />
+                <DetailedWRVUForecaster totalVisits={totalVisits} quickForecastMetrics={quickForecastMetrics} onUpdateForecast={handleUpdateForecast} />
               </motion.div>
             } />
             <Route path="/" element={<Navigate to="/wrvu-forecast" replace />} />

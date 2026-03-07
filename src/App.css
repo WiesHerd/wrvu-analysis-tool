@@ -62,7 +62,7 @@ export default function ProviderCompensationForecaster() {
       <div className="max-w-7xl mx-auto">
         <div className="bg-white rounded-lg shadow-md p-6 sm:p-8 app-container">
           <h1 className="text-3xl font-bold text-[#333] text-center mb-8">
-            Provider Compensation Forecaster
+            Comp Modeler
           </h1>
 
           <div className="bg-[#fafafa] shadow-md rounded-lg overflow-hidden mb-8">
