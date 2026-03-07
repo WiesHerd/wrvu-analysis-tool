@@ -1,5 +1,5 @@
-# Build the React app and deploy to GitHub Pages.
-# In repo Settings → Pages, set Source to "GitHub Actions" (not "Deploy from a branch").
+# Build the React app and push the build to the gh-pages branch.
+# In repo Settings → Pages, set Source to "Deploy from a branch", Branch to "gh-pages", folder / (root).
 
 name: Deploy to GitHub Pages
 
@@ -11,10 +11,6 @@ permissions:
   contents: read
   pages: write
   id-token: write
-
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
 
 jobs:
   build-and-deploy:
@@ -37,21 +33,9 @@ jobs:
           PUBLIC_URL: '/wrvu-analysis-tool'
         run: npm run build
 
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v4
         with:
-          path: build
-
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build-and-deploy
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+          publish_branch: gh-pages
