@@ -150,6 +150,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
   const [inputs, setInputs] = useState({});
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [confirmClearAll, setConfirmClearAll] = useState(false);
+  const [activeStep, setActiveStep] = useState(0);
 
   useEffect(() => {
     const savedData = localStorage.getItem('detailedWRVUData');
@@ -359,22 +360,23 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
 
   const StatItem = ({ icon, label, value }) => (
     <Box sx={{ 
-      border: '1px solid #e0e0e0', 
+      border: '1px solid',
+      borderColor: 'divider', 
       borderRadius: '16px',
       p: 3, 
       mb: 3,
       display: 'flex',
       alignItems: 'center',
-      backgroundColor: '#ffffff',
+      backgroundColor: 'background.paper',
       transition: 'box-shadow 0.3s',
       '&:hover': {
         boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
       }
     }}>
-      <Box sx={{ mr: 2, color: '#1976d2' }}>{icon}</Box>
+      <Box sx={{ mr: 2, color: 'primary.main' }}>{icon}</Box>
       <Box>
         <Typography variant="body2" color="text.secondary">{label}</Typography>
-        <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#333' }}>{value}</Typography>
+        <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'text.primary' }}>{value}</Typography>
       </Box>
     </Box>
   );
@@ -527,7 +529,8 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
 
   return (
     <Container maxWidth="lg">
-      <Paper elevation={3} sx={{ p: 4, mt: 4, borderRadius: '16px', border: '1px solid #e0e0e0' }}>
+      <Paper elevation={3} sx={{ p: 4, mt: 4, borderRadius: '16px', border: '1px solid',
+      borderColor: 'divider' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mb: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Typography 
@@ -591,6 +594,27 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
           </Typography>
         </Popover>
 
+        <Box sx={{ display: 'flex', gap: 0, mb: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
+          <Button
+            onClick={() => setActiveStep(0)}
+            variant={activeStep === 0 ? 'contained' : 'text'}
+            size="medium"
+            sx={{ flex: 1, py: 1.25, px: 2, textTransform: 'none', fontWeight: activeStep === 0 ? 600 : 400, borderRadius: 0 }}
+          >
+            1. Inputs
+          </Button>
+          <Button
+            onClick={() => setActiveStep(1)}
+            variant={activeStep === 1 ? 'contained' : 'text'}
+            size="medium"
+            sx={{ flex: 1, py: 1.25, px: 2, textTransform: 'none', fontWeight: activeStep === 1 ? 600 : 400, borderRadius: 0 }}
+          >
+            2. Results
+          </Button>
+        </Box>
+
+        {activeStep === 0 && (
+        <>
         <Grid container spacing={4} sx={{ mb: 4 }}>
           <Grid item xs={12}>
             <Accordion 
@@ -598,7 +622,8 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
               sx={{ 
                 mb: 4,
                 borderRadius: '16px !important',
-                border: '1px solid #e0e0e0',
+                border: '1px solid',
+      borderColor: 'divider',
                 overflow: 'hidden',
                 boxShadow: 'none',
                 '&.MuiAccordion-root': {
@@ -612,7 +637,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
               <AccordionSummary
                 expandIcon={<ExpandMore />}
                 sx={{
-                  backgroundColor: '#f5f8fa',
+                  backgroundColor: 'grey.50',
                   borderBottom: '1px solid',
                   borderColor: 'divider',
                 }}
@@ -669,11 +694,11 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                     size="medium"
                     sx={{ 
                       height: '40px',
-                      borderColor: '#0288d1',
-                      color: '#0288d1',
+                      borderColor: 'primary.main',
+                      color: 'primary.main',
                       '&:hover': {
                         backgroundColor: 'rgba(2, 136, 209, 0.04)',
-                        borderColor: '#01579b'
+                        borderColor: 'primary.dark'
                       }
                     }}
                   >
@@ -684,8 +709,9 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
             </Accordion>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={{ p: 3, mb: 4, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0' }}>
-              <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>Work Schedule</Typography>
+            <Paper elevation={3} sx={{ p: 3, mb: 4, height: '100%', borderRadius: '16px', border: '1px solid',
+      borderColor: 'divider' }}>
+              <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: 'primary.main' }}>Work Schedule</Typography>
               <NumericFormat
                 customInput={TextField}
                 fullWidth
@@ -903,8 +929,9 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
             </Paper>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={{ p: 3, mb: 4, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0' }}>
-              <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>Patient Encounters</Typography>
+            <Paper elevation={3} sx={{ p: 3, mb: 4, height: '100%', borderRadius: '16px', border: '1px solid',
+      borderColor: 'divider' }}>
+              <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: 'primary.main' }}>Patient Encounters</Typography>
               <FormControlLabel
                 control={<Switch checked={isPerHour} onChange={() => setIsPerHour(!isPerHour)} />}
                 label={isPerHour ? "Patients Per Hour" : "Patients Per Day"}
@@ -1041,9 +1068,10 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
           <Box sx={{ 
             mb: 3, 
             p: 2, 
-            border: '1px solid #e0e0e0',
+            border: '1px solid',
+      borderColor: 'divider',
             borderRadius: '8px',
-            backgroundColor: '#fafafa'
+            backgroundColor: 'grey.50'
           }}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={4}>
@@ -1056,11 +1084,11 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                   fullWidth
                   sx={{ 
                     height: '40px',
-                    borderColor: '#1976d2',
-                    color: '#1976d2',
+                    borderColor: 'primary.main',
+                    color: 'primary.main',
                     '&:hover': {
                       backgroundColor: 'rgba(25, 118, 210, 0.04)',
-                      borderColor: '#1565c0'
+                      borderColor: 'primary.dark'
                     }
                   }}
                 >
@@ -1077,11 +1105,11 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                   fullWidth
                   sx={{ 
                     height: '40px',
-                    borderColor: '#2e7d32',
-                    color: '#2e7d32',
+                    borderColor: 'success.main',
+                    color: 'success.main',
                     '&:hover': {
                       backgroundColor: 'rgba(46, 125, 50, 0.04)',
-                      borderColor: '#1b5e20'
+                      borderColor: 'success.dark'
                     }
                   }}
                 >
@@ -1100,11 +1128,11 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                   fullWidth
                   sx={{ 
                     height: '40px',
-                    borderColor: '#d32f2f',
-                    color: '#d32f2f',
+                    borderColor: 'error.main',
+                    color: 'error.main',
                     '&:hover': {
                       backgroundColor: 'rgba(211, 47, 47, 0.04)',
-                      borderColor: '#c62828'
+                      borderColor: 'error.dark'
                     }
                   }}
                 >
@@ -1141,7 +1169,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                       backgroundColor: 'rgba(25,118,210,0.05)',
                     },
                     '&.Mui-focused': {
-                      backgroundColor: '#fff',
+                      backgroundColor: 'background.paper',
                       boxShadow: '0 0 0 2px rgba(25,118,210,0.2)',
                     }
                   }
@@ -1155,9 +1183,9 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                   borderRadius: '12px',
                   whiteSpace: 'nowrap',
                   px: 3,
-                  backgroundColor: '#1976d2',
+                  backgroundColor: 'primary.main',
                   '&:hover': {
-                    backgroundColor: '#1565c0',
+                    backgroundColor: 'primary.dark',
                   },
                 }}
               >
@@ -1165,7 +1193,8 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
               </Button>
             </Box>
 
-            <TableContainer component={Paper} sx={{ borderRadius: '16px', border: '1px solid #e0e0e0' }}>
+            <TableContainer component={Paper} sx={{ borderRadius: '16px', border: '1px solid',
+      borderColor: 'divider' }}>
               <Table>
                 <TableHead>
                   <TableRow>
@@ -1182,7 +1211,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                     const estimatedPatients = Math.round(((utilizationPercentages[cpt.code] || 0) / 100) * metrics.annualPatientEncounters);
                     const patientsPerWeek = Math.round(((utilizationPercentages[cpt.code] || 0) / 100) * metrics.patientsPerWeek);
                     return (
-                      <TableRow key={cpt.code} sx={cpt.category ? {} : { backgroundColor: '#f5f5f5' }}>
+                      <TableRow key={cpt.code} sx={cpt.category ? {} : { backgroundColor: 'grey.100' }}>
                         <TableCell>{cpt.code}</TableCell>
                         <TableCell align="right">{cpt.wRVU.toFixed(2)}</TableCell>
                         <TableCell>
@@ -1250,8 +1279,9 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
             </TableContainer>
           </Box>
         ) : (
-          <Box sx={{ textAlign: 'center', p: 6, mb: 4, border: '1px solid #e0e0e0', borderRadius: '16px', background: 'linear-gradient(to bottom, #f9f9f9, #ffffff)' }}>
-            <Typography variant="h5" sx={{ mb: 3, color: '#1976d2', fontWeight: 'bold' }}>
+          <Box sx={{ textAlign: 'center', p: 6, mb: 4, border: '1px solid',
+      borderColor: 'divider', borderRadius: '16px', background: (theme) => `linear-gradient(to bottom, ${theme.palette.grey[100]}, ${theme.palette.background.paper})` }}>
+            <Typography variant="h5" sx={{ mb: 3, color: 'primary.main', fontWeight: 'bold' }}>
               No Procedure Codes Loaded
             </Typography>
             <Typography variant="body1" sx={{ mb: 4, fontSize: '1.1rem', maxWidth: '600px', margin: '0 auto' }}>
@@ -1268,9 +1298,9 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                   sx={{ 
                     py: 1.5,
                     borderRadius: '10px',
-                    backgroundColor: '#1976d2',
+                    backgroundColor: 'primary.main',
                     '&:hover': {
-                      backgroundColor: '#1565c0',
+                      backgroundColor: 'primary.dark',
                       transform: 'translateY(-2px)',
                       boxShadow: '0 6px 10px rgba(0, 0, 0, 0.1)'
                     }
@@ -1294,11 +1324,11 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                     py: 1.5,
                     borderRadius: '10px',
                     borderWidth: '2px',
-                    borderColor: '#2e7d32',
-                    color: '#2e7d32',
+                    borderColor: 'success.main',
+                    color: 'success.main',
                     '&:hover': {
                       backgroundColor: 'rgba(46, 125, 50, 0.04)',
-                      borderColor: '#1b5e20',
+                      borderColor: 'success.dark',
                       transform: 'translateY(-2px)',
                       boxShadow: '0 6px 10px rgba(0, 0, 0, 0.1)'
                     }
@@ -1323,11 +1353,11 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                     py: 1.5,
                     borderRadius: '10px',
                     borderWidth: '2px',
-                    borderColor: '#0288d1',
-                    color: '#0288d1',
+                    borderColor: 'primary.main',
+                    color: 'primary.main',
                     '&:hover': {
                       backgroundColor: 'rgba(2, 136, 209, 0.04)',
-                      borderColor: '#01579b',
+                      borderColor: 'primary.dark',
                       transform: 'translateY(-2px)',
                       boxShadow: '0 6px 10px rgba(0, 0, 0, 0.1)'
                     }
@@ -1343,7 +1373,15 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
           </Box>
         )}
 
-        <Typography variant="h5" gutterBottom sx={{ mt: 4, mb: 3, fontWeight: 'bold', color: '#1976d2' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 2 }}>
+          <Button variant="contained" onClick={() => setActiveStep(1)} sx={{ minWidth: 160 }}>View results</Button>
+        </Box>
+        </>
+        )}
+
+        {activeStep === 1 && (
+        <>
+        <Typography variant="h5" gutterBottom sx={{ mt: 2, mb: 3, fontWeight: 'bold', color: 'primary.main' }}>
           Productivity Summary
         </Typography>
         <Grid container spacing={3}>
@@ -1404,6 +1442,8 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
             />
           </Grid>
         </Grid>
+        </>
+        )}
 
         <Dialog
           open={!!confirmDelete}

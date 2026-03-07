@@ -1,16 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, Typography, Paper, Grid, Container, TextField, InputAdornment, 
-  IconButton, FormControlLabel, Switch, Button, Tooltip, FormControl, InputLabel, Select, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions
+  Box, Typography, Paper, Grid, Container, TextField, InputAdornment,
+  IconButton, FormControlLabel, Switch, Button, Tooltip, FormControl, InputLabel, Select, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
+  Popover, ThemeProvider, createTheme
 } from '@mui/material';
-import { 
-  CalendarToday, AccessTime, People, TrendingUp, 
-  AttachMoney, School, Celebration, Add, Remove, Delete, 
-  Event, InfoOutlined, Print as PrintIcon, Save
-} from '@mui/icons-material';
+import CalendarToday from '@mui/icons-material/CalendarToday';
+import AccessTime from '@mui/icons-material/AccessTime';
+import People from '@mui/icons-material/People';
+import TrendingUp from '@mui/icons-material/TrendingUp';
+import AttachMoney from '@mui/icons-material/AttachMoney';
+import School from '@mui/icons-material/School';
+import Celebration from '@mui/icons-material/Celebration';
+import Add from '@mui/icons-material/Add';
+import Remove from '@mui/icons-material/Remove';
+import Delete from '@mui/icons-material/Delete';
+import EventIcon from '@mui/icons-material/Event';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
+import PrintIcon from '@mui/icons-material/Print';
+import Save from '@mui/icons-material/Save';
 import { NumericFormat } from 'react-number-format';
-import { Popover } from '@mui/material';
-import { createTheme, ThemeProvider } from '@mui/material/styles';
+
 
 // Add this constant at the top of the file
 const STORAGE_KEY = 'wrvuForecastingState';
@@ -23,7 +32,8 @@ const printTheme = createTheme({
         root: {
           '@media print': {
             boxShadow: 'none',
-            border: '1px solid #ddd',
+            border: '1px solid',
+          borderColor: 'divider',
           },
         },
       },
@@ -113,6 +123,7 @@ function CustomNumberInput({ label, value, onChange, icon, min = 0, max = Infini
     <TextField
       fullWidth
       margin="normal"
+      size="small"
       label={label}
       value={value === 0 ? '' : value}
       onChange={(e) => {
@@ -179,16 +190,12 @@ function CustomNumberInput({ label, value, onChange, icon, min = 0, max = Infini
 
 function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDeleteShift }) {
   return (
-    <Paper elevation={3} sx={{ p: 3, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0' }}>
-      <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: '#1976d2' }}>Work Schedule</Typography>
-      <Box sx={{ mt: 2 }}>
-        <Tooltip 
-          title="Enter the number of vacation weeks you take per year"
-          enterTouchDelay={50}
-          leaveTouchDelay={1500}
-          arrow
-        >
-          <div>
+    <Paper elevation={2} sx={{ p: 2.5, height: '100%', borderRadius: '12px', border: '1px solid',
+      borderColor: 'divider' }}>
+      <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold', color: 'primary.main' }}>Work Schedule</Typography>
+      <Box sx={{ mt: 0.5 }}>
+        <Tooltip title="Enter the number of vacation weeks you take per year" enterTouchDelay={50} leaveTouchDelay={1500}>
+          <Box sx={{ mb: 2 }}>
             <CustomNumberInput
               label="Vacation Weeks per Year"
               name="vacationWeeks"
@@ -199,57 +206,49 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
               max={52}
               step={1}
             />
-          </div>
+          </Box>
+        </Tooltip>
+        <Tooltip title="Enter the number of statutory holidays per year" enterTouchDelay={50} leaveTouchDelay={1500}>
+          <Box sx={{ mb: 2 }}>
+            <CustomNumberInput
+              label="Statutory Holidays per Year"
+              name="statutoryHolidays"
+              value={inputs.statutoryHolidays}
+              onChange={(value) => handleInputChange('statutoryHolidays', value)}
+              icon={<EventIcon />}
+              min={0}
+              max={365}
+              step={1}
+            />
+          </Box>
+        </Tooltip>
+        <Tooltip title="Enter the number of CME (Continuing Medical Education) days per year" enterTouchDelay={50} leaveTouchDelay={1500}>
+          <Box sx={{ mb: 2 }}>
+            <CustomNumberInput
+              label="CME Days per Year"
+              name="cmeDays"
+              value={inputs.cmeDays}
+              onChange={(value) => handleInputChange('cmeDays', value)}
+              icon={<School />}
+              min={0}
+              max={365}
+              step={1}
+            />
+          </Box>
         </Tooltip>
       </Box>
-      <Tooltip 
-        title="Enter the number of statutory holidays per year"
-        enterTouchDelay={50}
-        leaveTouchDelay={1500}
-        arrow
-      >
-        <div>
-          <CustomNumberInput
-            label="Statutory Holidays per Year"
-            name="statutoryHolidays"
-            value={inputs.statutoryHolidays}
-            onChange={(value) => handleInputChange('statutoryHolidays', value)}
-            icon={<Event />}
-            min={0}
-            max={365}
-            step={1}
-          />
-        </div>
-      </Tooltip>
-      <Tooltip 
-        title="Enter the number of CME (Continuing Medical Education) days per year"
-        enterTouchDelay={50}
-        leaveTouchDelay={1500}
-        arrow
-      >
-        <div>
-          <CustomNumberInput
-            label="CME Days per Year"
-            name="cmeDays"
-            value={inputs.cmeDays}
-            onChange={(value) => handleInputChange('cmeDays', value)}
-            icon={<School />}
-            min={0}
-            max={365}
-            step={1}
-          />
-        </div>
-      </Tooltip>
-      <Typography variant="subtitle1" gutterBottom sx={{ mt: 3, mb: 2, fontWeight: 'bold' }}>Shift Types</Typography>
+      <Typography variant="body1" sx={{ mt: 3, mb: 1.5, fontWeight: 'bold', display: 'block' }}>Shift Types</Typography>
       {inputs.shifts.map((shift, index) => (
         <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
           <TextField
+            size="small"
             sx={{ mr: 1, flexGrow: 1 }}
             label="Shift Name"
             value={shift.name}
             onChange={(e) => handleShiftChange(index, 'name', e.target.value)}
           />
           <TextField
+            size="small"
             sx={{ mr: 1, width: '80px' }}
             type="number"
             label="Hours"
@@ -257,6 +256,7 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
             onChange={(e) => handleShiftChange(index, 'hours', e.target.value)}
           />
           <TextField
+            size="small"
             sx={{ mr: 1, width: '100px', '& .MuiInputBase-input': { px: 1 } }}
             type="number"
             label="Per Week"
@@ -268,7 +268,7 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
           </IconButton>
         </Box>
       ))}
-      <Button startIcon={<Add />} onClick={() => handleShiftChange(null, 'add')} sx={{ borderRadius: '12px' }}>
+      <Button size="small" startIcon={<Add />} onClick={() => handleShiftChange(null, 'add')} sx={{ borderRadius: '8px', mt: 2 }}>
         Add Shift Type
       </Button>
     </Paper>
@@ -311,23 +311,24 @@ function DifferenceIndicator({ difference, tooltipText }) {
 function StatItem({ icon, label, value, difference, tooltipText }) {
   return (
     <Paper sx={{ 
-      p: 3,
+      p: 2,
       height: '100%',
-      borderRadius: '16px',
-      border: '1px solid #e0e0e0',
-      backgroundColor: '#ffffff',
+      borderRadius: '12px',
+      border: '1px solid',
+      borderColor: 'divider',
+      backgroundColor: 'background.paper',
       transition: 'all 0.3s ease',
       '&:hover': {
         boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
         transform: 'translateY(-2px)'
       }
     }}>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-        <Box sx={{ color: '#1976d2', mr: 2 }}>{icon}</Box>
-        <Typography variant="subtitle1" color="text.secondary">{label}</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
+        <Box sx={{ color: 'primary.main', mr: 1.5 }}>{icon}</Box>
+        <Typography variant="body2" color="text.secondary">{label}</Typography>
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5" sx={{ fontWeight: 'bold', color: '#333' }}>{value}</Typography>
+        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'text.primary' }}>{value}</Typography>
         <DifferenceIndicator difference={difference} tooltipText={tooltipText} />
       </Box>
     </Paper>
@@ -416,12 +417,13 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
   ];
 
   return (
-    <Paper elevation={3} sx={{ p: 4, mt: 5, borderRadius: '16px', border: '1px solid #e0e0e0' }}>
-      <Typography variant="h6" component="h2" sx={{ color: '#1976d2', mb: 3 }}>
+    <Paper elevation={2} sx={{ p: 2.5, mt: 3, borderRadius: '12px', border: '1px solid',
+      borderColor: 'divider' }}>
+      <Typography variant="subtitle1" component="h2" sx={{ color: 'primary.main', mb: 2, fontWeight: 'bold' }}>
         Productivity Summary
       </Typography>
 
-      <Grid container spacing={3}>
+      <Grid container spacing={2}>
         {summaryItems.map((item, index) => (
           <Grid item xs={12} md={6} key={index}>
             <Tooltip 
@@ -460,17 +462,19 @@ function PrintableView({ metrics, inputs }) {
   // Common styles for consistency
   const boxStyles = {
     p: 1.5, 
-    border: '1px solid #ddd', 
+    border: '1px solid',
+          borderColor: 'divider', 
     borderRadius: '4px',
-    backgroundColor: 'white'
+    backgroundColor: 'background.paper'
   };
 
   const headerStyles = {
     fontSize: '13px', 
     fontWeight: 'bold', 
-    color: '#666', 
+    color: 'text.secondary', 
     mb: 1,
-    borderBottom: '1px solid #eee',
+    borderBottom: '1px solid',
+    borderColor: 'divider',
     pb: 0.5,
     display: 'flex',
     alignItems: 'center'
@@ -485,18 +489,18 @@ function PrintableView({ metrics, inputs }) {
   const labelStyles = {
     fontSize: '11px', 
     fontWeight: 'bold', 
-    color: '#666'
+    color: 'text.secondary'
   };
 
   const valueStyles = {
     fontSize: '11px', 
-    color: '#333'
+    color: 'text.primary'
   };
 
   const metricValueStyles = {
     fontSize: '16px', 
     fontWeight: 'bold', 
-    color: '#333',
+    color: 'text.primary',
     width: '100%',
     display: 'flex',
     justifyContent: 'center'
@@ -504,7 +508,7 @@ function PrintableView({ metrics, inputs }) {
 
   const projectionValueStyles = {
     fontSize: '11px', 
-    color: '#333',
+    color: 'text.primary',
     width: '120px',
     textAlign: 'right'
   };
@@ -520,7 +524,7 @@ function PrintableView({ metrics, inputs }) {
           padding: '10px',
           fontFamily: 'Arial, sans-serif',
           background: 'white !important',
-          color: '#333',
+          color: 'text.primary',
           pageBreakAfter: 'avoid',
           pageBreakInside: 'avoid'
         } 
@@ -528,14 +532,14 @@ function PrintableView({ metrics, inputs }) {
     >
       {/* Header */}
       <Box sx={{ textAlign: 'center', mb: 4 }}>
-        <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 0.5, color: '#333', fontSize: '16px' }}>
-          <TrendingUp sx={{ fontSize: '18px', verticalAlign: 'text-bottom', color: '#1976d2', mr: 0.5 }} />
+        <Typography variant="h5" sx={{ fontWeight: 'bold', mb: 0.5, color: 'text.primary', fontSize: '16px' }}>
+          <TrendingUp sx={{ fontSize: '18px', verticalAlign: 'text-bottom', color: 'primary.main', mr: 0.5 }} />
           Provider Analytics Dashboard
         </Typography>
-        <Typography variant="subtitle1" sx={{ mb: 0.5, color: '#1976d2', fontSize: '13px' }}>
+        <Typography variant="subtitle1" sx={{ mb: 0.5, color: 'primary.main', fontSize: '13px' }}>
           Quick Calculator wRVU Adjustments
         </Typography>
-        <Typography variant="body2" sx={{ color: '#666', fontSize: '11px' }}>
+        <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '11px' }}>
           <CalendarToday sx={{ fontSize: '11px', verticalAlign: 'text-bottom', mr: 0.5 }} />
           Generated on {new Date().toLocaleDateString()}
         </Typography>
@@ -546,15 +550,16 @@ function PrintableView({ metrics, inputs }) {
         <Box sx={{ 
           width: '32%', 
           p: 1.5, 
-          border: '1px solid #ddd', 
+          border: '1px solid',
+          borderColor: 'divider', 
           borderRadius: '4px',
-          backgroundColor: 'white'
+          backgroundColor: 'background.paper'
         }}>
-          <Typography sx={{ fontSize: '11px', fontWeight: 'normal', color: '#666', mb: 0.5 }}>
-            <AttachMoney sx={{ fontSize: '14px', verticalAlign: 'text-bottom', color: '#1976d2' }} />
+          <Typography sx={{ fontSize: '11px', fontWeight: 'normal', color: 'text.secondary', mb: 0.5 }}>
+            <AttachMoney sx={{ fontSize: '14px', verticalAlign: 'text-bottom', color: 'primary.main' }} />
             Total Compensation
           </Typography>
-          <Typography sx={{ fontSize: '16px', fontWeight: 'bold', color: '#333' }}>
+          <Typography sx={{ fontSize: '16px', fontWeight: 'bold', color: 'text.primary' }}>
             {formatCurrency(metrics.estimatedTotalCompensation)}
           </Typography>
         </Box>
@@ -562,16 +567,17 @@ function PrintableView({ metrics, inputs }) {
         <Box sx={{ 
           width: '32%', 
           p: 1.5, 
-          border: '1px solid #ddd', 
+          border: '1px solid',
+          borderColor: 'divider', 
           borderRadius: '4px',
-          backgroundColor: 'white'
+          backgroundColor: 'background.paper'
         }}>
-          <Typography sx={{ fontSize: '11px', fontWeight: 'normal', color: '#666', mb: 0.5 }}>
-            <AttachMoney sx={{ fontSize: '14px', verticalAlign: 'text-bottom', color: '#1976d2' }} />
+          <Typography sx={{ fontSize: '11px', fontWeight: 'normal', color: 'text.secondary', mb: 0.5 }}>
+            <AttachMoney sx={{ fontSize: '14px', verticalAlign: 'text-bottom', color: 'primary.main' }} />
             Incentive Payment
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Typography sx={{ fontSize: '16px', fontWeight: 'bold', color: '#333' }}>
+            <Typography sx={{ fontSize: '16px', fontWeight: 'bold', color: 'text.primary' }}>
               {formatCurrency(currentIncentive)}
             </Typography>
             {adjustedIncentive > currentIncentive && (
@@ -579,7 +585,7 @@ function PrintableView({ metrics, inputs }) {
                 ml: 1, 
                 fontSize: '11px', 
                 fontWeight: 'bold', 
-                color: '#4caf50',
+                color: 'success.main',
                 bgcolor: 'rgba(76, 175, 80, 0.1)',
                 borderRadius: '8px',
                 px: 1,
@@ -589,7 +595,7 @@ function PrintableView({ metrics, inputs }) {
               }}>
                 +{formatCurrency(adjustedIncentive - currentIncentive).replace('$', '')}
                 <InfoOutlined 
-                  sx={{ fontSize: '10px', ml: 0.5, color: '#4caf50' }} 
+                  sx={{ fontSize: '10px', ml: 0.5, color: 'success.main' }} 
                 />
               </Typography>
             )}
@@ -599,16 +605,17 @@ function PrintableView({ metrics, inputs }) {
         <Box sx={{ 
           width: '32%', 
           p: 1.5, 
-          border: '1px solid #ddd', 
+          border: '1px solid',
+          borderColor: 'divider', 
           borderRadius: '4px',
-          backgroundColor: 'white'
+          backgroundColor: 'background.paper'
         }}>
-          <Typography sx={{ fontSize: '11px', fontWeight: 'normal', color: '#666', mb: 0.5 }}>
-            <TrendingUp sx={{ fontSize: '14px', verticalAlign: 'text-bottom', color: '#1976d2' }} />
+          <Typography sx={{ fontSize: '11px', fontWeight: 'normal', color: 'text.secondary', mb: 0.5 }}>
+            <TrendingUp sx={{ fontSize: '14px', verticalAlign: 'text-bottom', color: 'primary.main' }} />
             Estimated Annual wRVUs
           </Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-            <Typography sx={{ fontSize: '16px', fontWeight: 'bold', color: '#333' }}>
+            <Typography sx={{ fontSize: '16px', fontWeight: 'bold', color: 'text.primary' }}>
               {formatNumber(metrics.estimatedAnnualWRVUs)}
             </Typography>
             {adjustedAnnualWRVUs > metrics.estimatedAnnualWRVUs && (
@@ -616,7 +623,7 @@ function PrintableView({ metrics, inputs }) {
                 ml: 1, 
                 fontSize: '11px', 
                 fontWeight: 'bold', 
-                color: '#4caf50',
+                color: 'success.main',
                 bgcolor: 'rgba(76, 175, 80, 0.1)',
                 borderRadius: '8px',
                 px: 1,
@@ -626,7 +633,7 @@ function PrintableView({ metrics, inputs }) {
               }}>
                 +{formatNumber(adjustedAnnualWRVUs - metrics.estimatedAnnualWRVUs)}
                 <InfoOutlined 
-                  sx={{ fontSize: '10px', ml: 0.5, color: '#4caf50' }} 
+                  sx={{ fontSize: '10px', ml: 0.5, color: 'success.main' }} 
                 />
               </Typography>
             )}
@@ -640,7 +647,7 @@ function PrintableView({ metrics, inputs }) {
         <Box sx={{ width: '49%' }}>
           <Box sx={{ ...boxStyles, height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Typography sx={headerStyles}>
-              <People sx={{ fontSize: '14px', mr: 0.5, color: '#1976d2' }} />
+              <People sx={{ fontSize: '14px', mr: 0.5, color: 'primary.main' }} />
               Provider Input Data
             </Typography>
             
@@ -649,12 +656,12 @@ function PrintableView({ metrics, inputs }) {
               <Typography sx={{ 
                 fontSize: '12px', 
                 fontWeight: 'bold', 
-                color: '#666', 
+                color: 'text.secondary', 
                 mb: 0.5,
                 display: 'flex',
                 alignItems: 'center'
               }}>
-                <CalendarToday sx={{ fontSize: '12px', mr: 0.5, color: '#1976d2' }} />
+                <CalendarToday sx={{ fontSize: '12px', mr: 0.5, color: 'primary.main' }} />
                 Work Schedule
               </Typography>
               
@@ -689,7 +696,7 @@ function PrintableView({ metrics, inputs }) {
               
               <Box sx={rowStyles}>
                 <Typography sx={labelStyles}>
-                  <Event sx={{ fontSize: '11px', verticalAlign: 'text-bottom', mr: 0.5 }} />
+                  <EventIcon sx={{ fontSize: '11px', verticalAlign: 'text-bottom', mr: 0.5 }} />
                   Holidays:
                 </Typography>
                 <Typography sx={valueStyles}>
@@ -699,16 +706,17 @@ function PrintableView({ metrics, inputs }) {
             </Box>
             
             {/* Shift Types section */}
-            <Box sx={{ mb: 1.5, borderTop: '1px dashed #ddd', pt: 1.5 }}>
+            <Box sx={{ mb: 1.5, borderTop: '1px dashed',
+          borderColor: 'divider', pt: 1.5 }}>
               <Typography sx={{ 
                 fontSize: '12px', 
                 fontWeight: 'bold', 
-                color: '#666', 
+                color: 'text.secondary', 
                 mb: 0.5,
                 display: 'flex',
                 alignItems: 'center'
               }}>
-                <AccessTime sx={{ fontSize: '12px', mr: 0.5, color: '#1976d2' }} />
+                <AccessTime sx={{ fontSize: '12px', mr: 0.5, color: 'primary.main' }} />
                 Shift Types
               </Typography>
               
@@ -735,16 +743,17 @@ function PrintableView({ metrics, inputs }) {
             </Box>
             
             {/* Patient Encounters section */}
-            <Box sx={{ borderTop: '1px dashed #ddd', pt: 1.5 }}>
+            <Box sx={{ borderTop: '1px dashed',
+          borderColor: 'divider', pt: 1.5 }}>
               <Typography sx={{ 
                 fontSize: '12px', 
                 fontWeight: 'bold', 
-                color: '#666', 
+                color: 'text.secondary', 
                 mb: 0.5,
                 display: 'flex',
                 alignItems: 'center'
               }}>
-                <People sx={{ fontSize: '12px', mr: 0.5, color: '#1976d2' }} />
+                <People sx={{ fontSize: '12px', mr: 0.5, color: 'primary.main' }} />
                 Patient Encounters
               </Typography>
               
@@ -805,7 +814,7 @@ function PrintableView({ metrics, inputs }) {
         <Box sx={{ width: '49%' }}>
           <Box sx={{ ...boxStyles, height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Typography sx={headerStyles}>
-              <TrendingUp sx={{ fontSize: '14px', mr: 0.5, color: '#1976d2' }} />
+              <TrendingUp sx={{ fontSize: '14px', mr: 0.5, color: 'primary.main' }} />
               Productivity Metrics
             </Typography>
             
@@ -813,7 +822,7 @@ function PrintableView({ metrics, inputs }) {
             <Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                 <Box sx={{ width: '48%', textAlign: 'center' }}>
-                  <Typography sx={{ fontSize: '11px', fontWeight: 'bold', color: '#666', mb: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography sx={{ fontSize: '11px', fontWeight: 'bold', color: 'text.secondary', mb: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <CalendarToday sx={{ fontSize: '11px', mr: 0.5 }} />
                     Annual Clinic Days
                   </Typography>
@@ -823,7 +832,7 @@ function PrintableView({ metrics, inputs }) {
                 </Box>
                 
                 <Box sx={{ width: '48%', textAlign: 'center' }}>
-                  <Typography sx={{ fontSize: '11px', fontWeight: 'bold', color: '#666', mb: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography sx={{ fontSize: '11px', fontWeight: 'bold', color: 'text.secondary', mb: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <AccessTime sx={{ fontSize: '11px', mr: 0.5 }} />
                     Annual Clinical Hours
                   </Typography>
@@ -835,7 +844,7 @@ function PrintableView({ metrics, inputs }) {
               
               <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
                 <Box sx={{ width: '48%', textAlign: 'center' }}>
-                  <Typography sx={{ fontSize: '11px', fontWeight: 'bold', color: '#666', mb: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography sx={{ fontSize: '11px', fontWeight: 'bold', color: 'text.secondary', mb: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <People sx={{ fontSize: '11px', mr: 0.5 }} />
                     Encounters per Week
                   </Typography>
@@ -845,7 +854,7 @@ function PrintableView({ metrics, inputs }) {
                 </Box>
                 
                 <Box sx={{ width: '48%', textAlign: 'center' }}>
-                  <Typography sx={{ fontSize: '11px', fontWeight: 'bold', color: '#666', mb: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Typography sx={{ fontSize: '11px', fontWeight: 'bold', color: 'text.secondary', mb: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <People sx={{ fontSize: '11px', mr: 0.5 }} />
                     Annual Patient Encounters
                   </Typography>
@@ -856,16 +865,17 @@ function PrintableView({ metrics, inputs }) {
               </Box>
               
               {/* Projected Increase section - integrated with metrics */}
-              <Box sx={{ borderTop: '1px dashed #ddd', pt: 1.5 }}>
+              <Box sx={{ borderTop: '1px dashed',
+          borderColor: 'divider', pt: 1.5 }}>
                 <Typography sx={{ 
                   fontSize: '13px', 
                   fontWeight: 'bold', 
-                  color: '#666', 
+                  color: 'text.secondary', 
                   mb: 1,
                   display: 'flex',
                   alignItems: 'center'
                 }}>
-                  <TrendingUp sx={{ fontSize: '14px', mr: 0.5, color: '#4caf50' }} />
+                  <TrendingUp sx={{ fontSize: '14px', mr: 0.5, color: 'success.main' }} />
                   Projected Increase with Adjusted wRVU
                 </Typography>
                 
@@ -881,7 +891,7 @@ function PrintableView({ metrics, inputs }) {
                 
                 <Box sx={rowStyles}>
                   <Typography sx={labelStyles}>
-                    <TrendingUp sx={{ fontSize: '11px', verticalAlign: 'text-bottom', mr: 0.5, color: '#4caf50' }} />
+                    <TrendingUp sx={{ fontSize: '11px', verticalAlign: 'text-bottom', mr: 0.5, color: 'success.main' }} />
                     Adjusted wRVU per Encounter:
                   </Typography>
                   <Typography sx={projectionValueStyles}>
@@ -891,13 +901,13 @@ function PrintableView({ metrics, inputs }) {
                 
                 <Box sx={rowStyles}>
                   <Typography sx={labelStyles}>
-                    <AttachMoney sx={{ fontSize: '11px', verticalAlign: 'text-bottom', mr: 0.5, color: '#4caf50' }} />
+                    <AttachMoney sx={{ fontSize: '11px', verticalAlign: 'text-bottom', mr: 0.5, color: 'success.main' }} />
                     Potential Additional Incentive:
                   </Typography>
                   <Typography sx={{ 
                     ...projectionValueStyles, 
                     fontWeight: 'bold', 
-                    color: '#4caf50',
+                    color: 'success.main',
                     bgcolor: 'rgba(76, 175, 80, 0.1)',
                     borderRadius: '8px',
                     px: 1,
@@ -907,7 +917,7 @@ function PrintableView({ metrics, inputs }) {
                   }}>
                     +{formatCurrency(adjustedIncentive - currentIncentive)}
                     <InfoOutlined 
-                      sx={{ fontSize: '10px', ml: 0.5, color: '#4caf50' }} 
+                      sx={{ fontSize: '10px', ml: 0.5, color: 'success.main' }} 
                     />
                   </Typography>
                 </Box>
@@ -924,7 +934,7 @@ function PrintableView({ metrics, inputs }) {
         textAlign: 'center',
         borderTop: '1px solid #eee'
       }}>
-        <Typography sx={{ fontSize: '10px', color: '#888', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <Typography sx={{ fontSize: '10px', color: 'text.disabled', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <InfoOutlined sx={{ fontSize: '10px', mr: 0.5 }} />
           *Green values indicate potential increases with adjusted wRVU per encounter.
         </Typography>
@@ -992,6 +1002,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
   });
   const [scenarioName, setScenarioName] = useState('');
   const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [activeStep, setActiveStep] = useState(0);
 
   const handleInputChange = (name, value) => {
     setInputs(prevInputs => ({
@@ -1131,7 +1142,8 @@ function WRVUForecastingTool({ setTotalVisits }) {
       <Container maxWidth="lg" sx={{ mt: 4, '@media print': { mt: 0 } }}>
         <Box sx={{ '@media print': { display: 'none' } }}>
           {/* Normal view content */}
-          <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid #e0e0e0', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}> 
+          <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid',
+      borderColor: 'divider', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}> 
             {/* Mobile-friendly header layout */}
             <Box sx={{ mb: 2 }}>
               {/* Centered title container */}
@@ -1243,7 +1255,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
                     sx={{ 
                       display: 'flex', 
                       alignItems: 'center',
-                      color: '#1976d2',
+                      color: 'primary.main',
                       mr: { xs: 0, sm: 1.5 },
                       fontSize: '0.875rem',
                       fontWeight: 500
@@ -1275,7 +1287,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
                       }}
                       sx={{ 
                         fontSize: '0.875rem',
-                        color: '#1976d2',
+                        color: 'primary.main',
                         width: '100%',
                         '& .MuiSelect-select': { 
                           paddingBottom: 0,
@@ -1325,7 +1337,44 @@ function WRVUForecastingTool({ setTotalVisits }) {
               </Box>
             )}
 
-            <Grid container spacing={4}>
+            {/* Step nav: 1 Inputs | 2 Results - mobile-friendly */}
+            <Box sx={{ display: 'flex', gap: 0, mb: 2, pt: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
+              <Button
+                onClick={() => setActiveStep(0)}
+                variant={activeStep === 0 ? 'contained' : 'text'}
+                size="medium"
+                sx={{
+                  flex: 1,
+                  py: 1.25,
+                  px: 2,
+                  textTransform: 'none',
+                  fontWeight: activeStep === 0 ? 600 : 400,
+                  borderRadius: 0,
+                  '&:hover': { backgroundColor: activeStep === 0 ? 'primary.dark' : 'action.hover' },
+                }}
+              >
+                1. Inputs
+              </Button>
+              <Button
+                onClick={() => setActiveStep(1)}
+                variant={activeStep === 1 ? 'contained' : 'text'}
+                size="medium"
+                sx={{
+                  flex: 1,
+                  py: 1.25,
+                  px: 2,
+                  textTransform: 'none',
+                  fontWeight: activeStep === 1 ? 600 : 400,
+                  borderRadius: 0,
+                  '&:hover': { backgroundColor: activeStep === 1 ? 'primary.dark' : 'action.hover' },
+                }}
+              >
+                2. Results
+              </Button>
+            </Box>
+
+            {activeStep === 0 && (
+            <Grid container spacing={2}>
               <Grid item xs={12} md={6}>
                 <WorkSchedule 
                   inputs={inputs} 
@@ -1336,9 +1385,10 @@ function WRVUForecastingTool({ setTotalVisits }) {
               </Grid>
               
               <Grid item xs={12} md={6}>
-                <Paper elevation={3} sx={{ p: 3, height: '100%', borderRadius: '16px', border: '1px solid #e0e0e0' }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-                    <Typography variant="h6" gutterBottom sx={{ mb: 0, fontWeight: 'bold', color: '#1976d2' }}>Patient Encounters</Typography>
+                <Paper elevation={2} sx={{ p: 2.5, height: '100%', borderRadius: '12px', border: '1px solid',
+      borderColor: 'divider' }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+                    <Typography variant="subtitle1" sx={{ mb: 0, fontWeight: 'bold', color: 'primary.main' }}>Patient Encounters</Typography>
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
                         {inputs.isPerHour ? "Patients Per Hour" : "Patients Per Day"}
@@ -1350,8 +1400,8 @@ function WRVUForecastingTool({ setTotalVisits }) {
                       />
                     </Box>
                   </Box>
-                  <Box sx={{ mt: '24px' }}> {/* Add top margin to align with left container */}
-                    <Tooltip 
+<Box sx={{ mt: 0 }}>
+                    <Tooltip
                       title={inputs.isPerHour ? "Enter the average number of patients seen per hour" : "Enter the average number of patients seen per day"}
                       enterTouchDelay={50}
                       leaveTouchDelay={1500}
@@ -1361,6 +1411,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
                         <NumericFormat
                           customInput={TextField}
                           fullWidth
+                          size="small"
                           margin="normal"
                           label={inputs.isPerHour ? "Patients Seen Per Hour" : "Patients Seen Per Day"}
                           value={inputs.isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay}
@@ -1443,6 +1494,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
                       <NumericFormat
                         customInput={TextField}
                         fullWidth
+                        size="small"
                         margin="normal"
                         label="Average wRVU Per Encounter"
                         value={inputs.avgWRVUPerEncounter}
@@ -1514,6 +1566,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
                       <NumericFormat
                         customInput={TextField}
                         fullWidth
+                        size="small"
                         margin="normal"
                         label="Adjusted wRVU Per Encounter"
                         value={inputs.adjustedWRVUPerEncounter}
@@ -1585,6 +1638,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
                       <NumericFormat
                         customInput={TextField}
                         fullWidth
+                        size="small"
                         margin="normal"
                         label="Base Salary"
                         value={inputs.baseSalary}
@@ -1610,6 +1664,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
                       <NumericFormat
                         customInput={TextField}
                         fullWidth
+                        size="small"
                         margin="normal"
                         label="wRVU Conversion Factor"
                         value={inputs.wrvuConversionFactor}
@@ -1687,6 +1742,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
                     <div>
                       <TextField
                         fullWidth
+                        size="small"
                         margin="normal"
                         label="Target Annual wRVUs"
                         value={inputs.wrvuConversionFactor ? new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(inputs.baseSalary / inputs.wrvuConversionFactor) : '0'}
@@ -1705,8 +1761,18 @@ function WRVUForecastingTool({ setTotalVisits }) {
                 </Paper>
               </Grid>
             </Grid>
+            )}
+            {activeStep === 0 && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                <Button variant="contained" onClick={() => setActiveStep(1)} sx={{ minWidth: 160 }}>
+                  View results
+                </Button>
+              </Box>
+            )}
 
+            {activeStep === 1 && (
             <ProductivitySummary metrics={metrics} adjustedMetrics={adjustedMetrics} inputs={inputs} />
+            )}
           </Paper>
         </Box>
 

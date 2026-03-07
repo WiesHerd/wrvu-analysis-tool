@@ -1,80 +1,77 @@
-import React, { useState, useEffect } from 'react';
-import { HashRouter as Router, Route, Routes, Link, Navigate, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button, Container, Box, ThemeProvider, createTheme, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, IconButton } from '@mui/material';
-import ProviderCompensation from './ProviderCompensation';
-import WRVUForecastingTool from './WRVUForecastingTool';
-import DetailedWRVUForecaster from './DetailedWRVUForecaster';
-import { Speed, Analytics, MonetizationOn, HelpOutline } from '@mui/icons-material';
+import React, { useState } from 'react';
+import { HashRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
+import { Typography, Button, Container, Box, ThemeProvider, createTheme, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, IconButton, ButtonGroup } from '@mui/material';
+import { Speed, Analytics, HelpOutline } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Create a professional theme with standardized typography
+import WRVUForecastingTool from './WRVUForecastingTool';
+import DetailedWRVUForecaster from './DetailedWRVUForecaster';
+
+// Premium theme: Plus Jakarta Sans, indigo/slate palette, soft shadows
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#2196f3',
-      light: '#64b5f6',
-      dark: '#1976d2',
+      main: '#4f46e5',
+      light: '#818cf8',
+      dark: '#3730a3',
+      contrastText: '#fff',
+    },
+    secondary: {
+      main: '#0ea5e9',
+      light: '#38bdf8',
+      dark: '#0284c7',
     },
     background: {
-      default: '#f8fafc',
+      default: 'transparent',
       paper: '#ffffff',
-    }
+    },
+    text: {
+      primary: '#1e293b',
+      secondary: '#64748b',
+    },
   },
   typography: {
-    fontFamily: '"Inter", "Roboto", "Helvetica", "Arial", sans-serif',
-    h1: {
-      fontSize: '2.5rem',
-      fontWeight: 600,
-      letterSpacing: '-0.02em',
-    },
-    h2: {
-      fontSize: '2rem',
-      fontWeight: 600,
-      letterSpacing: '-0.01em',
-    },
-    h3: {
-      fontSize: '1.75rem',
-      fontWeight: 600,
-    },
-    h4: {
-      fontSize: '1.5rem',
-      fontWeight: 600,
-    },
-    h5: {
-      fontSize: '1.25rem',
-      fontWeight: 600,
-    },
-    h6: {
-      fontSize: '1rem',
-      fontWeight: 600,
-    },
-    subtitle1: {
-      fontSize: '1.1rem',
-      fontWeight: 400,
-      lineHeight: 1.5,
-    },
-    body1: {
-      fontSize: '1rem',
-      lineHeight: 1.5,
-    },
-    button: {
-      textTransform: 'none',
-      fontWeight: 500,
-    },
+    fontFamily: '"Plus Jakarta Sans", "Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    h1: { fontSize: '2.5rem', fontWeight: 700, letterSpacing: '-0.02em' },
+    h2: { fontSize: '2rem', fontWeight: 600, letterSpacing: '-0.01em' },
+    h3: { fontSize: '1.75rem', fontWeight: 600 },
+    h4: { fontSize: '1.5rem', fontWeight: 600 },
+    h5: { fontSize: '1.25rem', fontWeight: 600 },
+    h6: { fontSize: '1rem', fontWeight: 600 },
+    subtitle1: { fontSize: '1.05rem', fontWeight: 500, lineHeight: 1.5 },
+    body1: { fontSize: '1rem', lineHeight: 1.6 },
+    button: { textTransform: 'none', fontWeight: 600 },
   },
+  shape: { borderRadius: 16 },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
-          borderRadius: '8px',
-          padding: '8px 16px',
+          borderRadius: 12,
+          padding: '10px 20px',
+          boxShadow: '0 1px 2px rgba(79, 70, 229, 0.05)',
+        },
+        contained: {
+          '&:hover': {
+            boxShadow: '0 4px 14px rgba(79, 70, 229, 0.25)',
+          },
         },
       },
     },
     MuiPaper: {
       styleOverrides: {
         root: {
-          borderRadius: '12px',
+          borderRadius: 16,
+          boxShadow: '0 4px 6px -1px rgba(79, 70, 229, 0.07), 0 2px 4px -2px rgba(79, 70, 229, 0.07)',
+          border: '1px solid rgba(79, 70, 229, 0.08)',
+        },
+      },
+    },
+    MuiDialog: {
+      styleOverrides: {
+        paper: {
+          borderRadius: 20,
+          boxShadow: '0 25px 50px -12px rgba(79, 70, 229, 0.15)',
         },
       },
     },
@@ -84,7 +81,7 @@ const theme = createTheme({
 function AppContent() {
   const [totalVisits, setTotalVisits] = useState(0);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleUpdateForecast = (newForecast) => {
     console.log('New forecast:', newForecast);
@@ -94,35 +91,35 @@ function AppContent() {
     setIsHelpOpen(true);
   };
 
+  const menuItems = [
+    { to: '/wrvu-forecast', label: 'Quick Forecast', icon: <Speed /> },
+    { to: '/detailed-wrvu', label: 'Procedure Analysis', icon: <Analytics /> },
+  ];
+
   return (
-    <Box sx={{ 
-      width: '100%', 
-      minHeight: '100vh',
-      backgroundColor: 'rgba(236, 242, 253, 0.3)', // Much lighter blue background
-      pb: 4 
-    }}>
+    <Box sx={{ width: '100%', minHeight: '100vh', pb: 4 }}>
       <Container maxWidth="lg">
-        {/* Title Section */}
-        <Box sx={{ 
-          display: 'flex', 
-          flexDirection: 'column', 
-          alignItems: 'center',
-          width: '100%',
-          mb: 2,
-          pt: 4
-        }}>
-          <Box sx={{ 
-            display: 'flex', 
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: 2
-          }}>
-            <Typography 
-              variant="h4" 
-              sx={{ 
-                color: '#1976d2',
-                fontSize: '1.75rem',
-                fontWeight: 500
+        {/* Header: title left, menu right — stacks on mobile */}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', sm: 'row' },
+            alignItems: { xs: 'stretch', sm: 'center' },
+            justifyContent: 'space-between',
+            gap: 2,
+            pt: { xs: 2, sm: 2.5 },
+            pb: { xs: 2, sm: 2 },
+            borderBottom: '1px solid',
+            borderColor: 'divider',
+          }}
+        >
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
+            <Typography
+              variant="h6"
+              sx={{
+                fontWeight: 600,
+                color: 'primary.main',
+                letterSpacing: '-0.01em',
               }}
             >
               Provider Compensation Forecaster
@@ -130,105 +127,62 @@ function AppContent() {
             <IconButton
               onClick={handleHowToUseClick}
               size="small"
-              sx={{
-                '&:hover': { backgroundColor: 'rgba(25, 118, 210, 0.04)' },
-                color: '#1976d2'
-              }}
+              sx={{ color: 'text.secondary', '&:hover': { color: 'primary.main', backgroundColor: 'rgba(79, 70, 229, 0.06)' } }}
+              aria-label="Help"
             >
-              <HelpOutline />
+              <HelpOutline fontSize="small" />
             </IconButton>
+            <Typography variant="body2" color="text.secondary" sx={{ width: '100%', mt: 0.25 }}>
+              wRVU and compensation estimates
+            </Typography>
           </Box>
-        </Box>
 
-        <Box sx={{ 
-          display: 'flex', 
-          justifyContent: 'center',
-          gap: 2,
-          flexWrap: 'wrap',
-          pt: 1,
-          pb: { xs: 2, sm: 3 }
-        }}>
-          <Button
-            component={Link}
-            to="/wrvu-forecast"
-            variant="contained"
-            startIcon={<Speed />}
+          {/* Tool selection menu — segmented style, mobile-friendly */}
+          <ButtonGroup
+            variant="outlined"
+            size="medium"
+            fullWidth
             sx={{
               width: { xs: '100%', sm: 'auto' },
-              minWidth: { sm: '200px' },
-              py: 1.5,
-              fontSize: '1rem',
-              textTransform: 'none',
-              boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
-                '& .MuiSvgIcon-root': {
-                  transform: 'rotate(180deg)'
-                }
+              boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+              '& .MuiButton-root': {
+                textTransform: 'none',
+                fontWeight: 500,
+                minWidth: { xs: 0, sm: 140 },
+                px: { xs: 1.5, sm: 2 },
+                py: { xs: 1.25, sm: 1 },
+                borderColor: 'divider',
+                '&.active': {
+                  backgroundColor: 'primary.main',
+                  color: 'primary.contrastText',
+                  borderColor: 'primary.main',
+                  '&:hover': {
+                    backgroundColor: 'primary.dark',
+                    borderColor: 'primary.dark',
+                  },
+                },
+                '&:not(.active):hover': {
+                  backgroundColor: 'action.hover',
+                },
               },
-              '& .MuiSvgIcon-root': {
-                transition: 'transform 0.5s ease-in-out'
-              }
             }}
           >
-            Quick Forecast
-          </Button>
-          <Button
-            component={Link}
-            to="/detailed-wrvu"
-            variant="contained"
-            startIcon={<Analytics />}
-            sx={{
-              width: { xs: '100%', sm: 'auto' },
-              minWidth: { sm: '200px' },
-              py: 1.5,
-              fontSize: '1rem',
-              textTransform: 'none',
-              boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
-                '& .MuiSvgIcon-root': {
-                  transform: 'scale(1.2)'
-                }
-              },
-              '& .MuiSvgIcon-root': {
-                transition: 'transform 0.3s ease-in-out'
-              }
-            }}
-          >
-            Procedure Analysis
-          </Button>
-          <Button
-            component={Link}
-            to="/monthly-performance"
-            variant="contained"
-            startIcon={<MonetizationOn />}
-            sx={{
-              width: { xs: '100%', sm: 'auto' },
-              minWidth: { sm: '200px' },
-              py: 1.5,
-              fontSize: '1rem',
-              textTransform: 'none',
-              boxShadow: '0 4px 6px rgba(25,118,210,0.12)',
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              '&:hover': {
-                transform: 'translateY(-2px)',
-                boxShadow: '0 6px 12px rgba(25,118,210,0.2)',
-                '& .MuiSvgIcon-root': {
-                  transform: 'rotate(15deg) scale(1.2)'
-                }
-              },
-              '& .MuiSvgIcon-root': {
-                transition: 'transform 0.3s ease-in-out'
-              }
-            }}
-          >
-            Monthly Performance
-          </Button>
+            {menuItems.map((item) => {
+              const active = location.pathname === item.to || location.hash === `#${item.to}`;
+              return (
+                <Button
+                  key={item.to}
+                  component={Link}
+                  to={item.to}
+                  className={active ? 'active' : ''}
+                  startIcon={item.icon}
+                  sx={{ '&.active': { backgroundColor: 'primary.main', color: 'primary.contrastText' } }}
+                >
+                  {item.label}
+                </Button>
+              );
+            })}
+          </ButtonGroup>
         </Box>
       </Container>
 
@@ -261,23 +215,12 @@ function AppContent() {
               4. View detailed wRVU and compensation projections
             </Typography>
 
-            <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>Monthly Performance</Typography>
-            <Typography paragraph>
-              Track your actual performance:
-              1. Enter your monthly wRVU totals
-              2. View trending and projections
-              3. Monitor progress toward compensation targets
-              4. Save scenarios for future reference
-              5. Print detailed performance reports
-            </Typography>
-
             <Typography variant="h6" sx={{ mt: 3, mb: 1 }}>Tips for Best Results</Typography>
             <Typography component="ul" sx={{ pl: 2 }}>
               <li>Keep your CMS Fee Schedule up to date</li>
-              <li>Regularly update your monthly wRVU data</li>
               <li>Use the detailed analysis for the most accurate projections</li>
               <li>Save different scenarios to compare various schedules and compensation models</li>
-              <li>Print reports to share or review performance trends</li>
+              <li>Print reports to share or review results</li>
             </Typography>
           </DialogContentText>
         </DialogContent>
@@ -313,16 +256,6 @@ function AppContent() {
                 transition={{ duration: 0.5 }}
               >
                 <DetailedWRVUForecaster totalVisits={totalVisits} onUpdateForecast={handleUpdateForecast} />
-              </motion.div>
-            } />
-            <Route path="/monthly-performance" element={
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-              >
-                <ProviderCompensation />
               </motion.div>
             } />
             <Route path="/" element={<Navigate to="/wrvu-forecast" replace />} />
