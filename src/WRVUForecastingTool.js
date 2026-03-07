@@ -524,10 +524,12 @@ function StatItem({ icon, label, value, difference, attribution, valueColor, sho
 }
 
 function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
-  // Calculate adjusted metrics
-  const adjustedAnnualWRVUs = metrics.annualPatientEncounters * inputs.adjustedWRVUPerEncounter;
-  const adjustedWRVUCompensation = adjustedAnnualWRVUs * inputs.wrvuConversionFactor;
-  
+  const adjWrvu = Number(inputs.adjustedWRVUPerEncounter) || 0;
+  const convFactor = Number(inputs.wrvuConversionFactor) || 0;
+  // Calculate adjusted metrics (guard against undefined when user clears numeric inputs)
+  const adjustedAnnualWRVUs = metrics.annualPatientEncounters * adjWrvu;
+  const adjustedWRVUCompensation = adjustedAnnualWRVUs * convFactor;
+
   // Calculate incentive payments
   const currentIncentive = Math.max(0, metrics.wrvuCompensation - inputs.baseSalary);
   const adjustedIncentive = Math.max(0, adjustedWRVUCompensation - inputs.baseSalary);
@@ -551,12 +553,12 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
   };
 
   const gapDollars = Math.max(0, inputs.baseSalary - metrics.wrvuCompensation);
-  const gapWRVUs = inputs.wrvuConversionFactor > 0 ? Math.round(gapDollars / inputs.wrvuConversionFactor) : 0;
+  const gapWRVUs = convFactor > 0 ? Math.round(gapDollars / convFactor) : 0;
   const incentiveShortfall = currentIncentive === 0 && gapDollars > 0
     ? { dollars: gapDollars, wrvus: gapWRVUs }
     : null;
 
-  const isBillingAdjustment = inputs.adjustedWRVUPerEncounter !== inputs.avgWRVUPerEncounter;
+  const isBillingAdjustment = (Number(inputs.adjustedWRVUPerEncounter) || 0) !== (Number(inputs.avgWRVUPerEncounter) || 0);
   const billingAttribution = isBillingAdjustment ? 'From improved wRVU per encounter (billing)' : null;
 
   const summaryItems = [
@@ -637,9 +639,19 @@ function PrintableView({ metrics, inputs }) {
   const formatCurrency = (value) => 
     new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value);
 
-  // Calculate adjusted metrics for the difference indicators
-  const adjustedAnnualWRVUs = metrics.annualPatientEncounters * inputs.adjustedWRVUPerEncounter;
-  const adjustedWRVUCompensation = adjustedAnnualWRVUs * inputs.wrvuConversionFactor;
+  // Safe numeric display (handles undefined/empty when user clears inputs)
+  const toFixedSafe = (value, digits = 2) => {
+    const n = Number(value);
+    return (value != null && value !== '' && !Number.isNaN(n)) ? n.toFixed(digits) : '—';
+  };
+
+  const num = (v) => (v != null && v !== '' && !Number.isNaN(Number(v))) ? Number(v) : 0;
+  const adjWrvu = num(inputs.adjustedWRVUPerEncounter);
+  const convFactor = num(inputs.wrvuConversionFactor);
+
+  // Calculate adjusted metrics for the difference indicators (use safe numbers)
+  const adjustedAnnualWRVUs = metrics.annualPatientEncounters * adjWrvu;
+  const adjustedWRVUCompensation = adjustedAnnualWRVUs * convFactor;
   const currentIncentive = Math.max(0, metrics.wrvuCompensation - inputs.baseSalary);
   const adjustedIncentive = Math.max(0, adjustedWRVUCompensation - inputs.baseSalary);
 
@@ -955,7 +967,7 @@ function PrintableView({ metrics, inputs }) {
                   Avg wRVU/Encounter:
                 </Typography>
                 <Typography sx={valueStyles}>
-                  {inputs.avgWRVUPerEncounter.toFixed(2)}
+                  {toFixedSafe(inputs.avgWRVUPerEncounter)}
                 </Typography>
               </Box>
               
@@ -965,7 +977,7 @@ function PrintableView({ metrics, inputs }) {
                   Adj wRVU/Encounter:
                 </Typography>
                 <Typography sx={valueStyles}>
-                  {inputs.adjustedWRVUPerEncounter.toFixed(2)}
+                  {toFixedSafe(inputs.adjustedWRVUPerEncounter)}
                 </Typography>
               </Box>
               
@@ -985,7 +997,7 @@ function PrintableView({ metrics, inputs }) {
                   wRVU Conversion:
                 </Typography>
                 <Typography sx={valueStyles}>
-                  {inputs.wrvuConversionFactor.toFixed(2)}/wRVU
+                  {toFixedSafe(inputs.wrvuConversionFactor)}/wRVU
                 </Typography>
               </Box>
             </Box>
@@ -1053,14 +1065,14 @@ function PrintableView({ metrics, inputs }) {
                   fontSize: '13px', 
                   fontWeight: 'bold', 
                   color: 'text.secondary', 
-                  mb: inputs.adjustedWRVUPerEncounter !== inputs.avgWRVUPerEncounter ? 0.5 : 1,
+                  mb: adjWrvu !== num(inputs.avgWRVUPerEncounter) ? 0.5 : 1,
                   display: 'flex',
                   alignItems: 'center'
                 }}>
                   <TrendingUp sx={{ fontSize: '14px', mr: 0.5, color: 'success.main' }} />
                   Projected Increase with Adjusted wRVU
                 </Typography>
-                {inputs.adjustedWRVUPerEncounter !== inputs.avgWRVUPerEncounter && (
+                {adjWrvu !== num(inputs.avgWRVUPerEncounter) && (
                   <Typography sx={{ fontSize: '10px', color: 'text.disabled', mb: 1, fontStyle: 'italic' }}>
                     From improved wRVU per encounter (billing).
                   </Typography>
@@ -1072,7 +1084,7 @@ function PrintableView({ metrics, inputs }) {
                     Current wRVU per Encounter:
                   </Typography>
                   <Typography sx={projectionValueStyles}>
-                    {inputs.avgWRVUPerEncounter.toFixed(2)} = {formatNumber(metrics.estimatedAnnualWRVUs)} wRVUs
+                    {toFixedSafe(inputs.avgWRVUPerEncounter)} = {formatNumber(metrics.estimatedAnnualWRVUs)} wRVUs
                   </Typography>
                 </Box>
                 
@@ -1082,7 +1094,7 @@ function PrintableView({ metrics, inputs }) {
                     Adjusted wRVU per Encounter:
                   </Typography>
                   <Typography sx={projectionValueStyles}>
-                    {inputs.adjustedWRVUPerEncounter.toFixed(2)} = {formatNumber(adjustedAnnualWRVUs)} wRVUs
+                    {toFixedSafe(inputs.adjustedWRVUPerEncounter)} = {formatNumber(adjustedAnnualWRVUs)} wRVUs
                   </Typography>
                 </Box>
                 
@@ -1290,9 +1302,11 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
       : annualClinicDays * inputs.patientsPerDay;
     const encountersPerWeek = weeksWorkedPerYear > 0 ? annualPatientEncounters / weeksWorkedPerYear : 0;
 
-    // Calculate wRVUs and compensation
-    const estimatedAnnualWRVUs = annualPatientEncounters * inputs.avgWRVUPerEncounter;
-    const wrvuCompensation = estimatedAnnualWRVUs * inputs.wrvuConversionFactor;
+    // Calculate wRVUs and compensation (guard against undefined when user clears numeric inputs)
+    const avgWrvu = Number(inputs.avgWRVUPerEncounter) || 0;
+    const convFactor = Number(inputs.wrvuConversionFactor) || 0;
+    const estimatedAnnualWRVUs = annualPatientEncounters * avgWrvu;
+    const wrvuCompensation = estimatedAnnualWRVUs * convFactor;
     const estimatedTotalCompensation = Math.max(inputs.baseSalary, wrvuCompensation);
     const estimatedIncentivePayment = Math.max(0, wrvuCompensation - inputs.baseSalary);
 
@@ -1725,7 +1739,10 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
                               }}>
                                 <IconButton 
                                   size="small" 
-                                  onClick={() => handleInputChange('avgWRVUPerEncounter', Math.max(0, Number((inputs.avgWRVUPerEncounter - 0.01).toFixed(2))))}
+                                  onClick={() => {
+                                    const current = Number(inputs.avgWRVUPerEncounter) || 0;
+                                    handleInputChange('avgWRVUPerEncounter', Math.max(0, Number((current - 0.01).toFixed(2))));
+                                  }}
                                   sx={{
                                     width: '20px',
                                     height: '20px',
@@ -1740,7 +1757,10 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
                                 </IconButton>
                                 <IconButton 
                                   size="small" 
-                                  onClick={() => handleInputChange('avgWRVUPerEncounter', Number((inputs.avgWRVUPerEncounter + 0.01).toFixed(2)))}
+                                  onClick={() => {
+                                    const current = Number(inputs.avgWRVUPerEncounter) || 0;
+                                    handleInputChange('avgWRVUPerEncounter', Number((current + 0.01).toFixed(2)));
+                                  }}
                                   sx={{
                                     width: '20px',
                                     height: '20px',
@@ -1789,7 +1809,10 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
                               }}>
                                 <IconButton 
                                   size="small" 
-                                  onClick={() => handleInputChange('adjustedWRVUPerEncounter', Math.max(0, Number((inputs.adjustedWRVUPerEncounter - 0.01).toFixed(2))))}
+                                  onClick={() => {
+                                    const current = Number(inputs.adjustedWRVUPerEncounter) || 0;
+                                    handleInputChange('adjustedWRVUPerEncounter', Math.max(0, Number((current - 0.01).toFixed(2))));
+                                  }}
                                   sx={{
                                     width: '20px',
                                     height: '20px',
@@ -1804,7 +1827,10 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
                                 </IconButton>
                                 <IconButton 
                                   size="small" 
-                                  onClick={() => handleInputChange('adjustedWRVUPerEncounter', Number((inputs.adjustedWRVUPerEncounter + 0.01).toFixed(2)))}
+                                  onClick={() => {
+                                    const current = Number(inputs.adjustedWRVUPerEncounter) || 0;
+                                    handleInputChange('adjustedWRVUPerEncounter', Number((current + 0.01).toFixed(2)));
+                                  }}
                                   sx={{
                                     width: '20px',
                                     height: '20px',
@@ -1870,7 +1896,8 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
                                 <IconButton 
                                   size="small" 
                                   onClick={() => {
-                                    const newValue = Number((inputs.wrvuConversionFactor - 0.01).toFixed(2));
+                                    const current = Number(inputs.wrvuConversionFactor) || 0;
+                                    const newValue = Number((current - 0.01).toFixed(2));
                                     setInputs(prev => ({ ...prev, wrvuConversionFactor: Math.max(0, newValue) }));
                                   }}
                                   sx={{
@@ -1888,7 +1915,8 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
                                 <IconButton 
                                   size="small" 
                                   onClick={() => {
-                                    const newValue = Number((inputs.wrvuConversionFactor + 0.01).toFixed(2));
+                                    const current = Number(inputs.wrvuConversionFactor) || 0;
+                                    const newValue = Number((current + 0.01).toFixed(2));
                                     setInputs(prev => ({ ...prev, wrvuConversionFactor: newValue }));
                                   }}
                                   sx={{
