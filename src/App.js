@@ -141,7 +141,7 @@ function AppContent() {
             role="tablist"
             aria-label="Tool selection"
             sx={{
-              display: 'inline-flex',
+              display: 'flex',
               alignItems: 'center',
               gap: 0,
               p: 0.25,
@@ -161,6 +161,7 @@ function AppContent() {
                   aria-selected={active}
                   startIcon={item.icon}
                   sx={{
+                    flex: { xs: 1, sm: '0 0 auto' },
                     textTransform: 'none',
                     fontWeight: 500,
                     fontSize: '0.8125rem',
