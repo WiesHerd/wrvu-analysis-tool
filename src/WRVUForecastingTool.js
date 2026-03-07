@@ -14,6 +14,7 @@ import Celebration from '@mui/icons-material/Celebration';
 import Add from '@mui/icons-material/Add';
 import Remove from '@mui/icons-material/Remove';
 import Delete from '@mui/icons-material/Delete';
+import Clear from '@mui/icons-material/Clear';
 import EventIcon from '@mui/icons-material/Event';
 import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import PrintIcon from '@mui/icons-material/Print';
@@ -350,6 +351,29 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
                     '& .MuiInputBase-input': { textAlign: 'right', paddingLeft: { xs: 1, sm: 2 }, paddingRight: { xs: 1, sm: 2 } },
                   }}
                   placeholder="0"
+                  InputProps={{
+                    endAdornment: (Number(week[i]) > 0 || (typeof week[i] === 'string' && week[i] !== '')) ? (
+                      <InputAdornment position="end">
+                        <IconButton
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onTypicalWeekChange(i, '');
+                          }}
+                          onMouseDown={(e) => e.preventDefault()}
+                          sx={{
+                            width: 20,
+                            height: 20,
+                            padding: 0,
+                            '&:hover': { bgcolor: 'action.hover' },
+                          }}
+                          aria-label={`Clear ${label} hours`}
+                        >
+                          <Clear sx={{ fontSize: '0.875rem' }} />
+                        </IconButton>
+                      </InputAdornment>
+                    ) : null,
+                  }}
                 />
                 <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0, width: 28 }}>hrs</Typography>
               </Box>
@@ -438,9 +462,9 @@ function DifferenceIndicator({ difference }) {
 
 function ShortfallIndicator({ dollars, wrvus, formatCurrency, formatNumber }) {
   if (dollars <= 0) return null;
-  const toIncentive = formatCurrency(dollars) + ' to incentive';
-  const wrvusPart = wrvus > 0 ? ' (or ' + formatNumber(wrvus) + ' wRVUs to go)' : '';
-  const shortfallText = toIncentive + wrvusPart;
+  const dollarPart = formatCurrency(dollars);
+  const wrvusPart = wrvus > 0 ? ' (or ' + formatNumber(wrvus) + ' wRVUs)' : '';
+  const shortfallText = dollarPart + wrvusPart;
   return (
     <Box sx={{ ml: { xs: 0, sm: 2 }, mt: 0.5 }}>
       <Typography
