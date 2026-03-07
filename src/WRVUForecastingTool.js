@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box, Typography, Paper, Grid, Container, TextField, InputAdornment,
-  IconButton, FormControlLabel, Switch, Button, Tooltip, FormControl, InputLabel, Select, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
-  Popover, ThemeProvider, createTheme, Snackbar
+  IconButton, FormControlLabel, Switch, Button, FormControl, InputLabel, Select, MenuItem, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions,
+  Popover, ThemeProvider, createTheme, Snackbar, ToggleButton, ToggleButtonGroup
 } from '@mui/material';
 import CalendarToday from '@mui/icons-material/CalendarToday';
 import AccessTime from '@mui/icons-material/AccessTime';
@@ -39,7 +39,24 @@ const printTheme = createTheme({
       light: '#818cf8',
       dark: '#4f46e5',
     },
+    text: {
+      primary: '#1e293b',
+      secondary: '#64748b',
+    },
   },
+  typography: {
+    fontFamily: '"Plus Jakarta Sans", "Inter", "Roboto", "Helvetica", "Arial", sans-serif',
+    h1: { fontSize: '2.5rem', fontWeight: 700, letterSpacing: '-0.02em' },
+    h2: { fontSize: '2rem', fontWeight: 600, letterSpacing: '-0.01em' },
+    h3: { fontSize: '1.75rem', fontWeight: 600 },
+    h4: { fontSize: '1.5rem', fontWeight: 600 },
+    h5: { fontSize: '1.25rem', fontWeight: 600 },
+    h6: { fontSize: '1rem', fontWeight: 600 },
+    subtitle1: { fontSize: '1.05rem', fontWeight: 500, lineHeight: 1.5 },
+    body1: { fontSize: '1rem', lineHeight: 1.6 },
+    button: { textTransform: 'none', fontWeight: 600 },
+  },
+  shape: { borderRadius: 16 },
   components: {
     MuiButton: {
       defaultProps: { color: 'primary' },
@@ -64,6 +81,7 @@ const printTheme = createTheme({
     MuiOutlinedInput: {
       styleOverrides: {
         root: {
+          borderRadius: 16,
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#4f46e5' },
           '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(79, 70, 229, 0.5)' },
         },
@@ -165,9 +183,8 @@ function CustomNumberInput({ label, value, onChange, icon, min = 0, max = Infini
     <TextField
       fullWidth
       margin="normal"
-      size="small"
       label={label}
-      value={value === 0 ? '' : value}
+      value={value}
       onChange={(e) => {
         const val = e.target.value === '' ? min : Number(e.target.value);
         onChange(isNaN(val) ? min : Math.max(min, Math.min(val, max)));
@@ -230,148 +247,196 @@ function CustomNumberInput({ label, value, onChange, icon, min = 0, max = Infini
   );
 }
 
-function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDeleteShift }) {
+const WEEKDAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDeleteShift, typicalWeekHours, onTypicalWeekChange, onClearTypicalWeek, scheduleInputMode, onScheduleInputModeChange }) {
+  const week = typicalWeekHours || [0, 0, 0, 0, 0, 0, 0];
+  const totalDays = week.filter((h) => Number(h) > 0).length;
+  const totalHours = week.reduce((s, h) => s + (Number(h) || 0), 0);
+  const isTypicalWeek = scheduleInputMode === 'typicalWeek';
+
   return (
-    <Paper elevation={2} sx={{ p: 2.5, height: '100%', borderRadius: '12px', border: '1px solid',
+    <Paper elevation={3} sx={{ p: 3, mb: 4, height: '100%', borderRadius: '16px', border: '1px solid',
       borderColor: 'divider' }}>
-      <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'bold', color: 'primary.main' }}>Work Schedule</Typography>
-      <Box sx={{ mt: 0.5 }}>
-        <Tooltip title="Enter the number of vacation weeks you take per year" enterTouchDelay={50} leaveTouchDelay={1500}>
-          <Box sx={{ mb: 2 }}>
-            <CustomNumberInput
-              label="Vacation Weeks per Year"
-              name="vacationWeeks"
-              value={inputs.vacationWeeks}
-              onChange={(value) => handleInputChange('vacationWeeks', value)}
-              icon={<Celebration />}
-              min={0}
-              max={52}
-              step={1}
-            />
+      <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: 'primary.main' }}>Work Schedule</Typography>
+      <CustomNumberInput
+        label="Vacation Weeks per Year"
+        value={inputs.vacationWeeks}
+        onChange={(value) => handleInputChange('vacationWeeks', value)}
+        icon={<Celebration />}
+        min={0}
+        max={52}
+        step={1}
+      />
+      <CustomNumberInput
+        label="Statutory Holidays per Year"
+        value={inputs.statutoryHolidays}
+        onChange={(value) => handleInputChange('statutoryHolidays', value)}
+        icon={<EventIcon />}
+        min={0}
+        max={365}
+        step={1}
+      />
+      <CustomNumberInput
+        label="CME Days per Year"
+        value={inputs.cmeDays}
+        onChange={(value) => handleInputChange('cmeDays', value)}
+        icon={<School />}
+        min={0}
+        max={365}
+        step={1}
+      />
+      <Typography variant="subtitle1" gutterBottom sx={{ mt: 3, mb: 1, fontWeight: 'bold' }}>
+        Schedule (optional)
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+        Choose how to define your schedule—typical week or shift types.
+      </Typography>
+      <ToggleButtonGroup
+        value={scheduleInputMode}
+        exclusive
+        onChange={onScheduleInputModeChange}
+        size="small"
+        sx={{
+          mb: 2,
+          '& .MuiToggleButton-root': {
+            px: 2,
+            textTransform: 'none',
+            fontWeight: 500,
+            '&.Mui-selected': {
+              backgroundColor: 'rgba(79, 70, 229, 0.12)',
+              color: 'primary.main',
+              '&:hover': {
+                backgroundColor: 'rgba(79, 70, 229, 0.2)',
+              },
+            },
+          },
+        }}
+      >
+        <ToggleButton value="typicalWeek" aria-label="Typical week">
+          Typical week
+        </ToggleButton>
+        <ToggleButton value="shiftTypes" aria-label="Shift types">
+          Shift types
+        </ToggleButton>
+      </ToggleButtonGroup>
+      {isTypicalWeek ? (
+        <>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
+            {WEEKDAY_LABELS.map((label, i) => (
+              <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <Typography sx={{ width: 100, flexShrink: 0, fontSize: '0.875rem' }}>{label}</Typography>
+                <TextField
+                  size="small"
+                  type="number"
+                  value={week[i] || 0}
+                  onChange={(e) => onTypicalWeekChange(i, e.target.value)}
+                  inputProps={{ min: 0, max: 24, step: 0.5 }}
+                  sx={{ width: 100, flexShrink: 0 }}
+                  placeholder="0"
+                />
+                <Typography variant="body2" color="text.secondary">hrs</Typography>
+              </Box>
+            ))}
           </Box>
-        </Tooltip>
-        <Tooltip title="Enter the number of statutory holidays per year" enterTouchDelay={50} leaveTouchDelay={1500}>
-          <Box sx={{ mb: 2 }}>
-            <CustomNumberInput
-              label="Statutory Holidays per Year"
-              name="statutoryHolidays"
-              value={inputs.statutoryHolidays}
-              onChange={(value) => handleInputChange('statutoryHolidays', value)}
-              icon={<EventIcon />}
-              min={0}
-              max={365}
-              step={1}
-            />
-          </Box>
-        </Tooltip>
-        <Tooltip title="Enter the number of CME (Continuing Medical Education) days per year" enterTouchDelay={50} leaveTouchDelay={1500}>
-          <Box sx={{ mb: 2 }}>
-            <CustomNumberInput
-              label="CME Days per Year"
-              name="cmeDays"
-              value={inputs.cmeDays}
-              onChange={(value) => handleInputChange('cmeDays', value)}
-              icon={<School />}
-              min={0}
-              max={365}
-              step={1}
-            />
-          </Box>
-        </Tooltip>
-      </Box>
-      <Typography variant="body1" sx={{ mt: 3, mb: 1.5, fontWeight: 'bold', display: 'block' }}>Shift Types</Typography>
-      {inputs.shifts.map((shift, index) => (
-        <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-          <TextField
-            size="small"
-            sx={{ mr: 1, flexGrow: 1 }}
-            label="Shift Name"
-            value={shift.name}
-            onChange={(e) => handleShiftChange(index, 'name', e.target.value)}
-          />
-          <TextField
-            size="small"
-            sx={{ mr: 1, width: '80px' }}
-            type="number"
-            label="Hours"
-            value={shift.hours}
-            onChange={(e) => handleShiftChange(index, 'hours', e.target.value)}
-          />
-          <TextField
-            size="small"
-            sx={{ mr: 1, width: '100px', '& .MuiInputBase-input': { px: 1 } }}
-            type="number"
-            label="Per Week"
-            value={shift.perWeek}
-            onChange={(e) => handleShiftChange(index, 'perWeek', e.target.value)}
-          />
-          <IconButton onClick={() => handleDeleteShift(index)}>
-            <Delete />
-          </IconButton>
-        </Box>
-      ))}
-      <Button size="small" startIcon={<Add />} onClick={() => handleShiftChange(null, 'add')} sx={{ borderRadius: '8px', mt: 2 }}>
-        Add Shift Type
-      </Button>
+          {totalHours > 0 && (
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 500 }}>
+                {totalDays} day{totalDays !== 1 ? 's' : ''}, {totalHours} hrs/week
+              </Typography>
+              <Button size="small" onClick={onClearTypicalWeek} sx={{ mt: 1 }}>
+                Clear hours
+              </Button>
+            </Box>
+          )}
+        </>
+      ) : (
+        <>
+          {inputs.shifts.map((shift, index) => (
+            <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+              <TextField
+                sx={{ mr: 1, flexGrow: 1 }}
+                label="Shift Name"
+                value={shift.name}
+                onChange={(e) => handleShiftChange(index, 'name', e.target.value)}
+              />
+              <TextField
+                sx={{ mr: 1, width: '80px' }}
+                type="number"
+                label="Hours"
+                value={shift.hours}
+                onChange={(e) => handleShiftChange(index, 'hours', e.target.value)}
+              />
+              <TextField
+                sx={{ mr: 1, width: '80px' }}
+                type="number"
+                label="Per Week"
+                value={shift.perWeek}
+                onChange={(e) => handleShiftChange(index, 'perWeek', e.target.value)}
+              />
+              <IconButton onClick={() => handleDeleteShift(index)}>
+                <Delete />
+              </IconButton>
+            </Box>
+          ))}
+          <Button startIcon={<Add />} onClick={() => handleShiftChange(null, 'add')}>
+            Add Shift Type
+          </Button>
+        </>
+      )}
     </Paper>
   );
 }
 
-function DifferenceIndicator({ difference, tooltipText }) {
+function DifferenceIndicator({ difference }) {
   if (!difference || !difference.startsWith('+')) return null;
   
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Tooltip title={tooltipText || "Potential increase using adjusted wRVU per encounter"} arrow placement="top">
-        <Typography 
-          variant="subtitle1" 
-          sx={{ 
-            fontWeight: 'bold', 
-            color: 'success.main',
-            bgcolor: 'rgba(76, 175, 80, 0.1)',
-            borderRadius: '8px',
-            px: 1.5,
-            py: 0.5,
-            ml: 2,
-            fontSize: '0.875rem',
-            display: 'flex',
-            alignItems: 'center',
-            cursor: 'help'
-          }}
-        >
-          {difference}
-          <InfoOutlined 
-            fontSize="small" 
-            sx={{ fontSize: '0.875rem', ml: 0.5, color: 'success.main' }} 
-          />
-        </Typography>
-      </Tooltip>
+      <Typography 
+        variant="subtitle1" 
+        sx={{ 
+          fontWeight: 'bold', 
+          color: 'success.main',
+          bgcolor: 'rgba(76, 175, 80, 0.1)',
+          borderRadius: '8px',
+          px: 1.5,
+          py: 0.5,
+          ml: 2,
+          fontSize: '0.875rem',
+          display: 'flex',
+          alignItems: 'center'
+        }}
+      >
+        {difference}
+        <InfoOutlined 
+          fontSize="small" 
+          sx={{ fontSize: '0.875rem', ml: 0.5, color: 'success.main' }} 
+        />
+      </Typography>
     </Box>
   );
 }
 
-function StatItem({ icon, label, value, difference, tooltipText }) {
+function StatItem({ icon, label, value, difference }) {
   return (
     <Paper sx={{ 
       p: 2,
       height: '100%',
-      borderRadius: '12px',
+      borderRadius: '16px',
       border: '1px solid',
       borderColor: 'divider',
-      backgroundColor: 'background.paper',
-      transition: 'all 0.3s ease',
-      '&:hover': {
-        boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
-        transform: 'translateY(-2px)'
-      }
+      backgroundColor: 'background.paper'
     }}>
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 0.5 }}>
-        <Box sx={{ color: 'primary.main', mr: 1.5 }}>{icon}</Box>
-        <Typography variant="body2" color="text.secondary">{label}</Typography>
-      </Box>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', color: 'text.primary' }}>{value}</Typography>
-        <DifferenceIndicator difference={difference} tooltipText={tooltipText} />
+        <Box sx={{ mr: 2, color: 'primary.main' }}>{icon}</Box>
+        <Box sx={{ flex: 1 }}>
+          <Typography variant="body2" color="text.secondary">{label}</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'text.primary' }}>{value}</Typography>
+            <DifferenceIndicator difference={difference} />
+          </Box>
+        </Box>
       </Box>
     </Paper>
   );
@@ -409,80 +474,66 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
     {
       icon: <AttachMoney fontSize="large" />,
       label: "Estimated Total Compensation",
-      value: formatCurrency(metrics.estimatedTotalCompensation),
-      tooltipText: "Total annual compensation including base salary and wRVU-based incentive payments"
+      value: formatCurrency(metrics.estimatedTotalCompensation)
     },
     {
       icon: <AttachMoney fontSize="large" />,
       label: "Estimated Incentive Payment",
       value: formatCurrency(currentIncentive),
-      difference: formatDifference(currentIncentive, adjustedIncentive),
-      tooltipText: "Additional compensation earned above base salary based on wRVU production"
+      difference: formatDifference(currentIncentive, adjustedIncentive)
     },
     {
       icon: <CalendarToday fontSize="large" />,
       label: "Weeks Worked Per Year",
-      value: formatNumber(metrics.weeksWorkedPerYear),
-      tooltipText: "Total working weeks per year after subtracting vacation, CME, and holidays"
+      value: formatNumber(metrics.weeksWorkedPerYear)
     },
     {
       icon: <People fontSize="large" />,
       label: "Encounters per Week",
-      value: formatNumber(metrics.encountersPerWeek),
-      tooltipText: "Average number of patient encounters per week based on your schedule"
+      value: formatNumber(metrics.encountersPerWeek)
     },
     {
       icon: <CalendarToday fontSize="large" />,
       label: "Annual Clinic Days",
-      value: formatNumber(metrics.annualClinicDays),
-      tooltipText: "Total clinic days per year after subtracting vacation, CME, and holidays"
+      value: formatNumber(metrics.annualClinicDays)
     },
     {
       icon: <AccessTime fontSize="large" />,
       label: "Annual Clinical Hours",
-      value: formatNumber(metrics.annualClinicalHours),
-      tooltipText: "Total clinical hours per year based on your schedule"
+      value: formatNumber(metrics.annualClinicalHours)
     },
     {
       icon: <People fontSize="large" />,
       label: "Annual Patient Encounters",
-      value: formatNumber(metrics.annualPatientEncounters),
-      tooltipText: "Total patient encounters per year based on your schedule and daily/hourly patient load"
+      value: formatNumber(metrics.annualPatientEncounters)
     },
     {
       icon: <TrendingUp fontSize="large" />,
       label: "Estimated Annual wRVUs",
       value: formatNumber(metrics.estimatedAnnualWRVUs),
-      difference: formatWRVUDifference(metrics.estimatedAnnualWRVUs, adjustedAnnualWRVUs),
-      tooltipText: "Total annual wRVUs based on patient encounters and average wRVU per encounter"
+      difference: formatWRVUDifference(metrics.estimatedAnnualWRVUs, adjustedAnnualWRVUs)
     }
   ];
 
   return (
-    <Paper elevation={2} sx={{ p: 2.5, mt: 3, borderRadius: '12px', border: '1px solid',
-      borderColor: 'divider' }}>
-      <Typography variant="subtitle1" component="h2" sx={{ color: 'primary.main', mb: 2, fontWeight: 'bold' }}>
+    <>
+      <Typography variant="h5" gutterBottom sx={{ mt: 2, mb: 3, fontWeight: 'bold', color: 'primary.main' }}>
         Productivity Summary
       </Typography>
+      <Paper elevation={3} sx={{ p: 3, mb: 4, borderRadius: '16px', border: '1px solid',
+      borderColor: 'divider' }}>
 
       <Grid container spacing={2}>
         {summaryItems.map((item, index) => (
           <Grid item xs={12} md={6} key={index}>
-            <Tooltip 
-              title={item.tooltipText} 
-              placement="top"
-              enterTouchDelay={50}
-              leaveTouchDelay={1500}
-              arrow
-            >
-              <div style={{ height: '100%' }}>
-                <StatItem {...item} />
-              </div>
-            </Tooltip>
+            <div style={{ height: '100%' }}>
+              <StatItem {...item} />
+            </div>
           </Grid>
         ))}
       </Grid>
-    </Paper>
+      </Paper>
+    </>
   );
 }
 
@@ -747,7 +798,7 @@ function PrintableView({ metrics, inputs }) {
               </Box>
             </Box>
             
-            {/* Shift Types section */}
+            {/* Schedule: typical week or shift types */}
             <Box sx={{ mb: 1.5, borderTop: '1px dashed',
           borderColor: 'divider', pt: 1.5 }}>
               <Typography sx={{ 
@@ -759,23 +810,21 @@ function PrintableView({ metrics, inputs }) {
                 alignItems: 'center'
               }}>
                 <AccessTime sx={{ fontSize: '12px', mr: 0.5, color: 'primary.main' }} />
-                Shift Types
+                {inputs.scheduleInputMode === 'typicalWeek' ? 'Typical week' : 'Shift Types'}
               </Typography>
-              
-              {inputs.shifts.map((shift, i) => (
+              {inputs.scheduleInputMode === 'typicalWeek' && inputs.typicalWeekHours?.some((h) => Number(h) > 0) ? (
+                <Box sx={rowStyles}>
+                  <Typography sx={labelStyles}>Schedule:</Typography>
+                  <Typography sx={valueStyles}>
+                    {inputs.typicalWeekHours.filter((h) => Number(h) > 0).length} days, {inputs.typicalWeekHours.reduce((s, h) => s + (Number(h) || 0), 0)} hrs/week
+                    ({WEEKDAY_LABELS.map((d, i) => Number(inputs.typicalWeekHours[i]) > 0 ? `${d} ${inputs.typicalWeekHours[i]}h` : null).filter(Boolean).join(', ')})
+                  </Typography>
+                </Box>
+              ) : null}
+              {inputs.scheduleInputMode === 'shiftTypes' && inputs.shifts.map((shift, i) => (
                 <Box key={i} sx={rowStyles}>
                   <Typography sx={labelStyles}>
-                    {i === 0 ? (
-                      <>
-                        <AccessTime sx={{ fontSize: '11px', verticalAlign: 'text-bottom', mr: 0.5 }} />
-                        Regular Clinic:
-                      </>
-                    ) : (
-                      <>
-                        <AccessTime sx={{ fontSize: '11px', verticalAlign: 'text-bottom', mr: 0.5 }} />
-                        Extended Hours:
-                      </>
-                    )}
+                    {shift.name}:
                   </Typography>
                   <Typography sx={valueStyles}>
                     {shift.hours} hrs × {shift.perWeek}/week
@@ -990,14 +1039,22 @@ function WRVUForecastingTool({ setTotalVisits }) {
   const getInitialState = () => {
     const savedState = localStorage.getItem(STORAGE_KEY);
     if (savedState) {
-      return JSON.parse(savedState);
+      const parsed = JSON.parse(savedState);
+      if (!Array.isArray(parsed.typicalWeekHours) || parsed.typicalWeekHours.length !== 7) {
+        parsed.typicalWeekHours = [0, 0, 0, 0, 0, 0, 0];
+      }
+      if (parsed.scheduleInputMode !== 'typicalWeek' && parsed.scheduleInputMode !== 'shiftTypes') {
+        parsed.scheduleInputMode = 'shiftTypes';
+      }
+      return parsed;
     }
-    
     return {
       weeksPerYear: 48,
       vacationWeeks: 4,
       cmeDays: 5,
       statutoryHolidays: 10,
+      scheduleInputMode: 'shiftTypes', // 'typicalWeek' | 'shiftTypes' — optional schedule input
+      typicalWeekHours: [0, 0, 0, 0, 0, 0, 0],
       shifts: [
         { name: 'Regular Clinic', hours: 8, perWeek: 4 },
         { name: 'Extended Hours', hours: 10, perWeek: 1 },
@@ -1078,26 +1135,44 @@ function WRVUForecastingTool({ setTotalVisits }) {
     }));
   };
 
+  const handleTypicalWeekChange = (dayIndex, value) => {
+    const hours = Math.max(0, Math.min(24, Number(value) || 0));
+    setInputs(prev => {
+      const next = [...(prev.typicalWeekHours || [0, 0, 0, 0, 0, 0, 0])];
+      next[dayIndex] = hours;
+      return { ...prev, typicalWeekHours: next };
+    });
+  };
+
+  const handleClearTypicalWeek = () => {
+    setInputs(prev => ({ ...prev, typicalWeekHours: [0, 0, 0, 0, 0, 0, 0] }));
+  };
+
+  const handleScheduleInputModeChange = (_, value) => {
+    if (value !== null) setInputs(prev => ({ ...prev, scheduleInputMode: value }));
+  };
+
   useEffect(() => {
-    // Calculate weeks worked per year
     const totalWeeksOff = inputs.vacationWeeks + ((inputs.cmeDays + inputs.statutoryHolidays) / 7);
     const weeksWorkedPerYear = 52 - totalWeeksOff;
 
-    // Calculate annual clinic days and hours
-    const totalDaysPerWeek = inputs.shifts.reduce((total, shift) => total + shift.perWeek, 0);
-    const totalHoursPerWeek = inputs.shifts.reduce((total, shift) => total + (shift.hours * shift.perWeek), 0);
+    const useTypicalWeek = inputs.scheduleInputMode === 'typicalWeek';
+    const weekHours = inputs.typicalWeekHours || [0, 0, 0, 0, 0, 0, 0];
+    const totalDaysPerWeek = useTypicalWeek
+      ? weekHours.filter((h) => Number(h) > 0).length
+      : inputs.shifts.reduce((total, shift) => total + shift.perWeek, 0);
+    const totalHoursPerWeek = useTypicalWeek
+      ? weekHours.reduce((sum, h) => sum + (Number(h) || 0), 0)
+      : inputs.shifts.reduce((total, shift) => total + (shift.hours * shift.perWeek), 0);
 
-    const annualClinicDays = (totalDaysPerWeek * weeksWorkedPerYear) - inputs.statutoryHolidays - inputs.cmeDays;
-    const annualClinicalHours = totalHoursPerWeek * weeksWorkedPerYear;
-
-    // Calculate encounters
-    const encountersPerWeek = inputs.isPerHour 
-      ? totalHoursPerWeek * inputs.patientsPerHour
-      : totalDaysPerWeek * inputs.patientsPerDay;
+    const annualClinicDays = Math.max(0, (totalDaysPerWeek * weeksWorkedPerYear) - inputs.statutoryHolidays - inputs.cmeDays);
+    const hoursPerClinicDay = totalDaysPerWeek > 0 ? totalHoursPerWeek / totalDaysPerWeek : 0;
+    const annualClinicalHours = annualClinicDays * hoursPerClinicDay;
 
     const annualPatientEncounters = inputs.isPerHour
       ? annualClinicalHours * inputs.patientsPerHour
       : annualClinicDays * inputs.patientsPerDay;
+    const encountersPerWeek = weeksWorkedPerYear > 0 ? annualPatientEncounters / weeksWorkedPerYear : 0;
 
     // Calculate wRVUs and compensation
     const estimatedAnnualWRVUs = annualPatientEncounters * inputs.avgWRVUPerEncounter;
@@ -1186,8 +1261,8 @@ function WRVUForecastingTool({ setTotalVisits }) {
       <Container maxWidth="lg" sx={{ mt: 4, '@media print': { mt: 0 } }}>
         <Box sx={{ '@media print': { display: 'none' } }}>
           {/* Normal view content */}
-          <Paper elevation={3} sx={{ p: 4, borderRadius: '16px', border: '1px solid',
-      borderColor: 'divider', boxShadow: '0 4px 8px rgba(0,0,0,0.1)' }}> 
+          <Paper elevation={3} sx={{ p: 4, mt: 4, borderRadius: '16px', border: '1px solid',
+      borderColor: 'divider' }}> 
             {/* Mobile-friendly header layout */}
             <Box sx={{ mb: 2 }}>
               {/* Centered title container */}
@@ -1252,23 +1327,23 @@ function WRVUForecastingTool({ setTotalVisits }) {
                 </Typography>
               </Popover>
 
-              {/* Secondary actions: Save / Print (Gmail-style — less prominent than primary CTA) */}
+              {/* Secondary actions: Save / Print — same size */}
               <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1, flexWrap: 'wrap' }}>
                 <Button 
                   variant="outlined" 
                   size="small"
                   startIcon={<Save />} 
                   onClick={() => setShowSaveDialog(true)}
-                  sx={{ borderRadius: '20px', fontSize: '0.8rem' }}
+                  sx={{ borderRadius: '20px', fontSize: '0.8rem', minWidth: 100 }}
                 >
-                  Save Scenario
+                  Save
                 </Button>
                 <Button 
                   variant="outlined" 
                   size="small"
                   startIcon={<PrintIcon />} 
                   onClick={handlePrint}
-                  sx={{ borderRadius: '20px', fontSize: '0.8rem' }}
+                  sx={{ borderRadius: '20px', fontSize: '0.8rem', minWidth: 100 }}
                 >
                   Print
                 </Button>
@@ -1383,21 +1458,13 @@ function WRVUForecastingTool({ setTotalVisits }) {
               </Box>
             )}
 
-            {/* Step nav: 1 Inputs | 2 Results - mobile-friendly */}
-            <Box sx={{ display: 'flex', gap: 0, mb: 2, pt: 1, border: '1px solid', borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
+            {/* Step nav: 1 Inputs | 2 Results - same style as Detailed work overview */}
+            <Box sx={{ display: 'flex', gap: 0, mb: 2, border: '1px solid', borderColor: 'divider', borderRadius: 1, overflow: 'hidden' }}>
               <Button
                 onClick={() => setActiveStep(0)}
                 variant={activeStep === 0 ? 'contained' : 'text'}
                 size="medium"
-                sx={{
-                  flex: 1,
-                  py: 1.25,
-                  px: 2,
-                  textTransform: 'none',
-                  fontWeight: activeStep === 0 ? 600 : 400,
-                  borderRadius: 0,
-                  '&:hover': { backgroundColor: activeStep === 0 ? 'primary.dark' : 'action.hover' },
-                }}
+                sx={{ flex: 1, py: 1.25, px: 2, textTransform: 'none', fontWeight: activeStep === 0 ? 600 : 400, borderRadius: 0 }}
               >
                 1. Inputs
               </Button>
@@ -1405,60 +1472,42 @@ function WRVUForecastingTool({ setTotalVisits }) {
                 onClick={() => setActiveStep(1)}
                 variant={activeStep === 1 ? 'contained' : 'text'}
                 size="medium"
-                sx={{
-                  flex: 1,
-                  py: 1.25,
-                  px: 2,
-                  textTransform: 'none',
-                  fontWeight: activeStep === 1 ? 600 : 400,
-                  borderRadius: 0,
-                  '&:hover': { backgroundColor: activeStep === 1 ? 'primary.dark' : 'action.hover' },
-                }}
+                sx={{ flex: 1, py: 1.25, px: 2, textTransform: 'none', fontWeight: activeStep === 1 ? 600 : 400, borderRadius: 0 }}
               >
                 2. Results
               </Button>
             </Box>
 
             {activeStep === 0 && (
-            <Grid container spacing={2}>
+            <Grid container spacing={4} sx={{ mb: 4 }}>
               <Grid item xs={12} md={6}>
                 <WorkSchedule 
                   inputs={inputs} 
                   handleInputChange={handleInputChange} 
                   handleShiftChange={handleShiftChange} 
                   handleDeleteShift={handleDeleteShift}
+                  typicalWeekHours={inputs.typicalWeekHours}
+                  onTypicalWeekChange={handleTypicalWeekChange}
+                  onClearTypicalWeek={handleClearTypicalWeek}
+                  scheduleInputMode={inputs.scheduleInputMode}
+                  onScheduleInputModeChange={handleScheduleInputModeChange}
                 />
               </Grid>
               
               <Grid item xs={12} md={6}>
-                <Paper elevation={2} sx={{ p: 2.5, height: '100%', borderRadius: '12px', border: '1px solid',
+                <Paper elevation={3} sx={{ p: 3, mb: 4, height: '100%', borderRadius: '16px', border: '1px solid',
       borderColor: 'divider' }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-                    <Typography variant="subtitle1" sx={{ mb: 0, fontWeight: 'bold', color: 'primary.main' }}>Patient Encounters</Typography>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Typography variant="body2" color="text.secondary" sx={{ mr: 1 }}>
-                        {inputs.isPerHour ? "Patients Per Hour" : "Patients Per Day"}
-                      </Typography>
-                      <FormControlLabel
-                        control={<Switch checked={inputs.isPerHour} onChange={(e) => handleSwitchChange(e.target.checked)} />}
-                        label=""
-                        sx={{ mb: 0, mr: 0 }}
-                      />
-                    </Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+                    <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>Patient Encounters</Typography>
+                    <FormControlLabel
+                      control={<Switch checked={inputs.isPerHour} onChange={(e) => handleSwitchChange(e.target.checked)} />}
+                      label={inputs.isPerHour ? "Patients Per Hour" : "Patients Per Day"}
+                    />
                   </Box>
-<Box sx={{ mt: 0 }}>
-                    <Tooltip
-                      title={inputs.isPerHour ? "Enter the average number of patients seen per hour" : "Enter the average number of patients seen per day"}
-                      enterTouchDelay={50}
-                      leaveTouchDelay={1500}
-                      arrow
-                    >
-                      <div>
-                        <NumericFormat
-                          customInput={TextField}
-                          fullWidth
-                          size="small"
-                          margin="normal"
+                  <NumericFormat
+                    customInput={TextField}
+                    fullWidth
+                    margin="normal"
                           label={inputs.isPerHour ? "Patients Seen Per Hour" : "Patients Seen Per Day"}
                           value={inputs.isPerHour ? inputs.patientsPerHour : inputs.patientsPerDay}
                           onValueChange={(values) => {
@@ -1526,23 +1575,12 @@ function WRVUForecastingTool({ setTotalVisits }) {
                               </InputAdornment>
                             ),
                           }}
-                        />
-                      </div>
-                    </Tooltip>
-                  </Box>
-                  <Tooltip 
-                    title="Enter your current average wRVU per patient encounter"
-                    enterTouchDelay={50}
-                    leaveTouchDelay={1500}
-                    arrow
-                  >
-                    <div>
-                      <NumericFormat
-                        customInput={TextField}
-                        fullWidth
-                        size="small"
-                        margin="normal"
-                        label="Average wRVU Per Encounter"
+                  />
+                  <NumericFormat
+                    customInput={TextField}
+                    fullWidth
+                    margin="normal"
+                    label="Average wRVU Per Encounter"
                         value={inputs.avgWRVUPerEncounter}
                         onValueChange={(values) => handleInputChange('avgWRVUPerEncounter', values.floatValue || 0)}
                         decimalScale={2}
@@ -1599,22 +1637,12 @@ function WRVUForecastingTool({ setTotalVisits }) {
                             </InputAdornment>
                           ),
                         }}
-                      />
-                    </div>
-                  </Tooltip>
-                  <Tooltip 
-                    title="Enter an adjusted wRVU per encounter to see how changes in billing efficiency affect your compensation"
-                    enterTouchDelay={50}
-                    leaveTouchDelay={1500}
-                    arrow
-                  >
-                    <div>
-                      <NumericFormat
-                        customInput={TextField}
-                        fullWidth
-                        size="small"
-                        margin="normal"
-                        label="Adjusted wRVU Per Encounter"
+                  />
+                  <NumericFormat
+                    customInput={TextField}
+                    fullWidth
+                    margin="normal"
+                    label="Adjusted wRVU Per Encounter"
                         value={inputs.adjustedWRVUPerEncounter}
                         onValueChange={(values) => handleInputChange('adjustedWRVUPerEncounter', values.floatValue || 0)}
                         decimalScale={2}
@@ -1671,22 +1699,12 @@ function WRVUForecastingTool({ setTotalVisits }) {
                             </InputAdornment>
                           ),
                         }}
-                      />
-                    </div>
-                  </Tooltip>
-                  <Tooltip 
-                    title="Enter your base salary (minimum guaranteed compensation)"
-                    enterTouchDelay={50}
-                    leaveTouchDelay={1500}
-                    arrow
-                  >
-                    <div>
-                      <NumericFormat
-                        customInput={TextField}
-                        fullWidth
-                        size="small"
-                        margin="normal"
-                        label="Base Salary"
+                  />
+                  <NumericFormat
+                    customInput={TextField}
+                    fullWidth
+                    margin="normal"
+                    label="Base Salary"
                         value={inputs.baseSalary}
                         onValueChange={(values) => setInputs(prev => ({ ...prev, baseSalary: values.floatValue }))}
                         thousandSeparator={true}
@@ -1697,22 +1715,12 @@ function WRVUForecastingTool({ setTotalVisits }) {
                             </InputAdornment>
                           ),
                         }}
-                      />
-                    </div>
-                  </Tooltip>
-                  <Tooltip 
-                    title="Enter the dollar amount paid per wRVU"
-                    enterTouchDelay={50}
-                    leaveTouchDelay={1500}
-                    arrow
-                  >
-                    <div>
-                      <NumericFormat
-                        customInput={TextField}
-                        fullWidth
-                        size="small"
-                        margin="normal"
-                        label="wRVU Conversion Factor"
+                  />
+                  <NumericFormat
+                    customInput={TextField}
+                    fullWidth
+                    margin="normal"
+                    label="wRVU Conversion Factor"
                         value={inputs.wrvuConversionFactor}
                         onValueChange={(values) => setInputs(prev => ({ ...prev, wrvuConversionFactor: values.floatValue }))}
                         decimalScale={2}
@@ -1776,21 +1784,11 @@ function WRVUForecastingTool({ setTotalVisits }) {
                             </InputAdornment>
                           ),
                         }}
-                      />
-                    </div>
-                  </Tooltip>
-                  <Tooltip 
-                    title="Number of wRVUs needed to exceed base salary compensation"
-                    enterTouchDelay={50}
-                    leaveTouchDelay={1500}
-                    arrow
-                  >
-                    <div>
-                      <TextField
-                        fullWidth
-                        size="small"
-                        margin="normal"
-                        label="Target Annual wRVUs"
+                  />
+                  <TextField
+                    fullWidth
+                    margin="normal"
+                    label="Target Annual wRVUs"
                         value={inputs.wrvuConversionFactor ? new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(inputs.baseSalary / inputs.wrvuConversionFactor) : '0'}
                         InputProps={{
                           readOnly: true,
@@ -1800,23 +1798,15 @@ function WRVUForecastingTool({ setTotalVisits }) {
                             </InputAdornment>
                           ),
                         }}
-                        helperText="Target wRVUs needed to reach base salary (Base Salary ÷ Conversion Factor)"
-                      />
-                    </div>
-                  </Tooltip>
+                    helperText="Target wRVUs needed to reach base salary (Base Salary ÷ Conversion Factor)"
+                  />
                 </Paper>
               </Grid>
             </Grid>
             )}
             {activeStep === 0 && (
-              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
-                <Button 
-                  variant="contained" 
-                  size="large"
-                  startIcon={<TrendingUp />}
-                  onClick={() => setActiveStep(1)} 
-                  sx={{ minWidth: 200, py: 1.25, px: 3, fontWeight: 600, boxShadow: 2 }}
-                >
+              <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3, mb: 2 }}>
+                <Button variant="contained" onClick={() => setActiveStep(1)} sx={{ minWidth: 160 }}>
                   View results
                 </Button>
               </Box>

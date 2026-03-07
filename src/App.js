@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { HashRouter as Router, Route, Routes, Link, Navigate, useLocation } from 'react-router-dom';
-import { Typography, Button, Container, Box, ThemeProvider, createTheme, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, IconButton, ButtonGroup } from '@mui/material';
+import { Typography, Button, Container, Box, ThemeProvider, createTheme, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, IconButton } from '@mui/material';
 import { Speed, Analytics, HelpOutline } from '@mui/icons-material';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -115,19 +115,15 @@ function AppContent() {
         >
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
             <Typography
-              variant="subtitle1"
+              variant="h4"
               sx={{
                 fontWeight: 600,
                 color: 'primary.main',
                 letterSpacing: '-0.01em',
-                fontSize: { xs: '0.95rem', sm: '1rem' },
+                fontSize: { xs: '1.5rem', sm: '1.75rem' },
               }}
             >
               Provider Compensation Forecaster
-            </Typography>
-            <Typography component="span" sx={{ color: 'divider', mx: 0.5, fontSize: '0.75rem' }} aria-hidden>·</Typography>
-            <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
-              wRVU and compensation estimates
             </Typography>
             <IconButton
               onClick={handleHowToUseClick}
@@ -139,35 +135,19 @@ function AppContent() {
             </IconButton>
           </Box>
 
-          {/* Tool selection — segmented style */}
-          <ButtonGroup
-            variant="outlined"
-            size="small"
-            fullWidth
+          {/* Tool selection — Material/Google-style segmented (tonal, pill) */}
+          <Box
+            component="nav"
+            role="tablist"
+            aria-label="Tool selection"
             sx={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 0,
+              p: 0.25,
+              borderRadius: 2,
+              backgroundColor: 'rgba(0,0,0,0.06)',
               width: { xs: '100%', sm: 'auto' },
-              boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
-              '& .MuiButton-root': {
-                textTransform: 'none',
-                fontWeight: 500,
-                minWidth: { xs: 0, sm: 120 },
-                px: { xs: 1.25, sm: 1.5 },
-                py: { xs: 0.875, sm: 0.75 },
-                borderColor: 'divider',
-                fontSize: '0.875rem',
-                '&.active': {
-                  backgroundColor: 'primary.main',
-                  color: 'primary.contrastText',
-                  borderColor: 'primary.main',
-                  '&:hover': {
-                    backgroundColor: 'primary.dark',
-                    borderColor: 'primary.dark',
-                  },
-                },
-                '&:not(.active):hover': {
-                  backgroundColor: 'action.hover',
-                },
-              },
             }}
           >
             {menuItems.map((item) => {
@@ -177,15 +157,36 @@ function AppContent() {
                   key={item.to}
                   component={Link}
                   to={item.to}
-                  className={active ? 'active' : ''}
+                  role="tab"
+                  aria-selected={active}
                   startIcon={item.icon}
-                  sx={{ '&.active': { backgroundColor: 'primary.main', color: 'primary.contrastText' } }}
+                  sx={{
+                    textTransform: 'none',
+                    fontWeight: 500,
+                    fontSize: '0.8125rem',
+                    minWidth: 0,
+                    minHeight: 36,
+                    px: { xs: 1.25, sm: 1.5 },
+                    py: 0.75,
+                    borderRadius: 1.5,
+                    color: active ? 'primary.main' : 'text.secondary',
+                    backgroundColor: active ? '#fff' : 'transparent',
+                    boxShadow: active ? '0 1px 2px rgba(0,0,0,0.08)' : 'none',
+                    '& .MuiButton-startIcon': {
+                      marginRight: 0.5,
+                      '& > *:nth-of-type(1)': { fontSize: '1rem' },
+                    },
+                    '&:hover': {
+                      backgroundColor: active ? '#fff' : 'rgba(0,0,0,0.04)',
+                      boxShadow: active ? '0 1px 3px rgba(0,0,0,0.12)' : 'none',
+                    },
+                  }}
                 >
                   {item.label}
                 </Button>
               );
             })}
-          </ButtonGroup>
+          </Box>
         </Box>
       </Container>
 
