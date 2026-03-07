@@ -189,6 +189,12 @@ function CustomNumberInput({ label, value, onChange, icon, min = 0, max = Infini
         const val = e.target.value === '' ? min : Number(e.target.value);
         onChange(isNaN(val) ? min : Math.max(min, Math.min(val, max)));
       }}
+      sx={{
+        '@media (max-width: 600px)': {
+          '& .MuiInputBase-root': { minHeight: 44 },
+          '& .MuiInputBase-input': { paddingTop: 1.25, paddingBottom: 1.25 },
+        },
+      }}
       InputProps={{
         startAdornment: icon && (
           <InputAdornment position="start">
@@ -256,7 +262,7 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
   const isTypicalWeek = scheduleInputMode === 'typicalWeek';
 
   return (
-    <Paper elevation={3} sx={{ p: 3, mb: 4, height: '100%', borderRadius: '16px', border: '1px solid',
+    <Paper elevation={3} sx={{ p: { xs: 2, sm: 3 }, mb: 4, height: '100%', borderRadius: '16px', border: '1px solid',
       borderColor: 'divider' }}>
       <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: 'primary.main' }}>Work Schedule</Typography>
       <CustomNumberInput
@@ -324,18 +330,20 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
         <>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
             {WEEKDAY_LABELS.map((label, i) => (
-              <Box key={i} sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                <Typography sx={{ width: 100, flexShrink: 0, fontSize: '0.875rem' }}>{label}</Typography>
-                <TextField
-                  size="small"
-                  type="number"
-                  value={week[i] || 0}
-                  onChange={(e) => onTypicalWeekChange(i, e.target.value)}
-                  inputProps={{ min: 0, max: 24, step: 0.5 }}
-                  sx={{ width: 100, flexShrink: 0 }}
-                  placeholder="0"
-                />
-                <Typography variant="body2" color="text.secondary">hrs</Typography>
+              <Box key={i} sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, gap: { xs: 0.5, sm: 2 } }}>
+                <Typography sx={{ width: { sm: 100 }, flexShrink: 0, fontSize: '0.875rem' }}>{label}</Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <TextField
+                    size="small"
+                    type="number"
+                    value={week[i] || 0}
+                    onChange={(e) => onTypicalWeekChange(i, e.target.value)}
+                    inputProps={{ min: 0, max: 24, step: 0.5 }}
+                    sx={{ width: { xs: '100%', sm: 100 }, minWidth: 0, flexShrink: 0 }}
+                    placeholder="0"
+                  />
+                  <Typography variant="body2" color="text.secondary">hrs</Typography>
+                </Box>
               </Box>
             ))}
           </Box>
@@ -353,28 +361,28 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
       ) : (
         <>
           {inputs.shifts.map((shift, index) => (
-            <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+            <Box key={index} sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, flexWrap: 'wrap', gap: { xs: 1.5, sm: 0 }, mb: 2 }}>
               <TextField
-                sx={{ mr: 1, flexGrow: 1 }}
+                sx={{ mr: { sm: 1 }, flexGrow: 1, minWidth: { xs: '100%', sm: 0 } }}
                 label="Shift Name"
                 value={shift.name}
                 onChange={(e) => handleShiftChange(index, 'name', e.target.value)}
               />
               <TextField
-                sx={{ mr: 1, width: '80px' }}
+                sx={{ mr: { sm: 1 }, width: { xs: '100%', sm: '80px' } }}
                 type="number"
                 label="Hours"
                 value={shift.hours}
                 onChange={(e) => handleShiftChange(index, 'hours', e.target.value)}
               />
               <TextField
-                sx={{ mr: 1, width: '80px' }}
+                sx={{ mr: { sm: 1 }, width: { xs: '100%', sm: '80px' } }}
                 type="number"
                 label="Per Week"
                 value={shift.perWeek}
                 onChange={(e) => handleShiftChange(index, 'perWeek', e.target.value)}
               />
-              <IconButton onClick={() => handleDeleteShift(index)}>
+              <IconButton onClick={() => handleDeleteShift(index)} sx={{ alignSelf: { xs: 'flex-start', sm: 'center' }, minWidth: 44, minHeight: 44 }}>
                 <Delete />
               </IconButton>
             </Box>
@@ -638,9 +646,9 @@ function PrintableView({ metrics, inputs }) {
       </Box>
 
       {/* Top row - Summary metrics */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2.5 }}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', gap: { xs: 1.5, sm: 0 }, mb: 2.5 }}>
         <Box sx={{ 
-          width: '32%', 
+          width: { xs: '100%', sm: '32%' }, 
           p: 1.5, 
           border: '1px solid',
           borderColor: 'divider', 
@@ -657,7 +665,7 @@ function PrintableView({ metrics, inputs }) {
         </Box>
         
         <Box sx={{ 
-          width: '32%', 
+          width: { xs: '100%', sm: '32%' }, 
           p: 1.5, 
           border: '1px solid',
           borderColor: 'divider', 
@@ -695,7 +703,7 @@ function PrintableView({ metrics, inputs }) {
         </Box>
         
         <Box sx={{ 
-          width: '32%', 
+          width: { xs: '100%', sm: '32%' }, 
           p: 1.5, 
           border: '1px solid',
           borderColor: 'divider', 
@@ -734,9 +742,9 @@ function PrintableView({ metrics, inputs }) {
       </Box>
 
       {/* Main content - Two-column layout */}
-      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', gap: { xs: 1.5, sm: 0 } }}>
         {/* Left column - Work Schedule & Shift Types & Patient Encounters */}
-        <Box sx={{ width: '49%' }}>
+        <Box sx={{ width: { xs: '100%', sm: '49%' } }}>
           <Box sx={{ ...boxStyles, height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Typography sx={headerStyles}>
               <People sx={{ fontSize: '14px', mr: 0.5, color: 'primary.main' }} />
@@ -901,7 +909,7 @@ function PrintableView({ metrics, inputs }) {
         </Box>
         
         {/* Right column - Productivity Metrics */}
-        <Box sx={{ width: '49%' }}>
+        <Box sx={{ width: { xs: '100%', sm: '49%' } }}>
           <Box sx={{ ...boxStyles, height: '100%', display: 'flex', flexDirection: 'column' }}>
             <Typography sx={headerStyles}>
               <TrendingUp sx={{ fontSize: '14px', mr: 0.5, color: 'primary.main' }} />
@@ -910,8 +918,8 @@ function PrintableView({ metrics, inputs }) {
             
             {/* Combined metrics and projection section */}
             <Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
-                <Box sx={{ width: '48%', textAlign: 'center' }}>
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', gap: { xs: 1.5, sm: 0 }, mb: 1 }}>
+                <Box sx={{ width: { xs: '100%', sm: '48%' }, textAlign: 'center' }}>
                   <Typography sx={{ fontSize: '11px', fontWeight: 'bold', color: 'text.secondary', mb: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <CalendarToday sx={{ fontSize: '11px', mr: 0.5 }} />
                     Annual Clinic Days
@@ -921,7 +929,7 @@ function PrintableView({ metrics, inputs }) {
                   </Typography>
                 </Box>
                 
-                <Box sx={{ width: '48%', textAlign: 'center' }}>
+                <Box sx={{ width: { xs: '100%', sm: '48%' }, textAlign: 'center' }}>
                   <Typography sx={{ fontSize: '11px', fontWeight: 'bold', color: 'text.secondary', mb: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <AccessTime sx={{ fontSize: '11px', mr: 0.5 }} />
                     Annual Clinical Hours
@@ -932,8 +940,8 @@ function PrintableView({ metrics, inputs }) {
                 </Box>
               </Box>
               
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1.5 }}>
-                <Box sx={{ width: '48%', textAlign: 'center' }}>
+              <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', gap: { xs: 1.5, sm: 0 }, mb: 1.5 }}>
+                <Box sx={{ width: { xs: '100%', sm: '48%' }, textAlign: 'center' }}>
                   <Typography sx={{ fontSize: '11px', fontWeight: 'bold', color: 'text.secondary', mb: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <People sx={{ fontSize: '11px', mr: 0.5 }} />
                     Encounters per Week
@@ -943,7 +951,7 @@ function PrintableView({ metrics, inputs }) {
                   </Typography>
                 </Box>
                 
-                <Box sx={{ width: '48%', textAlign: 'center' }}>
+                <Box sx={{ width: { xs: '100%', sm: '48%' }, textAlign: 'center' }}>
                   <Typography sx={{ fontSize: '11px', fontWeight: 'bold', color: 'text.secondary', mb: 0.5, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <People sx={{ fontSize: '11px', mr: 0.5 }} />
                     Annual Patient Encounters
@@ -1258,10 +1266,10 @@ function WRVUForecastingTool({ setTotalVisits }) {
 
   return (
     <ThemeProvider theme={printTheme}>
-      <Container maxWidth="lg" sx={{ mt: 4, '@media print': { mt: 0 } }}>
+      <Container maxWidth="lg" sx={{ mt: 4, '@media print': { mt: 0 }, '@media (max-width: 599px)': { maxWidth: '100%' } }}>
         <Box sx={{ '@media print': { display: 'none' } }}>
           {/* Normal view content */}
-          <Paper elevation={3} sx={{ p: 4, mt: 4, borderRadius: '16px', border: '1px solid',
+          <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, mt: 4, borderRadius: '16px', border: '1px solid',
       borderColor: 'divider' }}> 
             {/* Mobile-friendly header layout */}
             <Box sx={{ mb: 2 }}>
@@ -1478,7 +1486,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
             </Box>
 
             {activeStep === 0 && (
-            <Grid container spacing={4} sx={{ mb: 4 }}>
+            <Grid container spacing={{ xs: 2, sm: 4 }} sx={{ mb: 4 }}>
               <Grid item xs={12} md={6}>
                 <WorkSchedule 
                   inputs={inputs} 
@@ -1494,7 +1502,7 @@ function WRVUForecastingTool({ setTotalVisits }) {
               </Grid>
               
               <Grid item xs={12} md={6}>
-                <Paper elevation={3} sx={{ p: 3, mb: 4, height: '100%', borderRadius: '16px', border: '1px solid',
+                <Paper elevation={3} sx={{ p: { xs: 2, sm: 3 }, mb: 4, height: '100%', borderRadius: '16px', border: '1px solid',
       borderColor: 'divider' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                     <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>Patient Encounters</Typography>

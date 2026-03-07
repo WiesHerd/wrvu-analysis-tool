@@ -98,7 +98,7 @@ function AppContent() {
 
   return (
     <Box sx={{ width: '100%', minHeight: '100vh', pb: 4 }}>
-      <Container maxWidth="lg">
+      <Container maxWidth="lg" sx={{ '@media (max-width: 599px)': { maxWidth: '100%' } }}>
         {/* Header: Gmail-style compact bar — title + nav in one row */}
         <Box
           sx={{
@@ -236,9 +236,10 @@ function AppContent() {
       <Container maxWidth="lg" sx={{ 
         pt: { xs: 0, sm: 1 },
         pb: { xs: 3, sm: 4 },
-        px: { xs: 2, sm: 3 },
+        px: { xs: 1, sm: 3 },
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        '@media (max-width: 599px)': { maxWidth: '100%' }
       }}>
         <AnimatePresence mode="wait">
           <Routes>

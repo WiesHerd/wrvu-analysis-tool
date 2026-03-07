@@ -56,6 +56,12 @@ function CustomNumberInput({ label, value, onChange, icon, min = 0, max = Infini
       label={label}
       value={value}
       onChange={handleChange}
+      sx={{
+        '@media (max-width: 600px)': {
+          '& .MuiInputBase-root': { minHeight: 44 },
+          '& .MuiInputBase-input': { paddingTop: 1.25, paddingBottom: 1.25 },
+        },
+      }}
       InputProps={{
         startAdornment: icon && (
           <InputAdornment position="start">
@@ -527,8 +533,8 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
   };
 
   return (
-    <Container maxWidth="lg">
-      <Paper elevation={3} sx={{ p: 4, mt: 4, borderRadius: '16px', border: '1px solid',
+    <Container maxWidth="lg" sx={{ '@media (max-width: 599px)': { maxWidth: '100%' } }}>
+      <Paper elevation={3} sx={{ p: { xs: 2, sm: 4 }, mt: 4, borderRadius: '16px', border: '1px solid',
       borderColor: 'divider' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', mb: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -613,7 +619,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
 
         {activeStep === 0 && (
         <>
-        <Grid container spacing={4} sx={{ mb: 4 }}>
+        <Grid container spacing={{ xs: 2, sm: 4 }} sx={{ mb: 4 }}>
           <Grid item xs={12}>
             <Accordion 
               defaultExpanded={false}
@@ -648,7 +654,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
                 <Typography variant="body1" paragraph>
                   To use this tool, you'll need to upload a CSV file containing your CMS Fee Schedule data. The file should include the following columns in this order:
                 </Typography>
-                <TableContainer component={Paper} variant="outlined" sx={{ mb: 3 }}>
+                <TableContainer component={Paper} variant="outlined" sx={{ mb: 3, overflowX: 'auto' }}>
                   <Table size="small">
                     <TableHead>
                       <TableRow>
@@ -707,7 +713,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
             </Accordion>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={{ p: 3, mb: 4, height: '100%', borderRadius: '16px', border: '1px solid',
+            <Paper elevation={3} sx={{ p: { xs: 2, sm: 3 }, mb: 4, height: '100%', borderRadius: '16px', border: '1px solid',
       borderColor: 'divider' }}>
               <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: 'primary.main' }}>Work Schedule</Typography>
               <NumericFormat
@@ -895,28 +901,28 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
               />
               <Typography variant="subtitle1" gutterBottom sx={{ mt: 3, mb: 2, fontWeight: 'bold' }}>Shift Types</Typography>
               {shifts.map((shift, index) => (
-                <Box key={index} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <Box key={index} sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, alignItems: { xs: 'stretch', sm: 'center' }, flexWrap: 'wrap', gap: { xs: 1.5, sm: 0 }, mb: 2 }}>
                   <TextField
-                    sx={{ mr: 1, flexGrow: 1 }}
+                    sx={{ mr: { sm: 1 }, flexGrow: 1, minWidth: { xs: '100%', sm: 0 } }}
                     label="Shift Name"
                     value={shift.name || ''}
                     onChange={(e) => handleShiftChange(index, 'name', e.target.value)}
                   />
                   <TextField
-                    sx={{ mr: 1, width: '80px' }}
+                    sx={{ mr: { sm: 1 }, width: { xs: '100%', sm: '80px' } }}
                     type="number"
                     label="Hours"
                     value={shift.hours || 0}
                     onChange={(e) => handleShiftChange(index, 'hours', e.target.value)}
                   />
                   <TextField
-                    sx={{ mr: 1, width: '80px' }}
+                    sx={{ mr: { sm: 1 }, width: { xs: '100%', sm: '80px' } }}
                     type="number"
                     label="Per Week"
                     value={shift.perWeek || 0}
                     onChange={(e) => handleShiftChange(index, 'perWeek', e.target.value)}
                   />
-                  <IconButton onClick={() => handleShiftChange(index, 'remove')}>
+                  <IconButton onClick={() => handleShiftChange(index, 'remove')} sx={{ alignSelf: { xs: 'flex-start', sm: 'center' }, minWidth: 44, minHeight: 44 }}>
                     <Delete />
                   </IconButton>
                 </Box>
@@ -927,7 +933,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
             </Paper>
           </Grid>
           <Grid item xs={12} md={6}>
-            <Paper elevation={3} sx={{ p: 3, mb: 4, height: '100%', borderRadius: '16px', border: '1px solid',
+            <Paper elevation={3} sx={{ p: { xs: 2, sm: 3 }, mb: 4, height: '100%', borderRadius: '16px', border: '1px solid',
       borderColor: 'divider' }}>
               <Typography variant="h6" gutterBottom sx={{ mb: 3, fontWeight: 'bold', color: 'primary.main' }}>Patient Encounters</Typography>
               <FormControlLabel
@@ -1192,7 +1198,7 @@ function DetailedWRVUForecaster({ totalVisits, onUpdateForecast }) {
             </Box>
 
             <TableContainer component={Paper} sx={{ borderRadius: '16px', border: '1px solid',
-      borderColor: 'divider' }}>
+      borderColor: 'divider', overflowX: 'auto' }}>
               <Table>
                 <TableHead>
                   <TableRow>
