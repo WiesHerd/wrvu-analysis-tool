@@ -41,6 +41,34 @@ const printTheme = createTheme({
     },
   },
   components: {
+    MuiButton: {
+      defaultProps: { color: 'primary' },
+      styleOverrides: {
+        root: {
+          '&.MuiButton-contained': { backgroundColor: '#4f46e5', color: '#fff', '&:hover': { backgroundColor: '#3730a3' } },
+          '&.MuiButton-outlined': { borderColor: '#4f46e5', color: '#4f46e5', '&:hover': { borderColor: '#3730a3', backgroundColor: 'rgba(79, 70, 229, 0.04)' } },
+        },
+      },
+    },
+    MuiSwitch: {
+      defaultProps: { color: 'primary' },
+      styleOverrides: {
+        switchBase: {
+          '&.Mui-checked': { color: '#4f46e5', '& + .MuiSwitch-track': { backgroundColor: '#4f46e5' } },
+        },
+        colorPrimary: {
+          '&.Mui-checked': { color: '#4f46e5', '& + .MuiSwitch-track': { backgroundColor: '#4f46e5' } },
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': { borderColor: '#4f46e5' },
+          '&:hover .MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(79, 70, 229, 0.5)' },
+        },
+      },
+    },
     MuiPaper: {
       styleOverrides: {
         root: {
