@@ -258,12 +258,151 @@ function CustomNumberInput({ label, value, onChange, icon, min = 0, max = Infini
 const WEEKDAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const WEEKDAY_LABELS_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDeleteShift, typicalWeekHours, onTypicalWeekChange, onClearTypicalWeek, typicalWeekPatientsPerDay, onTypicalWeekPatientsChange, scheduleInputMode, onScheduleInputModeChange }) {
+function timeToHours(str) {
+  if (!str || typeof str !== 'string') return 0;
+  const [h, m] = str.trim().split(':').map(Number);
+  if (Number.isNaN(h)) return 0;
+  const mins = Number.isNaN(m) ? 0 : m;
+  return h + mins / 60;
+}
+
+function getClinicHoursFromWorkHours(workHoursByDay) {
+  if (!Array.isArray(workHoursByDay) || workHoursByDay.length !== 7) {
+    return [0, 0, 0, 0, 0, 0, 0];
+  }
+  return workHoursByDay.map((day) => {
+    const blocks = day?.clinicBlocks || [];
+    let total = 0;
+    for (const b of blocks) {
+      const start = timeToHours(b?.start);
+      const end = timeToHours(b?.end);
+      if (end > start) total += end - start;
+    }
+    return Math.min(24, total);
+  });
+}
+
+function getTotalDayHoursFromWorkHours(workHoursByDay) {
+  const clinicHours = getClinicHoursFromWorkHours(workHoursByDay);
+  if (!Array.isArray(workHoursByDay) || workHoursByDay.length !== 7) {
+    return [0, 0, 0, 0, 0, 0, 0];
+  }
+  return workHoursByDay.map((day, i) => {
+    const lunch = (Number(day?.lunchMinutes) || 0) / 60;
+    const admin = (Number(day?.adminMinutes) || 0) / 60;
+    return Math.min(24, (clinicHours[i] || 0) + lunch + admin);
+  });
+}
+
+const defaultWorkHoursDay = () => ({ clinicBlocks: [], lunchMinutes: 0, adminMinutes: 0 });
+const defaultWorkHoursByDay = () => Array.from({ length: 7 }, defaultWorkHoursDay);
+
+const TIME_PRESETS_START = ['07:00', '07:30', '08:00', '09:00', '10:00'];
+const TIME_PRESETS_END = ['12:00', '13:00', '17:00', '18:00', '19:00'];
+
+function WorkHoursDayDialog({ dayIndex, dayLabel, day, onSave, onClose }) {
+  const [localDay, setLocalDay] = React.useState(() => ({
+    clinicBlocks: (day?.clinicBlocks && day.clinicBlocks.length > 0) ? day.clinicBlocks.map((b) => ({ start: b.start || '09:00', end: b.end || '17:00' })) : [{ start: '09:00', end: '17:00' }],
+    lunchMinutes: Number(day?.lunchMinutes) || 0,
+    adminMinutes: Number(day?.adminMinutes) || 0,
+  }));
+
+  const addBlock = () => {
+    setLocalDay((prev) => ({
+      ...prev,
+      clinicBlocks: [...prev.clinicBlocks, { start: '09:00', end: '17:00' }],
+    }));
+  };
+  const removeBlock = (idx) => {
+    setLocalDay((prev) => ({
+      ...prev,
+      clinicBlocks: prev.clinicBlocks.filter((_, i) => i !== idx),
+    }));
+  };
+  const updateBlock = (idx, field, value) => {
+    setLocalDay((prev) => ({
+      ...prev,
+      clinicBlocks: prev.clinicBlocks.map((b, i) => (i === idx ? { ...b, [field]: value } : b)),
+    }));
+  };
+
+  let clinicH = 0;
+  for (const b of localDay.clinicBlocks || []) {
+    const start = timeToHours(b.start);
+    const end = timeToHours(b.end);
+    if (end > start) clinicH += end - start;
+  }
+  clinicH = Math.min(24, clinicH);
+  const lunchH = (Number(localDay.lunchMinutes) || 0) / 60;
+  const adminH = (Number(localDay.adminMinutes) || 0) / 60;
+  const totalDayH = Math.min(24, clinicH + lunchH + adminH);
+
+  const handleSave = () => {
+    onSave({
+      clinicBlocks: (localDay.clinicBlocks || []).filter((b) => b?.start && b?.end && timeToHours(b.end) > timeToHours(b.start)),
+      lunchMinutes: Math.max(0, Math.round(Number(localDay.lunchMinutes) || 0)),
+      adminMinutes: Math.max(0, Math.round(Number(localDay.adminMinutes) || 0)),
+    });
+  };
+
+  const handleClearDay = () => {
+    onSave({ clinicBlocks: [], lunchMinutes: 0, adminMinutes: 0 });
+  };
+
+  return (
+    <Dialog open onClose={onClose} maxWidth="sm" fullWidth fullScreen={false} PaperProps={{ sx: { borderRadius: 2 } }}>
+      <DialogTitle>{dayLabel}</DialogTitle>
+      <DialogContent>
+        <Typography variant="subtitle2" sx={{ mt: 1, mb: 0.5 }}>Clinic</Typography>
+        {(localDay.clinicBlocks || []).map((block, idx) => (
+          <Box key={idx} sx={{ mb: 2 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 0.5 }}>
+              <TextField type="time" size="small" value={block.start || ''} onChange={(e) => updateBlock(idx, 'start', e.target.value)} inputProps={{ step: 300 }} sx={{ minWidth: 100 }} />
+              {TIME_PRESETS_START.map((t) => (
+                <Button key={t} size="small" variant="outlined" sx={{ minWidth: 0, px: 1, py: 0.25, fontSize: '0.75rem' }} onClick={() => updateBlock(idx, 'start', t)}>{t}</Button>
+              ))}
+            </Box>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 0.5 }}>
+              <Typography variant="body2" color="text.secondary" sx={{ width: 24 }}>to</Typography>
+              <TextField type="time" size="small" value={block.end || ''} onChange={(e) => updateBlock(idx, 'end', e.target.value)} inputProps={{ step: 300 }} sx={{ minWidth: 100 }} />
+              {TIME_PRESETS_END.map((t) => (
+                <Button key={t} size="small" variant="outlined" sx={{ minWidth: 0, px: 1, py: 0.25, fontSize: '0.75rem' }} onClick={() => updateBlock(idx, 'end', t)}>{t}</Button>
+              ))}
+              <IconButton size="small" onClick={() => removeBlock(idx)} aria-label="Remove block" sx={{ ml: 0.5 }}><Delete fontSize="small" /></IconButton>
+            </Box>
+          </Box>
+        ))}
+        <Button size="small" startIcon={<Add />} onClick={addBlock} sx={{ mb: 2 }}>Add clinic block</Button>
+        <TextField type="number" size="small" label="Lunch (minutes)" value={localDay.lunchMinutes === 0 ? '' : localDay.lunchMinutes} onChange={(e) => setLocalDay((p) => ({ ...p, lunchMinutes: e.target.value }))} inputProps={{ min: 0, max: 480 }} fullWidth sx={{ mb: 1.5 }} />
+        <TextField type="number" size="small" label="Admin (minutes)" value={localDay.adminMinutes === 0 ? '' : localDay.adminMinutes} onChange={(e) => setLocalDay((p) => ({ ...p, adminMinutes: e.target.value }))} inputProps={{ min: 0, max: 480 }} fullWidth sx={{ mb: 1 }} />
+        <Typography variant="body2" color="primary.main" sx={{ fontWeight: 500 }}>
+          Clinic: {clinicH}h · Total day: {totalDayH}h
+        </Typography>
+      </DialogContent>
+      <DialogActions sx={{ px: 3, pb: 2, justifyContent: 'space-between' }}>
+        <Button startIcon={<Clear />} onClick={handleClearDay} color="inherit" size="small">
+          Clear day
+        </Button>
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button onClick={onClose}>Cancel</Button>
+          <Button variant="contained" onClick={handleSave}>Done</Button>
+        </Box>
+      </DialogActions>
+    </Dialog>
+  );
+}
+
+function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDeleteShift, typicalWeekHours, onTypicalWeekChange, onClearTypicalWeek, typicalWeekPatientsPerDay, onTypicalWeekPatientsChange, workHoursByDay, onWorkHoursDayChange, scheduleInputMode, onScheduleInputModeChange }) {
   const week = typicalWeekHours || [0, 0, 0, 0, 0, 0, 0];
   const patientsPerDay = typicalWeekPatientsPerDay || [0, 0, 0, 0, 0, 0, 0];
   const totalDays = week.filter((h) => Number(h) > 0).length;
   const totalHours = week.reduce((s, h) => s + (Number(h) || 0), 0);
   const isTypicalWeek = scheduleInputMode === 'typicalWeek';
+  const isWorkHours = scheduleInputMode === 'workHours';
+  const workHours = workHoursByDay || defaultWorkHoursByDay();
+  const workHoursClinic = getClinicHoursFromWorkHours(workHours);
+  const workHoursTotalDay = getTotalDayHoursFromWorkHours(workHours);
+  const [workHoursEditorDay, setWorkHoursEditorDay] = React.useState(null);
 
   return (
     <Paper elevation={3} sx={{ p: { xs: 2, sm: 3 }, mb: 4, height: '100%', borderRadius: '16px', border: '1px solid',
@@ -300,7 +439,7 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
         Schedule (optional)
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Choose how to define your schedule—typical week or shift types.
+        Choose how to define your schedule—typical week, work hours, or shift types.
       </Typography>
       <ToggleButtonGroup
         value={scheduleInputMode}
@@ -309,8 +448,9 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
         size="small"
         sx={{
           mb: 2,
+          flexWrap: 'wrap',
           '& .MuiToggleButton-root': {
-            px: 2,
+            px: { xs: 1.5, sm: 2 },
             textTransform: 'none',
             fontWeight: 500,
             '&.Mui-selected': {
@@ -325,6 +465,9 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
       >
         <ToggleButton value="typicalWeek" aria-label="Typical week">
           Typical week
+        </ToggleButton>
+        <ToggleButton value="workHours" aria-label="Work hours">
+          Work hours
         </ToggleButton>
         <ToggleButton value="shiftTypes" aria-label="Shift types">
           Shift types
@@ -409,6 +552,72 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
                 Clear hours
               </Button>
             </Box>
+          )}
+        </>
+      ) : isWorkHours ? (
+        <>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 2 }}>
+            {WEEKDAY_LABELS.map((label, i) => {
+              const ch = workHoursClinic[i] || 0;
+              const th = workHoursTotalDay[i] || 0;
+              const pts = patientsPerDay[i];
+              const summary = ch > 0 || th > 0 ? `Clinic ${ch}h · Day ${th}h` : '—';
+              return (
+                <Box key={i} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 1.5, minWidth: 0 }}>
+                  <Typography sx={{ width: { xs: 56, sm: 100 }, flexShrink: 0, fontSize: '0.875rem' }} title={label}>
+                    <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>{label}</Box>
+                    <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' } }}>{WEEKDAY_LABELS_SHORT[i]}</Box>
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" sx={{ minWidth: 0, flex: 1 }}>{summary}</Typography>
+                  {onTypicalWeekPatientsChange && (
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                      <Typography component="span" variant="caption" sx={{ color: 'text.secondary', whiteSpace: 'nowrap' }}>Pts</Typography>
+                      <TextField size="small" type="number" aria-label="Patients this day" value={pts === 0 || pts === '' ? '' : (typeof pts === 'string' ? pts : String(pts))} onChange={(e) => onTypicalWeekPatientsChange(i, e.target.value)} inputProps={{ min: 0, max: 999 }} sx={{ width: 64 }} />
+                    </Box>
+                  )}
+                  <IconButton size="small" onClick={() => setWorkHoursEditorDay(i)} aria-label={`Enter work hours for ${label}`} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, ml: 'auto' }}>
+                    <Add fontSize="small" />
+                  </IconButton>
+                </Box>
+              );
+            })}
+          </Box>
+          {(() => {
+            const whTotalClinic = workHoursClinic.reduce((s, h) => s + (Number(h) || 0), 0);
+            const whTotalLunch = (workHours || []).reduce((s, d) => s + (Number(d?.lunchMinutes) || 0), 0) / 60;
+            const whTotalAdmin = (workHours || []).reduce((s, d) => s + (Number(d?.adminMinutes) || 0), 0) / 60;
+            const whTotalAll = workHoursTotalDay.reduce((s, h) => s + (Number(h) || 0), 0);
+            const whTotalDays = workHoursClinic.filter((h) => Number(h) > 0).length;
+            if (whTotalClinic > 0 || whTotalLunch > 0 || whTotalAdmin > 0) {
+              return (
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 500 }}>
+                    {whTotalDays} day{whTotalDays !== 1 ? 's' : ''}, {whTotalClinic} clinic hrs/week
+                  </Typography>
+                  {(whTotalLunch > 0 || whTotalAdmin > 0) && (
+                    <Typography variant="body2" sx={{ color: 'primary.main', fontWeight: 500, mt: 0.5 }}>
+                      {whTotalLunch > 0 && `Lunch ${whTotalLunch.toFixed(1)} hrs`}
+                      {whTotalLunch > 0 && whTotalAdmin > 0 && ' · '}
+                      {whTotalAdmin > 0 && `Admin ${whTotalAdmin.toFixed(1)} hrs`}
+                      {' · '}Total {whTotalAll.toFixed(1)} hrs/week
+                    </Typography>
+                  )}
+                </Box>
+              );
+            }
+            return null;
+          })()}
+          {workHoursEditorDay !== null && onWorkHoursDayChange && (
+            <WorkHoursDayDialog
+              dayIndex={workHoursEditorDay}
+              dayLabel={WEEKDAY_LABELS[workHoursEditorDay]}
+              day={workHours[workHoursEditorDay] || defaultWorkHoursDay()}
+              onSave={(updatedDay) => {
+                onWorkHoursDayChange(workHoursEditorDay, updatedDay);
+                setWorkHoursEditorDay(null);
+              }}
+              onClose={() => setWorkHoursEditorDay(null)}
+            />
           )}
         </>
       ) : (
@@ -934,7 +1143,7 @@ function PrintableView({ metrics, inputs }) {
                 alignItems: 'center'
               }}>
                 <AccessTime sx={{ fontSize: '12px', mr: 0.5, color: 'primary.main' }} />
-                {inputs.scheduleInputMode === 'typicalWeek' ? 'Typical week' : 'Shift Types'}
+                {inputs.scheduleInputMode === 'typicalWeek' ? 'Typical week' : inputs.scheduleInputMode === 'workHours' ? 'Work hours' : 'Shift Types'}
               </Typography>
               {inputs.scheduleInputMode === 'typicalWeek' && inputs.typicalWeekHours?.some((h) => Number(h) > 0) ? (
                 <Box sx={rowStyles}>
@@ -945,6 +1154,22 @@ function PrintableView({ metrics, inputs }) {
                   </Typography>
                 </Box>
               ) : null}
+              {inputs.scheduleInputMode === 'workHours' && (() => {
+                const whClinic = getClinicHoursFromWorkHours(inputs.workHoursByDay);
+                const clinicSum = whClinic.reduce((s, h) => s + (Number(h) || 0), 0);
+                const daysWithClinic = whClinic.filter((h) => Number(h) > 0).length;
+                if (daysWithClinic === 0) return null;
+                const whTotal = getTotalDayHoursFromWorkHours(inputs.workHoursByDay);
+                const totalSum = whTotal.reduce((s, h) => s + (Number(h) || 0), 0);
+                return (
+                  <Box sx={rowStyles}>
+                    <Typography sx={labelStyles}>Schedule:</Typography>
+                    <Typography sx={valueStyles}>
+                      {daysWithClinic} days, {clinicSum} clinic hrs/week{totalSum > clinicSum ? `, ${totalSum} total hrs/week` : ''}
+                    </Typography>
+                  </Box>
+                );
+              })()}
               {inputs.scheduleInputMode === 'shiftTypes' && inputs.shifts.map((shift, i) => (
                 <Box key={i} sx={rowStyles}>
                   <Typography sx={labelStyles}>
@@ -975,10 +1200,10 @@ function PrintableView({ metrics, inputs }) {
               <Box sx={rowStyles}>
                 <Typography sx={labelStyles}>
                   <People sx={{ fontSize: '11px', verticalAlign: 'text-bottom', mr: 0.5 }} />
-                  {inputs.scheduleInputMode === 'typicalWeek' ? 'Patients:' : 'Patients Per Day:'}
+                  {(inputs.scheduleInputMode === 'typicalWeek' || inputs.scheduleInputMode === 'workHours') ? 'Patients:' : 'Patients Per Day:'}
                 </Typography>
                 <Typography sx={valueStyles}>
-                  {inputs.scheduleInputMode === 'typicalWeek' ? 'From schedule' : inputs.patientsPerDay}
+                  {(inputs.scheduleInputMode === 'typicalWeek' || inputs.scheduleInputMode === 'workHours') ? 'From schedule' : inputs.patientsPerDay}
                 </Typography>
               </Box>
               
@@ -1175,7 +1400,16 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
       if (!Array.isArray(parsed.typicalWeekPatientsPerDay) || parsed.typicalWeekPatientsPerDay.length !== 7) {
         parsed.typicalWeekPatientsPerDay = [0, 0, 0, 0, 0, 0, 0];
       }
-      if (parsed.scheduleInputMode !== 'typicalWeek' && parsed.scheduleInputMode !== 'shiftTypes') {
+      if (!Array.isArray(parsed.workHoursByDay) || parsed.workHoursByDay.length !== 7) {
+        parsed.workHoursByDay = defaultWorkHoursByDay();
+      } else {
+        parsed.workHoursByDay = parsed.workHoursByDay.map((day) => ({
+          clinicBlocks: Array.isArray(day?.clinicBlocks) ? day.clinicBlocks : [],
+          lunchMinutes: Number(day?.lunchMinutes) || 0,
+          adminMinutes: Number(day?.adminMinutes) || 0,
+        }));
+      }
+      if (parsed.scheduleInputMode !== 'typicalWeek' && parsed.scheduleInputMode !== 'shiftTypes' && parsed.scheduleInputMode !== 'workHours') {
         parsed.scheduleInputMode = 'shiftTypes';
       }
       return parsed;
@@ -1185,9 +1419,10 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
       vacationWeeks: 4,
       cmeDays: 5,
       statutoryHolidays: 10,
-      scheduleInputMode: 'shiftTypes', // 'typicalWeek' | 'shiftTypes' — optional schedule input
+      scheduleInputMode: 'shiftTypes', // 'typicalWeek' | 'shiftTypes' | 'workHours'
       typicalWeekHours: [0, 0, 0, 0, 0, 0, 0],
       typicalWeekPatientsPerDay: [0, 0, 0, 0, 0, 0, 0],
+      workHoursByDay: defaultWorkHoursByDay(),
       shifts: [
         { name: 'Regular Clinic', hours: 8, perWeek: 4 },
         { name: 'Extended Hours', hours: 10, perWeek: 1 },
@@ -1333,12 +1568,23 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
     if (value !== null) setInputs(prev => ({ ...prev, scheduleInputMode: value }));
   };
 
+  const handleWorkHoursDayChange = (dayIndex, dayData) => {
+    setInputs(prev => {
+      const next = [...(prev.workHoursByDay || defaultWorkHoursByDay())];
+      next[dayIndex] = { ...defaultWorkHoursDay(), ...dayData };
+      return { ...prev, workHoursByDay: next };
+    });
+  };
+
   useEffect(() => {
     const totalWeeksOff = inputs.vacationWeeks + ((inputs.cmeDays + inputs.statutoryHolidays) / 7);
     const weeksWorkedPerYear = 52 - totalWeeksOff;
 
-    const useTypicalWeek = inputs.scheduleInputMode === 'typicalWeek';
-    const weekHours = inputs.typicalWeekHours || [0, 0, 0, 0, 0, 0, 0];
+    const useWorkHours = inputs.scheduleInputMode === 'workHours';
+    const useTypicalWeek = inputs.scheduleInputMode === 'typicalWeek' || useWorkHours;
+    const weekHours = useWorkHours
+      ? getClinicHoursFromWorkHours(inputs.workHoursByDay)
+      : (inputs.typicalWeekHours || [0, 0, 0, 0, 0, 0, 0]);
     const totalDaysPerWeek = useTypicalWeek
       ? weekHours.filter((h) => Number(h) > 0).length
       : inputs.shifts.reduce((total, shift) => total + shift.perWeek, 0);
@@ -1683,6 +1929,8 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
                   onClearTypicalWeek={handleClearTypicalWeek}
                   typicalWeekPatientsPerDay={inputs.typicalWeekPatientsPerDay}
                   onTypicalWeekPatientsChange={handleTypicalWeekPatientsChange}
+                  workHoursByDay={inputs.workHoursByDay}
+                  onWorkHoursDayChange={handleWorkHoursDayChange}
                   scheduleInputMode={inputs.scheduleInputMode}
                   onScheduleInputModeChange={handleScheduleInputModeChange}
                 />
