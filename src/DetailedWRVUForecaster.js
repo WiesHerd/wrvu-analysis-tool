@@ -10,6 +10,7 @@ import {
 import { UploadFile, CalendarToday, AccessTime, People, TrendingUp, AttachMoney, Add, Delete, Celebration, Event, School, Refresh, Remove, InfoOutlined, Download, ExpandMore, Search } from '@mui/icons-material';
 import Papa from 'papaparse';
 import { NumericFormat } from 'react-number-format';
+import CompensationBreakdownChart from './components/CompensationBreakdownChart';
 
 const PROCEDURE_CATEGORIES = {
   OFFICE_VISITS: 'Office Visits',
@@ -362,7 +363,7 @@ function DetailedWRVUForecaster({ totalVisits, quickForecastMetrics, onUpdateFor
   const formatNumber = (value) => 
     new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }).format(value);
 
-  const StatItem = ({ icon, label, value }) => (
+  const StatItem = ({ icon, label, value, valueColor }) => (
     <Box sx={{ 
       border: '1px solid',
       borderColor: 'divider', 
@@ -380,7 +381,7 @@ function DetailedWRVUForecaster({ totalVisits, quickForecastMetrics, onUpdateFor
       <Box sx={{ mr: 2, color: 'primary.main' }}>{icon}</Box>
       <Box>
         <Typography variant="body2" color="text.secondary">{label}</Typography>
-        <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'text.primary' }}>{value}</Typography>
+        <Typography variant="h6" sx={{ fontWeight: 'bold', color: valueColor || 'text.primary' }}>{value}</Typography>
       </Box>
     </Box>
   );
@@ -1396,6 +1397,18 @@ function DetailedWRVUForecaster({ totalVisits, quickForecastMetrics, onUpdateFor
         <Typography variant="h5" gutterBottom sx={{ mt: 2, mb: 3, fontWeight: 'bold', color: 'primary.main' }}>
           Productivity Summary
         </Typography>
+        {(() => {
+            const m = (quickForecastMetrics && totalVisits > 0 && quickForecastMetrics.annualPatientEncounters === totalVisits)
+              ? quickForecastMetrics
+              : metrics;
+            const incentivePaymentForChart = m.estimatedIncentivePayment ?? Math.max(0, (m.wrvuCompensation ?? (m.estimatedAnnualWRVUs * (wrvuConversionFactor || 0))) - (baseSalary || 0));
+            return (
+              <CompensationBreakdownChart
+                baseSalary={baseSalary || 0}
+                incentivePayment={incentivePaymentForChart}
+              />
+            );
+          })()}
         <Grid container spacing={3}>
           {(() => {
             // Use Quick Forecast metrics when available so Procedure Analysis matches Quick Forecast exactly
@@ -1403,6 +1416,21 @@ function DetailedWRVUForecaster({ totalVisits, quickForecastMetrics, onUpdateFor
               ? quickForecastMetrics
               : metrics;
             const encountersPerWeek = m.encountersPerWeek ?? m.patientsPerWeek ?? 0;
+            const wrvuComp = m.wrvuCompensation ?? (m.estimatedAnnualWRVUs * (wrvuConversionFactor || 0));
+            const incentivePayment = m.estimatedIncentivePayment ?? Math.max(0, wrvuComp - (baseSalary || 0));
+            const gapDollars = Math.max(0, (baseSalary || 0) - wrvuComp);
+            const hasShortfall = incentivePayment === 0 && gapDollars > 0;
+            const incentiveValueColor = hasShortfall ? 'error.main' : (incentivePayment > 0 ? 'success.main' : undefined);
+            const convFactor = wrvuConversionFactor || 0;
+            const gapWRVUs = convFactor > 0 ? Math.round(gapDollars / convFactor) : 0;
+            const avgWrvu = (m.annualPatientEncounters > 0 && m.estimatedAnnualWRVUs != null) ? m.estimatedAnnualWRVUs / m.annualPatientEncounters : 0;
+            const extraEncounters = hasShortfall && avgWrvu > 0 && gapWRVUs > 0 ? gapWRVUs / avgWrvu : 0;
+            const extraPerWeek = hasShortfall && m.weeksWorkedPerYear > 0 && extraEncounters > 0 ? extraEncounters / m.weeksWorkedPerYear : null;
+            const extraPerDay = hasShortfall && m.annualClinicDays > 0 && extraEncounters > 0 ? extraEncounters / m.annualClinicDays : null;
+            const safePerWeek = extraPerWeek != null && extraPerWeek > 0 ? Math.max(0, extraPerWeek) : null;
+            const safePerDay = extraPerDay != null && extraPerDay > 0 ? Math.max(0, extraPerDay) : null;
+            const hasRecommendation = (safePerWeek != null && safePerWeek > 0) || (safePerDay != null && safePerDay > 0);
+            const formatRec = (n) => (n != null && n > 0) ? (n >= 1 ? String(Math.round(n)) : n.toFixed(1)) : '0';
             return (
               <>
                 <Grid item xs={12} md={6}>
@@ -1413,11 +1441,50 @@ function DetailedWRVUForecaster({ totalVisits, quickForecastMetrics, onUpdateFor
                   />
                 </Grid>
                 <Grid item xs={12} md={6}>
-                  <StatItem 
-                    icon={<AttachMoney fontSize="large" />}
-                    label="Estimated Incentive Payment"
-                    value={formatCurrency(m.estimatedIncentivePayment ?? Math.max(0, (m.wrvuCompensation ?? 0) - (baseSalary || 0)))}
-                  />
+                  <Box>
+                    <StatItem 
+                      icon={<AttachMoney fontSize="large" />}
+                      label="Estimated Incentive Payment"
+                      value={formatCurrency(incentivePayment)}
+                      valueColor={incentiveValueColor}
+                    />
+                    {hasShortfall && (
+                      <Box sx={{ mt: 1, ml: 0.5 }}>
+                        <Typography
+                          variant="subtitle1"
+                          sx={{
+                            fontWeight: 'bold',
+                            color: 'error.main',
+                            bgcolor: 'rgba(211, 47, 47, 0.1)',
+                            borderRadius: '8px',
+                            px: 1.5,
+                            py: 0.5,
+                            fontSize: '0.875rem',
+                            display: 'inline-block',
+                          }}
+                        >
+                          {formatCurrency(gapDollars)}{gapWRVUs > 0 ? ' (or ' + formatNumber(gapWRVUs) + ' wRVUs)' : ''}
+                        </Typography>
+                        {hasRecommendation ? (
+                          <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+                            To reach incentive at your current billing:{' '}
+                            {safePerWeek != null && safePerWeek > 0 && (
+                              <>see about <strong>{formatRec(safePerWeek)}</strong> more patients per week</>
+                            )}
+                            {safePerWeek != null && safePerWeek > 0 && safePerDay != null && safePerDay > 0 && ' '}
+                            {safePerDay != null && safePerDay > 0 && (
+                              <>{safePerWeek != null && safePerWeek > 0 ? '(~' : 'see about ~'}<strong>{formatRec(safePerDay)}</strong> per clinic day{safePerWeek != null && safePerWeek > 0 ? ')' : ''}</>
+                            )}
+                            .
+                          </Typography>
+                        ) : (
+                          <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+                            Increase wRVUs per encounter or patient volume to reach incentive.
+                          </Typography>
+                        )}
+                      </Box>
+                    )}
+                  </Box>
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <StatItem 

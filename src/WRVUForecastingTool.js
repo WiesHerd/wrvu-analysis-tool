@@ -20,7 +20,7 @@ import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import PrintIcon from '@mui/icons-material/Print';
 import Save from '@mui/icons-material/Save';
 import { NumericFormat } from 'react-number-format';
-
+import CompensationBreakdownChart from './components/CompensationBreakdownChart';
 
 // Add this constant at the top of the file
 const STORAGE_KEY = 'wrvuForecastingState';
@@ -694,11 +694,15 @@ function DifferenceIndicator({ difference, attribution }) {
   );
 }
 
-function ShortfallIndicator({ dollars, wrvus, formatCurrency, formatNumber }) {
+function ShortfallIndicator({ dollars, wrvus, formatCurrency, formatNumber, extraPerWeek, extraPerDay }) {
   if (dollars <= 0) return null;
   const dollarPart = formatCurrency(dollars);
   const wrvusPart = wrvus > 0 ? ' (or ' + formatNumber(wrvus) + ' wRVUs)' : '';
   const shortfallText = dollarPart + wrvusPart;
+  const safePerWeek = extraPerWeek != null && extraPerWeek > 0 ? Math.max(0, extraPerWeek) : null;
+  const safePerDay = extraPerDay != null && extraPerDay > 0 ? Math.max(0, extraPerDay) : null;
+  const hasRecommendation = (safePerWeek != null && safePerWeek > 0) || (safePerDay != null && safePerDay > 0);
+  const formatRec = (n) => (n != null && n > 0) ? (n >= 1 ? String(Math.round(n)) : n.toFixed(1)) : '0';
   return (
     <Box sx={{ ml: { xs: 0, sm: 2 }, mt: 0.5 }}>
       <Typography
@@ -716,6 +720,24 @@ function ShortfallIndicator({ dollars, wrvus, formatCurrency, formatNumber }) {
       >
         {shortfallText}
       </Typography>
+      {hasRecommendation && (
+        <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+          To reach incentive at your current billing:{' '}
+          {safePerWeek != null && safePerWeek > 0 && (
+            <>see about <strong>{formatRec(safePerWeek)}</strong> more patients per week</>
+          )}
+          {safePerWeek != null && safePerWeek > 0 && safePerDay != null && safePerDay > 0 && ' '}
+          {safePerDay != null && safePerDay > 0 && (
+            <>{safePerWeek != null && safePerWeek > 0 ? '(~' : 'see about ~'}<strong>{formatRec(safePerDay)}</strong> per clinic day{safePerWeek != null && safePerWeek > 0 ? ')' : ''}</>
+          )}
+          .
+        </Typography>
+      )}
+      {!hasRecommendation && (
+        <Typography variant="body2" sx={{ mt: 1, color: 'text.secondary' }}>
+          Increase wRVUs per encounter or patient volume to reach incentive.
+        </Typography>
+      )}
     </Box>
   );
 }
@@ -745,6 +767,8 @@ function StatItem({ icon, label, value, difference, attribution, valueColor, sho
               wrvus={shortfall.wrvus}
               formatCurrency={formatCurrency}
               formatNumber={formatNumber}
+              extraPerWeek={shortfall.extraPerWeek}
+              extraPerDay={shortfall.extraPerDay}
             />
           )}
         </Box>
@@ -784,8 +808,17 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
 
   const gapDollars = Math.max(0, inputs.baseSalary - metrics.wrvuCompensation);
   const gapWRVUs = convFactor > 0 ? Math.round(gapDollars / convFactor) : 0;
-  const incentiveShortfall = currentIncentive === 0 && gapDollars > 0
-    ? { dollars: gapDollars, wrvus: gapWRVUs }
+  const hasShortfall = currentIncentive === 0 && gapDollars > 0;
+  const avgWrvu = Number(inputs.avgWRVUPerEncounter) || 0;
+  const extraEncounters = hasShortfall && avgWrvu > 0 && gapWRVUs > 0 ? gapWRVUs / avgWrvu : 0;
+  const extraPerWeek = hasShortfall && metrics.weeksWorkedPerYear > 0 && extraEncounters > 0
+    ? extraEncounters / metrics.weeksWorkedPerYear
+    : null;
+  const extraPerDay = hasShortfall && metrics.annualClinicDays > 0 && extraEncounters > 0
+    ? extraEncounters / metrics.annualClinicDays
+    : null;
+  const incentiveShortfall = hasShortfall
+    ? { dollars: gapDollars, wrvus: gapWRVUs, extraPerWeek, extraPerDay }
     : null;
 
   const isBillingAdjustment = (Number(inputs.adjustedWRVUPerEncounter) || 0) !== (Number(inputs.avgWRVUPerEncounter) || 0);
@@ -803,7 +836,7 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
       value: formatCurrency(currentIncentive),
       difference: formatDifference(currentIncentive, adjustedIncentive),
       attribution: billingAttribution,
-      valueColor: incentiveShortfall ? 'error.main' : undefined,
+      valueColor: incentiveShortfall ? 'error.main' : (currentIncentive > 0 ? 'success.main' : undefined),
       shortfall: incentiveShortfall,
       formatCurrency: incentiveShortfall ? formatCurrency : undefined,
       formatNumber: incentiveShortfall ? formatNumber : undefined,
@@ -847,6 +880,10 @@ function ProductivitySummary({ metrics, adjustedMetrics, inputs }) {
       <Typography variant="h5" gutterBottom sx={{ mt: 2, mb: 3, fontWeight: 'bold', color: 'primary.main' }}>
         Productivity Summary
       </Typography>
+      <CompensationBreakdownChart
+        baseSalary={inputs.baseSalary}
+        incentivePayment={currentIncentive}
+      />
       <Grid container spacing={2}>
         {summaryItems.map((item, index) => (
           <Grid item xs={12} md={6} key={index}>
