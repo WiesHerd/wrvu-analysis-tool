@@ -258,8 +258,9 @@ function CustomNumberInput({ label, value, onChange, icon, min = 0, max = Infini
 const WEEKDAY_LABELS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const WEEKDAY_LABELS_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDeleteShift, typicalWeekHours, onTypicalWeekChange, onClearTypicalWeek, scheduleInputMode, onScheduleInputModeChange }) {
+function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDeleteShift, typicalWeekHours, onTypicalWeekChange, onClearTypicalWeek, typicalWeekPatientsPerDay, onTypicalWeekPatientsChange, scheduleInputMode, onScheduleInputModeChange }) {
   const week = typicalWeekHours || [0, 0, 0, 0, 0, 0, 0];
+  const patientsPerDay = typicalWeekPatientsPerDay || [0, 0, 0, 0, 0, 0, 0];
   const totalDays = week.filter((h) => Number(h) > 0).length;
   const totalHours = week.reduce((s, h) => s + (Number(h) || 0), 0);
   const isTypicalWeek = scheduleInputMode === 'typicalWeek';
@@ -345,8 +346,8 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
                   onChange={(e) => onTypicalWeekChange(i, e.target.value)}
                   inputProps={{ min: 0, max: 24, step: 0.5, inputMode: 'decimal' }}
                   sx={{
-                    width: { xs: 72, sm: 100 },
-                    minWidth: { xs: 72, sm: 100 },
+                    width: { xs: 96, sm: 100 },
+                    minWidth: { xs: 96, sm: 100 },
                     flexShrink: 0,
                     '& .MuiInputBase-input': { textAlign: 'right', paddingLeft: { xs: 1, sm: 2 }, paddingRight: { xs: 1, sm: 2 } },
                   }}
@@ -376,6 +377,26 @@ function WorkSchedule({ inputs, handleInputChange, handleShiftChange, handleDele
                   }}
                 />
                 <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0, width: 28 }}>hrs</Typography>
+                {onTypicalWeekPatientsChange && (
+                  <>
+                    <TextField
+                      size="small"
+                      type="number"
+                      value={patientsPerDay[i] === 0 || patientsPerDay[i] === '' ? '' : (typeof patientsPerDay[i] === 'string' ? patientsPerDay[i] : String(patientsPerDay[i]))}
+                      onChange={(e) => onTypicalWeekPatientsChange(i, e.target.value)}
+                      inputProps={{ min: 0, max: 999, step: 1, inputMode: 'numeric' }}
+                      sx={{
+                        width: { xs: 88, sm: 96 },
+                        minWidth: { xs: 88, sm: 96 },
+                        flexShrink: 0,
+                        ml: { xs: 1, sm: 2 },
+                        '& .MuiInputBase-input': { textAlign: 'right', paddingLeft: { xs: 1, sm: 2 }, paddingRight: { xs: 1, sm: 2 } },
+                      }}
+                      placeholder="0"
+                    />
+                    <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0, width: 36 }}>pts</Typography>
+                  </>
+                )}
               </Box>
             ))}
           </Box>
@@ -954,10 +975,10 @@ function PrintableView({ metrics, inputs }) {
               <Box sx={rowStyles}>
                 <Typography sx={labelStyles}>
                   <People sx={{ fontSize: '11px', verticalAlign: 'text-bottom', mr: 0.5 }} />
-                  Patients Per Day:
+                  {inputs.scheduleInputMode === 'typicalWeek' ? 'Patients:' : 'Patients Per Day:'}
                 </Typography>
                 <Typography sx={valueStyles}>
-                  {inputs.patientsPerDay}
+                  {inputs.scheduleInputMode === 'typicalWeek' ? 'From schedule' : inputs.patientsPerDay}
                 </Typography>
               </Box>
               
@@ -1151,6 +1172,9 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
       if (!Array.isArray(parsed.typicalWeekHours) || parsed.typicalWeekHours.length !== 7) {
         parsed.typicalWeekHours = [0, 0, 0, 0, 0, 0, 0];
       }
+      if (!Array.isArray(parsed.typicalWeekPatientsPerDay) || parsed.typicalWeekPatientsPerDay.length !== 7) {
+        parsed.typicalWeekPatientsPerDay = [0, 0, 0, 0, 0, 0, 0];
+      }
       if (parsed.scheduleInputMode !== 'typicalWeek' && parsed.scheduleInputMode !== 'shiftTypes') {
         parsed.scheduleInputMode = 'shiftTypes';
       }
@@ -1163,6 +1187,7 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
       statutoryHolidays: 10,
       scheduleInputMode: 'shiftTypes', // 'typicalWeek' | 'shiftTypes' — optional schedule input
       typicalWeekHours: [0, 0, 0, 0, 0, 0, 0],
+      typicalWeekPatientsPerDay: [0, 0, 0, 0, 0, 0, 0],
       shifts: [
         { name: 'Regular Clinic', hours: 8, perWeek: 4 },
         { name: 'Extended Hours', hours: 10, perWeek: 1 },
@@ -1276,6 +1301,34 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
     setInputs(prev => ({ ...prev, typicalWeekHours: [0, 0, 0, 0, 0, 0, 0] }));
   };
 
+  const handleTypicalWeekPatientsChange = (dayIndex, value) => {
+    const trimmed = typeof value === 'string' ? value.trim() : String(value);
+    if (trimmed === '') {
+      setInputs(prev => {
+        const next = [...(prev.typicalWeekPatientsPerDay || [0, 0, 0, 0, 0, 0, 0])];
+        next[dayIndex] = 0;
+        return { ...prev, typicalWeekPatientsPerDay: next };
+      });
+      return;
+    }
+    const num = parseInt(trimmed, 10);
+    const inRange = !Number.isNaN(num) && num >= 0 && num <= 999;
+    const isPartialNumber = /^\d*$/.test(trimmed);
+    if (inRange) {
+      setInputs(prev => {
+        const next = [...(prev.typicalWeekPatientsPerDay || [0, 0, 0, 0, 0, 0, 0])];
+        next[dayIndex] = num;
+        return { ...prev, typicalWeekPatientsPerDay: next };
+      });
+    } else if (isPartialNumber) {
+      setInputs(prev => {
+        const next = [...(prev.typicalWeekPatientsPerDay || [0, 0, 0, 0, 0, 0, 0])];
+        next[dayIndex] = trimmed;
+        return { ...prev, typicalWeekPatientsPerDay: next };
+      });
+    }
+  };
+
   const handleScheduleInputModeChange = (_, value) => {
     if (value !== null) setInputs(prev => ({ ...prev, scheduleInputMode: value }));
   };
@@ -1297,9 +1350,16 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
     const hoursPerClinicDay = totalDaysPerWeek > 0 ? totalHoursPerWeek / totalDaysPerWeek : 0;
     const annualClinicalHours = annualClinicDays * hoursPerClinicDay;
 
-    const annualPatientEncounters = inputs.isPerHour
-      ? annualClinicalHours * inputs.patientsPerHour
-      : annualClinicDays * inputs.patientsPerDay;
+    let annualPatientEncounters;
+    if (useTypicalWeek) {
+      const perDayPatients = inputs.typicalWeekPatientsPerDay || [0, 0, 0, 0, 0, 0, 0];
+      const patientsPerWeekFromSchedule = weekHours.reduce((sum, h, i) => sum + (Number(h) > 0 ? (Number(perDayPatients[i]) || 0) : 0), 0);
+      annualPatientEncounters = patientsPerWeekFromSchedule * weeksWorkedPerYear;
+    } else {
+      annualPatientEncounters = inputs.isPerHour
+        ? annualClinicalHours * inputs.patientsPerHour
+        : annualClinicDays * inputs.patientsPerDay;
+    }
     const encountersPerWeek = weeksWorkedPerYear > 0 ? annualPatientEncounters / weeksWorkedPerYear : 0;
 
     // Calculate wRVUs and compensation (guard against undefined when user clears numeric inputs)
@@ -1621,6 +1681,8 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
                   typicalWeekHours={inputs.typicalWeekHours}
                   onTypicalWeekChange={handleTypicalWeekChange}
                   onClearTypicalWeek={handleClearTypicalWeek}
+                  typicalWeekPatientsPerDay={inputs.typicalWeekPatientsPerDay}
+                  onTypicalWeekPatientsChange={handleTypicalWeekPatientsChange}
                   scheduleInputMode={inputs.scheduleInputMode}
                   onScheduleInputModeChange={handleScheduleInputModeChange}
                 />
@@ -1631,11 +1693,14 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
       borderColor: 'divider' }}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                     <Typography variant="h6" sx={{ fontWeight: 'bold', color: 'primary.main' }}>Patient Encounters</Typography>
-                    <FormControlLabel
-                      control={<Switch checked={inputs.isPerHour} onChange={(e) => handleSwitchChange(e.target.checked)} />}
-                      label={inputs.isPerHour ? "Patients Per Hour" : "Patients Per Day"}
-                    />
+                    {inputs.scheduleInputMode === 'shiftTypes' && (
+                      <FormControlLabel
+                        control={<Switch checked={inputs.isPerHour} onChange={(e) => handleSwitchChange(e.target.checked)} />}
+                        label={inputs.isPerHour ? "Patients Per Hour" : "Patients Per Day"}
+                      />
+                    )}
                   </Box>
+                  {inputs.scheduleInputMode === 'shiftTypes' && (
                   <NumericFormat
                     customInput={TextField}
                     fullWidth
@@ -1709,6 +1774,7 @@ function WRVUForecastingTool({ setTotalVisits, setQuickForecastMetrics }) {
                             ),
                           }}
                   />
+                  )}
                   <NumericFormat
                     customInput={TextField}
                     fullWidth
